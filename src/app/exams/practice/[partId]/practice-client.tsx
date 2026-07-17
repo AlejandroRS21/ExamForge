@@ -28,6 +28,7 @@ interface PracticeModeClientProps {
   }[];
   attemptId: string;
   initialQuestions: QuestionDisplayData[];
+  savedAnswers?: Record<string, any>;
 }
 
 export function PracticeModeClient({
@@ -35,9 +36,10 @@ export function PracticeModeClient({
   allParts,
   attemptId,
   initialQuestions,
+  savedAnswers = {},
 }: PracticeModeClientProps) {
   const [questions] = useState(initialQuestions);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>(savedAnswers);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);

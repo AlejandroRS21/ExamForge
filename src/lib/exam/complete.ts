@@ -114,21 +114,29 @@ export async function completeAttempt(
 
   // Compute score
   const isPartial = attempt.questionCount > 0 && attempt.answers.length < attempt.questionCount;
-  const totalScore = isPartial ? null : (correctCount / attempt.questionCount) * 100;
+  const totalScore = attempt.questionCount > 0 ? (isPartial ? null : (correctCount / attempt.questionCount) * 100) : 0;
   const cambridgeScaleScore = totalScore !== null ? estimateCambridgeScale(totalScore) : null;
 
-  // Update attempt
-  const updated = await prisma.examAttempt.update({
-    where: { id: attemptId },
-    data: {
-      status,
-      completedAt: new Date(),
-      correctCount,
-      totalScore,
-      cambridgeScaleScore,
-      timeSpentSeconds: attempt.timeSpentSeconds,
-    },
-  });
+  // Compute actual timeSpentSeconds server-side from attempt.startedAt
+  const completedAt = new Date();
+  const actualTimeSeconds = attempt.startedAt
+    ? Math.floor((completedAt.getTime() - attempt.startedAt.getTime()) / 1000)
+    : 0;
+
+  // Wrap scoring and status update in transaction
+  const [updated, ..._hooks] = await prisma.$transaction([
+    prisma.examAttempt.update({
+      where: { id: attemptId },
+      data: {
+        status,
+        completedAt,
+        correctCount,
+        totalScore,
+        cambridgeScaleScore,
+        timeSpentSeconds: actualTimeSeconds,
+      },
+    }),
+  ]);
 
   // Post-completion hooks (only for registered users)
   let newAchievements: Array<{ type: string; label: string; description: string; icon: string }> | undefined;

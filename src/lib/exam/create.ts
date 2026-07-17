@@ -16,6 +16,11 @@ export interface CreateAttemptResult {
     remainingSeconds: number;
     version: number;
   };
+  answers?: {
+    id: string;
+    questionId: string;
+    givenAnswer: any;
+  }[];
 }
 
 export interface QuestionForDisplay {
@@ -92,6 +97,12 @@ export async function createPracticeAttempt(partId: string, anonymousSessionId?:
     // Resume existing attempt
     const questions = await fetchQuestionsForPart(partId, part.paper);
     const writingPrompts = part.paper === "Writing" ? await fetchWritingPrompts(partId) : [];
+    
+    // Fetch existing answers for this practice attempt
+    const existingAnswers = await prisma.answer.findMany({
+      where: { attemptId: existingAttempt.id },
+      select: { id: true, questionId: true, givenAnswer: true },
+    });
 
     return {
       attemptId: existingAttempt.id,
@@ -99,6 +110,7 @@ export async function createPracticeAttempt(partId: string, anonymousSessionId?:
       partId,
       questions,
       writingPrompts,
+      answers: existingAnswers,
     };
   }
 
@@ -119,6 +131,12 @@ export async function createPracticeAttempt(partId: string, anonymousSessionId?:
 
   const questions = await fetchQuestionsForPart(partId, part.paper);
   const writingPrompts = part.paper === "Writing" ? await fetchWritingPrompts(partId) : [];
+  
+  // Fetch created attempt's answers
+  const answers = await prisma.answer.findMany({
+    where: { attemptId: attempt.id },
+    select: { id: true, questionId: true, givenAnswer: true },
+  });
 
   return {
     attemptId: attempt.id,
@@ -126,6 +144,7 @@ export async function createPracticeAttempt(partId: string, anonymousSessionId?:
     partId,
     questions,
     writingPrompts,
+    answers,
   };
 }
 

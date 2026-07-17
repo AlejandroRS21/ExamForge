@@ -44,7 +44,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Attempt not found" }, { status: 404 });
     }
 
-    if (attempt.userId && attempt.userId !== userId) {
+    // Handle both authenticated and anonymous attempts
+    if (attempt.userId) {
+      // Registered attempt — check userId matches
+      if (attempt.userId !== userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+    } else if (attempt.anonymousSessionId) {
+      // Anonymous attempt — check anonymousSessionId matches
+      const anonymousSessionIdFromHeader = request.headers.get('x-anonymous-session-id');
+      if (!anonymousSessionIdFromHeader || anonymousSessionIdFromHeader !== attempt.anonymousSessionId) {
+        return NextResponse.json({ error: "Unauthorized - not the owner of this attempt" }, { status: 403 });
+      }
+    } else {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -71,6 +83,7 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
+    const session = await auth();
     const url = new URL(request.url);
     const attemptId = url.searchParams.get("attemptId");
 
@@ -90,11 +103,33 @@ export async function GET(request: Request) {
         questionCount: true,
         totalScore: true,
         cambridgeScaleScore: true,
+        userId: true,
+        anonymousSessionId: true,
       },
     });
 
     if (!attempt) {
       return NextResponse.json({ error: "Attempt not found" }, { status: 404 });
+    }
+
+    // Add auth and ownership check
+    const userId = session?.user?.id;
+    // Handle both authenticated and anonymous attempts
+    if (attempt.userId) {
+      // Registered attempt — check userId matches
+      if (attempt.userId !== userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+    } else if (attempt.anonymousSessionId) {
+      // Anonymous attempt — check anonymousSessionId matches
+      const anonymousSessionIdFromHeader = request.headers.get('x-anonymous-session-id');
+      if (!anonymousSessionIdFromHeader || anonymousSessionIdFromHeader !== attempt.anonymousSessionId) {
+        return NextResponse.json({ error: "Unauthorized - not the owner of this attempt" }, { status: 403 });
+      }
+    }
+    // If neither userId nor anonymousSessionId — deny (shouldn't happen)
+    if (!attempt.userId && !attempt.anonymousSessionId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     return NextResponse.json(attempt);

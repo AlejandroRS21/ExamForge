@@ -48,7 +48,13 @@ export default async function PracticePartPage({ params }: PracticePartPageProps
   });
 
   // Create or resume practice attempt
-  const attempt = await createPracticeAttempt(partId);
+  const practiceAttempt = await createPracticeAttempt(partId);
+
+  // Fetch saved answers from the attempt
+  const savedAnswers: Record<string, any> = {};
+  for (const a of practiceAttempt.answers ?? []) {
+    savedAnswers[a.questionId] = a.givenAnswer;
+  }
 
   if (part.paper === "Writing") {
     // Writing practice — show prompt + editor
@@ -66,7 +72,7 @@ export default async function PracticePartPage({ params }: PracticePartPageProps
       <WritingPracticeView
         part={part}
         allParts={allParts}
-        attemptId={attempt.attemptId}
+        attemptId={practiceAttempt.attemptId}
         prompts={writingPrompts}
       />
     );
@@ -77,8 +83,9 @@ export default async function PracticePartPage({ params }: PracticePartPageProps
     <PracticeModeClient
       part={part}
       allParts={allParts}
-      attemptId={attempt.attemptId}
-      initialQuestions={attempt.questions}
+      attemptId={practiceAttempt.attemptId}
+      initialQuestions={practiceAttempt.questions}
+      savedAnswers={savedAnswers}
     />
   );
 }

@@ -37,6 +37,7 @@ export async function POST(request: Request) {
         status: true,
         userId: true,
         anonymousSessionId: true,
+        partId: true,
       },
     });
 
@@ -63,6 +64,11 @@ export async function POST(request: Request) {
     if (!question) {
       return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
+    
+    // Verify question belongs to attempt's part
+    if (question.examPartId !== attempt.partId) {
+      return NextResponse.json({ error: "Question does not belong to this attempt's part" }, { status: 403 });
+    }
 
     // Upsert answer
     const answer = await prisma.answer.upsert({
@@ -84,15 +90,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update time spent on the attempt
-    await prisma.examAttempt.update({
-      where: { id: attemptId },
-      data: {
-        timeSpentSeconds: {
-          increment: timeSpentSeconds ?? 0,
-        },
-      },
-    });
+    // Time spent will be calculated server-side when completeAttempt is called
+    // No longer update time here to avoid double counting
 
     return NextResponse.json({
       success: true,

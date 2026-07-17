@@ -24,6 +24,16 @@ function cleanup(): void {
   }
 }
 
+// Add TTL cleanup on every access to make the Map store more robust
+function cleanupExpired(): void {
+  const now = Date.now();
+  for (const [key, entry] of store) {
+    if (now >= entry.resetAt) {
+      store.delete(key);
+    }
+  }
+}
+
 export interface RateLimitResult {
   success: boolean;
   remaining: number;
@@ -44,6 +54,7 @@ export function checkRateLimit(
   windowMs: number = 15 * 60 * 1000,
 ): RateLimitResult {
   cleanup();
+  cleanupExpired(); // Additional cleanup on each access for better TTL handling
 
   const now = Date.now();
   const entry = store.get(key);

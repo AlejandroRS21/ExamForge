@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import bcrypt from "bcryptjs";
+
 
 const passwordPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
@@ -62,11 +62,17 @@ export function RegisterForm() {
 
     setIsLoading(true);
     try {
+      // Get anonymousSessionId cookie value
+      const anonymousSessionId = document.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('anonymousSessionId='))
+        ?.split('=')[1];
+
       // Register via API
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, anonymousSessionId: anonymousSessionId || undefined }),
       });
 
       const data = await res.json();
