@@ -1,0 +1,369 @@
+// ExamForge — Prisma Schema
+// Cambridge B2 First Practice Platform
+// All 12 domain models + Auth.js (NextAuth v5) models
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth.js (NextAuth v5) Models ───────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Domain Models ──────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum AttemptType {
+  PRACTICE
+  MOCK
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  TIMED_OUT
+}
+
+enum QuestionType {
+  MC        // Multiple-choice cloze  — Part 1
+  CLOZE     // Open cloze            — Part 2
+  WF        // Word formation        — Part 3
+  KT        // Key word transformation — Part 4
+  GT        // Gapped text           — Part 5
+  MM        // Multiple matching     — Part 6 & 7
+}
+
+enum QuestionDifficulty {
+  A // B2 Easy
+  B // B2 Standard
+  C // B2 Challenge
+}
+
+enum QuestionStatus {
+  DRAFT
+  ACTIVE
+  REJECTED
+}
+
+enum AchievementType {
+  FIRST_STEPS
+  PERFECT_PART
+  THE_80_CLUB
+  DEDICATED
+  STREAK_MASTER
+  SPEED_DEMON
+}
+
+enum GoalType {
+  ACCURACY
+  STREAK
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  userId      String
+  type        GoalType
+  targetValue Int
+  currentValue Int     @default(0)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  achieved    Boolean  @default(false)
+  achievedAt  DateTime?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  passwordHash      String?   // bcrypt hash, null for OAuth-only users
+  role              Role      @default(USER)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  accounts          Account[]
+  sessions          Session[]
+
+  examAttempts      ExamAttempt[]
+  skillProfiles     SkillProfile[]
+  dailyStreak       DailyStreak?
+  achievements      Achievement[]
+  challengeEntries  ChallengeParticipation[]
+  questionEdits     QuestionEdit[]
+  goals             Goal[]
+}
+
+model ExamPart {
+  id          String       @id @default(cuid())
+  label       String       // "R&UoE Part 1", "R&UoE Part 2", etc.
+  paper       String       // "R&UoE" | "Writing"
+  partNumber  Int          // 1-7 for R&UoE, 1-2 for Writing
+  description String?
+  timeMinutes Int          // Allowed time for this part
+  questionCount Int
+  sortOrder   Int
+
+  questions       Question[]
+  writingPrompts  WritingPrompt[]
+  examAttempts    ExamAttempt[]
+  skillProfiles   SkillProfile[]
+
+  @@index([paper, partNumber])
+  @@index([sortOrder])
+}
+
+model Question {
+  id             String             @id @default(cuid())
+  examPartId     String
+  type           QuestionType
+  prompt         Json               // Question text, reading passage, images, etc.
+  options        Json?              // For MC: choices. Null for open types.
+  correctAnswer  Json               // Type-dependent:
+                                    //   MC: string
+                                    //   CLOZE: string[]
+                                    //   WF: string[]
+                                    //   KT: { keyword: string, acceptable: string[] }
+                                    //   GT: string[] (ordered sequence)
+                                    //   MM: string[] (unordered set)
+  explanation    String?
+  difficulty     QuestionDifficulty @default(B)
+  aiGenerated    Boolean            @default(false)
+  status         QuestionStatus     @default(DRAFT)
+  skillsTested   String[]           // e.g. ["vocabulary", "grammar", "collocations"]
+  version        Int                @default(1)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  examPart       ExamPart           @relation(fields: [examPartId], references: [id])
+
+  answers        Answer[]
+  edits          QuestionEdit[]
+
+  @@index([examPartId])
+  @@index([type, status])
+  @@index([status])
+}
+
+model ExamAttempt {
+  id                  String        @id @default(cuid())
+  userId              String?
+  anonymousSessionId  String?
+  type                AttemptType
+  status              AttemptStatus @default(IN_PROGRESS)
+  partId              String?       // null for full mock
+  startedAt           DateTime      @default(now())
+  completedAt         DateTime?
+  timeSpentSeconds    Int           @default(0)
+  questionCount       Int           @default(0)
+  correctCount        Int           @default(0)
+  totalScore          Float?
+  cambridgeScaleScore Int?
+  createdAt           DateTime      @default(now())
+
+  user                User?         @relation(fields: [userId], references: [id])
+  examPart            ExamPart?     @relation(fields: [partId], references: [id])
+  timeTracker         TimeTracker?
+  answers             Answer[]
+  writingSubmissions  WritingSubmission[]
+  challengeEntries    ChallengeParticipation[]
+
+  @@index([userId])
+  @@index([anonymousSessionId])
+  @@index([userId, status])
+  @@index([anonymousSessionId, status])
+}
+
+model Answer {
+  id               String   @id @default(cuid())
+  attemptId        String
+  questionId       String
+  givenAnswer      Json     // Type-dependent (same shape as correctAnswer)
+  isCorrect        Boolean?
+  timeSpentSeconds Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  attempt          ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question         Question   @relation(fields: [questionId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model TimeTracker {
+  id               String   @id @default(cuid())
+  attemptId        String   @unique
+  remainingSeconds Int
+  lastHeartbeatAt  DateTime @default(now())
+  version          Int      @default(1)
+
+  attempt          ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+}
+
+model SkillProfile {
+  id             String   @id @default(cuid())
+  userId         String
+  partId         String
+  attemptsCount  Int      @default(0)
+  accuracy       Float    @default(0)
+  avgTimeSeconds Float    @default(0)
+  lastAttemptAt  DateTime?
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examPart       ExamPart @relation(fields: [partId], references: [id])
+
+  @@unique([userId, partId])
+  @@index([userId])
+}
+
+model DailyStreak {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActiveDate DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id         String          @id @default(cuid())
+  userId     String
+  type       AchievementType
+  unlockedAt DateTime        @default(now())
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+}
+
+model QuestionEdit {
+  id         String   @id @default(cuid())
+  questionId String
+  editorId   String
+  changes    Json     // Diff snapshot: { field: { before, after }, ... }
+  createdAt  DateTime @default(now())
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  editor     User     @relation(fields: [editorId], references: [id])
+
+  @@index([questionId])
+  @@index([editorId])
+  @@index([createdAt])
+}
+
+model ChallengeParticipation {
+  id          String   @id @default(cuid())
+  challengeId String
+  userId      String
+  attemptId   String?
+  score       Int      @default(0)
+  rank        Int?
+  createdAt   DateTime @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attempt     ExamAttempt?  @relation(fields: [attemptId], references: [id])
+
+  @@index([challengeId, score])
+  @@index([userId])
+  @@index([challengeId, userId])
+}
+
+model WritingPrompt {
+  id           String   @id @default(cuid())
+  examPartId   String
+  prompt       String   // The writing task text
+  wordCountMin Int
+  wordCountMax Int
+  rubric       Json     // JSON structure for 4-criterion evaluation
+  createdAt    DateTime @default(now())
+
+  examPart     ExamPart          @relation(fields: [examPartId], references: [id])
+  submissions  WritingSubmission[]
+
+  @@index([examPartId])
+}
+
+model WritingSubmission {
+  id              String   @id @default(cuid())
+  attemptId       String
+  writingPromptId String
+  content         String   @db.Text
+  wordCount       Int      @default(0)
+  scores          Json?    // { content: 0-5, ca: 0-5, organisation: 0-5, language: 0-5 }
+  feedback        Json?    // AI-generated per-criterion feedback
+  submittedAt     DateTime @default(now())
+
+  attempt         ExamAttempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  writingPrompt   WritingPrompt @relation(fields: [writingPromptId], references: [id])
+
+  @@unique([attemptId, writingPromptId])
+  @@index([attemptId])
+  @@index([writingPromptId])
+}
