@@ -106,6 +106,28 @@ export const setGoalSchema = z.object({
   target: z.number().int().min(1).max(100),
 });
 
+// ─── NotebookLM Schemas ─────────────────────────────────────────────────────
+
+export const generateContentSchema = z.object({
+  sourceType: z.enum(["URL", "TEXT", "YOUTUBE"]),
+  sourceData: z.string().min(1, "Source data is required"),
+  contentType: z.enum(["QUIZ", "AUDIO", "FLASHCARDS"]),
+});
+
+export const reviewContentSchema = z.object({
+  action: z.enum(["APPROVE", "REJECT"]),
+  reason: z.string().optional(),
+});
+
+export const audioSubmitSchema = z.object({
+  answers: z.record(z.string(), z.string()),
+});
+
+export const flashcardReviewSchema = z.object({
+  cardId: z.string().cuid(),
+  quality: z.number().int().min(0).max(5),
+});
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -121,3 +143,7 @@ export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
 export type UpsertPartInput = z.infer<typeof upsertPartSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
 export type SetGoalInput = z.infer<typeof setGoalSchema>;
+export type GenerateContentInput = z.infer<typeof generateContentSchema>;
+export type ReviewContentInput = z.infer<typeof reviewContentSchema>;
+export type AudioSubmitInput = z.infer<typeof audioSubmitSchema>;
+export type FlashcardReviewInput = z.infer<typeof flashcardReviewSchema>;

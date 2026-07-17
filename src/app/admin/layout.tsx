@@ -8,7 +8,9 @@ import { redirect } from "next/navigation";
 const sidebarLinks = [
   { href: "/admin", label: "Dashboard", icon: "📊" },
   { href: "/admin/questions", label: "Question Bank", icon: "📝" },
-  { href: "/admin/questions/generate", label: "AI Generate", icon: "🤖" },
+  { href: "/admin/questions/generate", label: "AI Questions", icon: "🤖" },
+  { href: "/admin/generate", label: "Learning Content", icon: "🎯" },
+  { href: "/admin/review", label: "Review Queue", icon: "✅" },
   { href: "/admin/parts", label: "Exam Parts", icon: "📋" },
   { href: "/admin/users", label: "Users", icon: "👥" },
 ];
