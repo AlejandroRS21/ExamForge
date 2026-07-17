@@ -91,3 +91,66 @@
     font-family: Arial, Helvetica, sans-serif;
   }
 }
+
+/* ─── Neuroinclusive Design Tokens ─────────────────────────────────────────── */
+/* Low-saturation palette, generous spacing, clear focus, reduced motion support.
+   These tokens support ADHD/autism-friendly UX without forcing a visual redesign. */
+
+:root {
+  /* Spacing scale — generous whitespace reduces cognitive load */
+  --space-compact: 0.5rem;
+  --space-normal: 1rem;
+  --space-generous: 1.5rem;
+  --space-breathing: 2rem;
+
+  /* Focus ring — thick, high-contrast, always visible for keyboard users */
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: oklch(0.45 0.18 265);
+
+  /* Transition speed — slower transitions reduce sensory flicker */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Content max-width — prevents overwhelming line lengths */
+  --content-max-width: 72ch;
+
+  /* Line height — increased for readability */
+  --leading-relaxed: 1.75;
+  --leading-snug: 1.5;
+}
+
+/* Focus-visible: thick ring only for keyboard navigation */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 2px;
+}
+
+/* Remove focus ring for mouse/touch users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion: disable all non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  :root {
+    --focus-ring-color: Highlight;
+  }
+  :focus-visible {
+    outline: 3px solid Highlight;
+  }
+}
