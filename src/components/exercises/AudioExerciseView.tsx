@@ -188,14 +188,14 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
 
           {/* Error */}
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800" role="alert" aria-live="assertive">
               {error}
             </div>
           )}
 
           {/* Submit */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground" aria-live="polite">
               {Object.keys(answers).length} of {questions.length} answered
             </span>
             <button
@@ -212,7 +212,7 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
 
       {/* Results */}
       {submitted && result && (
-        <div className="rounded-xl border bg-card p-6 space-y-6">
+        <div className="rounded-xl border bg-card p-6 space-y-6" role="region" aria-label="Exercise results" aria-live="polite">
           <div className="text-center space-y-2">
             <h2 className="text-lg font-semibold">Results</h2>
             <div className={`text-4xl font-bold ${scoreColor}`}>

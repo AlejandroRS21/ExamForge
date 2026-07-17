@@ -1,6 +1,6 @@
 // ExamForge — AudioPlayer Component
 // Custom audio player with play/pause, seek progress bar, and speed control
-// HTML5 Audio API — accessible keyboard controls
+// HTML5 Audio API — accessible keyboard controls (Space, arrows, Shift+arrows)
 
 "use client";
 
@@ -18,6 +18,8 @@ interface AudioPlayerProps {
 }
 
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5] as const;
+const SEEK_STEP = 5; // seconds per arrow key press
+const SEEK_STEP_LARGE = 10; // seconds per Shift+arrow press
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return "0:00";
@@ -33,6 +35,7 @@ export function AudioPlayer({
   className = "",
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(propDuration ?? 0);
@@ -102,6 +105,46 @@ export function AudioPlayer({
     }
   }, [playbackRate]);
 
+  // ─── Keyboard Controls ────────────────────────────────────────
+  // Space = play/pause, Left/Right = seek ±5s, Shift+Left/Right = seek ±10s
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      // Only handle when focus is within the player
+      if (!container.contains(e.target as Node)) return;
+
+      switch (e.key) {
+        case " ":
+          e.preventDefault();
+          if (isPlaying) {
+            audio.pause();
+          } else {
+            audio.play().catch(() => {});
+          }
+          break;
+
+        case "ArrowLeft":
+          e.preventDefault();
+          audio.currentTime = Math.max(0, audio.currentTime - (e.shiftKey ? SEEK_STEP_LARGE : SEEK_STEP));
+          break;
+
+        case "ArrowRight":
+          e.preventDefault();
+          audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (e.shiftKey ? SEEK_STEP_LARGE : SEEK_STEP));
+          break;
+      }
+    };
+
+    container.addEventListener("keydown", handleKeyDown);
+    return () => container.removeEventListener("keydown", handleKeyDown);
+  }, [isPlaying]);
+
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -129,21 +172,38 @@ export function AudioPlayer({
     setPlaybackRate(SPEED_OPTIONS[nextIndex]);
   }, [playbackRate]);
 
+  const rewind10 = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.max(0, audio.currentTime - 10);
+  }, []);
+
+  const forward10 = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
+  }, []);
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   if (!audioUrl) {
     return (
-      <div className={`rounded-xl border bg-muted/10 p-8 text-center text-sm text-muted-foreground ${className}`}>
-        Audio content is being prepared.
+      <div className={`rounded-xl border bg-muted/10 p-8 text-center text-sm text-muted-foreground ${className}`} role="status" aria-label="Audio loading">
+        <div className="space-y-2">
+          <div className="h-8 w-8 mx-auto rounded-full bg-muted animate-pulse" aria-hidden="true" />
+          <p>Audio content is being prepared.</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div
+      ref={containerRef}
       className={`rounded-xl border bg-card p-4 space-y-3 ${className}`}
       role="region"
       aria-label="Audio player"
+      tabIndex={-1}
     >
       {/* Hidden audio element */}
       <audio
@@ -223,29 +283,22 @@ export function AudioPlayer({
         </button>
       </div>
 
-      {/* Keyboard shortcut hint */}
-      <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60">
+      {/* Keyboard shortcut hints */}
+      <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60" aria-label="Keyboard shortcuts">
         <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Space</kbd> Play/Pause</span>
-        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">←</kbd> <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">→</kbd> Seek</span>
+        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">←</kbd> <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">→</kbd> Seek ±5s</span>
+        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Shift</kbd>+<kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">←</kbd> <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">→</kbd> Seek ±10s</span>
         <button
-          onClick={() => {
-            const audio = audioRef.current;
-            if (!audio) return;
-            audio.currentTime = Math.max(0, audio.currentTime - 10);
-          }}
-          className="hover:text-foreground transition-colors"
+          onClick={rewind10}
+          className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Rewind 10 seconds"
           type="button"
         >
           -10s
         </button>
         <button
-          onClick={() => {
-            const audio = audioRef.current;
-            if (!audio) return;
-            audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
-          }}
-          className="hover:text-foreground transition-colors"
+          onClick={forward10}
+          className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Forward 10 seconds"
           type="button"
         >

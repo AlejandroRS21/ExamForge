@@ -302,7 +302,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(0)}
               disabled={submitting}
-              className="rounded-lg bg-red-500 px-3 py-3 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="rounded-lg bg-red-600 px-3 py-3 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
               aria-label="Rate Again — card will be shown again today"
               type="button"
             >
@@ -312,7 +312,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(1)}
               disabled={submitting}
-              className="rounded-lg bg-orange-500 px-3 py-3 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              className="rounded-lg bg-orange-600 px-3 py-3 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               aria-label="Rate Hard — card will be shown again tomorrow"
               type="button"
             >
@@ -322,7 +322,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(2)}
               disabled={submitting}
-              className="rounded-lg bg-green-500 px-3 py-3 text-sm font-medium text-white hover:bg-green-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="rounded-lg bg-green-600 px-3 py-3 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               aria-label="Rate Good — card scheduled for review in 1-3 days"
               type="button"
             >
@@ -332,7 +332,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(3)}
               disabled={submitting}
-              className="rounded-lg bg-blue-500 px-3 py-3 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="rounded-lg bg-blue-600 px-3 py-3 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               aria-label="Rate Easy — card scheduled for longer review interval"
               type="button"
             >
