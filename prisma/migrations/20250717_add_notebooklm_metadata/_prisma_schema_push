@@ -1,0 +1,12 @@
+# Schema push for migration
+
+-- Add notebookId, artifactId, elapsed to GeneratedContent
+ALTER TABLE "GeneratedContent" ADD COLUMN IF NOT EXISTS "notebookId" VARCHAR;
+ALTER TABLE "GeneratedContent" ADD COLUMN IF NOT EXISTS "artifactId" VARCHAR;
+ALTER TABLE "GeneratedContent" ADD COLUMN IF NOT EXISTS "elapsed" INTEGER;
+
+-- Add audioUrl to AudioExercise
+ALTER TABLE "AudioExercise" ADD COLUMN IF NOT EXISTS "downloadUrl" VARCHAR;
+
+-- Add topics to FlashcardDeck
+ALTER TABLE "FlashcardDeck" ADD COLUMN IF NOT EXISTS "topics" TEXT;

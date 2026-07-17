@@ -383,6 +383,7 @@ enum ContentType {
   QUIZ
   AUDIO
   FLASHCARDS
+  MINDMAP
 }
 
 enum GenerationStatus {
@@ -410,6 +411,9 @@ model GeneratedContent {
   errorMessage String?
   createdAt    DateTime         @default(now())
   createdById  String
+  notebookId   String?
+  artifactId   String?
+  elapsed      Int?
 
   createdBy    User             @relation(fields: [createdById], references: [id])
   reviewer     User?            @relation("ReviewedContent", fields: [reviewedById], references: [id])
@@ -421,6 +425,8 @@ model GeneratedContent {
   @@index([contentType])
   @@index([status, contentType])
   @@index([createdAt])
+  @@index([notebookId])
+  @@index([artifactId])
 }
 
 model AudioExercise {

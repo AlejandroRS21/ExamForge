@@ -35,6 +35,50 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+// ─── Mock MCP Client ────────────────────────────────────────────────────────
+// Mock the MCP client to avoid calling real nlm CLI in tests
+
+const { MockMCPClient, MockMCPClientError } = vi.hoisted(() => {
+  class MockMCPClient {
+    createStudioArtifact = vi.fn().mockResolvedValue({ id: "artifact-123" });
+    pollArtifactStatus = vi.fn().mockResolvedValue({
+      status: "COMPLETED",
+      title: "Generated Content",
+      transcript: "Test transcript",
+      duration: 180,
+      questions: [],
+      cards: [],
+    });
+    queryNotebook = vi.fn().mockResolvedValue({
+      title: "Query Result",
+      questions: [],
+      cards: [],
+    });
+    listNotebooks = vi.fn().mockResolvedValue([]);
+    listSources = vi.fn().mockResolvedValue([]);
+    addSource = vi.fn().mockResolvedValue({ id: "source-123" });
+    checkAuth = vi.fn().mockResolvedValue({ authenticated: true });
+  }
+
+  class MockMCPClientError extends Error {
+    type: string;
+    code: number;
+    constructor(message: string, type: string = "unknown", code: number = 500) {
+      super(message);
+      this.name = "MCPClientError";
+      this.type = type;
+      this.code = code;
+    }
+  }
+
+  return { MockMCPClient, MockMCPClientError };
+});
+
+vi.mock("./mcp-client", () => ({
+  MCPClient: MockMCPClient,
+  MCPClientError: MockMCPClientError,
+}));
+
 // ─── Import after mock ───────────────────────────────────────────────────────
 
 import { generateContent, getGenerationStatus, reviewContent } from "./generate";

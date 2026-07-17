@@ -1,21 +1,34 @@
 // ExamForge — Prisma client singleton
 // Server-only module — never import this in client components
-// Uses Neon serverless adapter for edge compatibility
+// Uses Neon serverless adapter when connecting to Neon (edge-compatible)
+// Uses @prisma/adapter-pg for local PostgreSQL (Docker)
 
-import { neonConfig } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@/generated/prisma/client";
-
-// Configure Neon for serverless
-neonConfig.poolQueryViaFetch = true;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function isNeonUrl(url: string): boolean {
+  return url.includes("neon.tech") || url.includes("neondb");
+}
+
 function createPrismaClient(): PrismaClient {
-  const poolConfig = { connectionString: process.env.DATABASE_URL! };
-  const adapter = new PrismaNeon(poolConfig);
+  const databaseUrl = process.env.DATABASE_URL ?? "";
+  const isNeon = isNeonUrl(databaseUrl);
+
+  if (isNeon) {
+    // Neon: use serverless adapter for edge compatibility
+    const { neonConfig } = require("@neondatabase/serverless");
+    const { PrismaNeon } = require("@prisma/adapter-neon");
+    neonConfig.poolQueryViaFetch = true;
+    const adapter = new PrismaNeon({ connectionString: databaseUrl });
+    return new PrismaClient({ adapter });
+  }
+
+  // Local PostgreSQL (Docker): use pg adapter for direct TCP connection
+  const { PrismaPg } = require("@prisma/adapter-pg");
+  const adapter = new PrismaPg({ connectionString: databaseUrl });
   return new PrismaClient({ adapter });
 }
 

@@ -17,6 +17,7 @@ describe("generateContentSchema", () => {
       sourceType: "URL",
       sourceData: "https://example.com/article",
       contentType: "QUIZ",
+      createdById: "clabc123def456",
     });
     expect(result.success).toBe(true);
   });
@@ -26,6 +27,7 @@ describe("generateContentSchema", () => {
       sourceType: "TEXT",
       sourceData: "A long text source for generating audio content...",
       contentType: "AUDIO",
+      createdById: "clabc123def456",
     });
     expect(result.success).toBe(true);
   });
@@ -35,6 +37,7 @@ describe("generateContentSchema", () => {
       sourceType: "YOUTUBE",
       sourceData: "https://youtube.com/watch?v=abc123",
       contentType: "FLASHCARDS",
+      createdById: "clabc123def456",
     });
     expect(result.success).toBe(true);
   });

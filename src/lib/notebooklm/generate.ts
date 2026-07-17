@@ -1,8 +1,8 @@
 // ExamForge — NotebookLM Generation Service
 // Wraps NotebookLM MCP calls to generate interactive learning content.
-// MOCK implementation — replace with real MCP calls when NotebookLM MCP is fully operational.
 
 import prisma from "@/lib/prisma";
+import { MCPClient, MCPClientError } from "./mcp-client";
 import type {
   SourceType,
   ContentType,
@@ -20,6 +20,7 @@ export interface GenerateRequest {
   sourceData: string;
   contentType: ContentType;
   createdById: string;
+  notebookId?: string;
 }
 
 export interface GenerateResponse {
@@ -34,106 +35,18 @@ export interface StatusResponse {
   errorMessage: string | null;
   audioExercise: Pick<AudioExercise, "id" | "title" | "status"> | null;
   flashcardDeck: Pick<FlashcardDeck, "id" | "title" | "cardCount"> | null;
+  notebookId?: string;
+  artifactId?: string;
+  elapsed?: number;
 }
 
-// ─── NotebookLM MCP Mock ───────────────────────────────────────────────────
-// Replace these mock functions with actual NotebookLM MCP API calls.
-// The NotebookLM MCP server is available at localhost with auth configured.
+// ─── NotebookLM MCP Integration ──────────────────────────────────────────────
 
-interface MockMCPResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
-
-/**
- * Mock call to NotebookLM MCP for content generation.
- * In production, this would call the NotebookLM MCP tools:
- * - notebooklm_source_add to add the source
- * - notebooklm_notebook_query to generate content
- * - notebooklm_studio_create for audio/flashcards
- */
-async function callNotebookLM(
-  sourceType: SourceType,
-  sourceData: string,
-  contentType: ContentType,
-): Promise<MockMCPResponse> {
-  // Simulate processing delay
-  await new Promise((r) => setTimeout(r, 1000));
-
-  // Mock response based on content type
-  switch (contentType) {
-    case "QUIZ":
-      return {
-        success: true,
-        data: {
-          type: "quiz",
-          title: `Quiz from ${sourceType.toLowerCase()} source`,
-          questions: [
-            {
-              id: "q1",
-              question: "What is the main topic of the source?",
-              options: ["Option A", "Option B", "Option C", "Option D"],
-              correctAnswer: 0,
-            },
-            {
-              id: "q2",
-              question: "Which key point is emphasized in the source?",
-              options: ["Point 1", "Point 2", "Point 3", "Point 4"],
-              correctAnswer: 1,
-            },
-            {
-              id: "q3",
-              question: "What conclusion can be drawn from the source?",
-              options: ["Conclusion A", "Conclusion B", "Conclusion C", "Conclusion D"],
-              correctAnswer: 2,
-            },
-          ],
-        },
-      };
-
-    case "AUDIO":
-      return {
-        success: true,
-        data: {
-          type: "audio",
-          title: "Generated Audio Exercise",
-          transcript: "This is a placeholder transcript for the generated audio exercise. In production, NotebookLM would generate an audio overview from the source material.",
-          duration: 180,
-          questions: [
-            { id: "aq1", question: "What is mentioned first?", correctAnswer: "A", type: "MC", options: ["A) The speaker's background", "B) The main course topic", "C) Course requirements", "D) The schedule"], timestamp: 15 },
-            { id: "aq2", question: "What key example is given?", correctAnswer: "B", type: "MC", options: ["A) Example one", "B) Example two", "C) Example three", "D) Example four"], timestamp: 60 },
-            { id: "aq3", question: "What is the main conclusion?", correctAnswer: "C", type: "MC", options: ["A) Conclusion one", "B) Conclusion two", "C) Conclusion three", "D) Conclusion four"], timestamp: 120 },
-          ],
-        },
-      };
-
-    case "FLASHCARDS":
-      return {
-        success: true,
-        data: {
-          type: "flashcards",
-          title: "Flashcard Deck",
-          cards: [
-            { front: "Key Concept 1", back: "Definition and explanation of concept 1", hint: "Think about the main idea" },
-            { front: "Key Concept 2", back: "Definition and explanation of concept 2", hint: "Consider the examples" },
-            { front: "Key Concept 3", back: "Definition and explanation of concept 3", hint: "Remember the context" },
-            { front: "Key Concept 4", back: "Definition and explanation of concept 4", hint: "Focus on the details" },
-            { front: "Key Concept 5", back: "Definition and explanation of concept 5", hint: "Think about applications" },
-          ],
-        },
-      };
-
-    default:
-      return { success: false, error: `Unsupported content type: ${contentType}` };
-  }
-}
-
-// ─── Service Functions ──────────────────────────────────────────────────────
+const mcpClient = new MCPClient();
 
 /**
  * Generate content via NotebookLM MCP and store the result in the database.
- * Creates a GeneratedContent record, calls the MCP mock, and updates the record.
+ * Creates a GeneratedContent record, calls the MCP client, and updates the record.
  * Returns the generation ID and initial status.
  */
 export async function generateContent(request: GenerateRequest): Promise<GenerateResponse> {
@@ -145,6 +58,7 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
       contentType: request.contentType,
       status: "PENDING",
       createdById: request.createdById,
+      notebookId: request.notebookId,
     },
   });
 
@@ -155,35 +69,217 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
   });
 
   try {
-    // Call NotebookLM (mock)
-    const result = await callNotebookLM(request.sourceType, request.sourceData, request.contentType);
+    // Handle different content types through MCP
+    let result;
+    switch (request.contentType) {
+      case "AUDIO": {
+        // Create audio artifact through MCP
+        const artifact = await mcpClient.createStudioArtifact(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "audio"
+        );
+        
+        // Poll for completion
+        const pollStart = Date.now();
+        let pollResult = await mcpClient.pollArtifactStatus(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          artifact.id
+        );
+        
+        let elapsed = Date.now() - pollStart;
+        
+        while (pollResult.status === "PROCESSING" && elapsed < 300000) { // 5 minute timeout
+          await new Promise(resolve => setTimeout(resolve, 5000)); // Poll every 5 seconds
+          pollResult = await mcpClient.pollArtifactStatus(
+            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+            artifact.id
+          );
+          elapsed = Date.now() - pollStart;
+        }
+        
+        if (pollResult.status !== "COMPLETED") {
+          throw new MCPClientError("Audio generation failed or timed out", "unknown", 500);
+        }
 
-    if (!result.success) {
-      throw new Error(result.error ?? "NotebookLM generation failed");
+        result = {
+          type: "audio",
+          title: pollResult.title || "Generated Audio Exercise",
+          transcript: pollResult.transcript || null,
+          duration: pollResult.duration || null,
+          questions: pollResult.questions || [],
+        };
+        break;
+      }
+
+      case "FLASHCARDS": {
+        // Create flashcards artifact through MCP
+        const artifact = await mcpClient.createStudioArtifact(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "flashcards"
+        );
+
+        // Poll for completion
+        const pollStart = Date.now();
+        let pollResult = await mcpClient.pollArtifactStatus(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          artifact.id
+        );
+        
+        let elapsed = Date.now() - pollStart;
+        
+        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          pollResult = await mcpClient.pollArtifactStatus(
+            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+            artifact.id
+          );
+          elapsed = Date.now() - pollStart;
+        }
+
+        if (pollResult.status !== "COMPLETED") {
+          throw new MCPClientError("Flashcards generation failed or timed out", "unknown", 500);
+        }
+
+        // Query for flashcards content
+        const queryResult = await mcpClient.queryNotebook(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "generate flashcards about the source material"
+        );
+
+        result = {
+          type: "flashcards",
+          title: queryResult.title || "Flashcard Deck",
+          cards: queryResult.cards || [],
+        };
+        break;
+      }
+
+      case "QUIZ": {
+        // Create quiz artifact through MCP
+        const artifact = await mcpClient.createStudioArtifact(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "quiz"
+        );
+
+        // Poll for completion
+        const pollStart = Date.now();
+        let pollResult = await mcpClient.pollArtifactStatus(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          artifact.id
+        );
+        
+        let elapsed = Date.now() - pollStart;
+        
+        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          pollResult = await mcpClient.pollArtifactStatus(
+            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+            artifact.id
+          );
+          elapsed = Date.now() - pollStart;
+        }
+
+        if (pollResult.status !== "COMPLETED") {
+          throw new MCPClientError("Quiz generation failed or timed out", "unknown", 500);
+        }
+
+        // Query for quiz content
+        const queryResult = await mcpClient.queryNotebook(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "generate quiz questions about the source material"
+        );
+
+        result = {
+          type: "quiz",
+          title: queryResult.title || "Generated Quiz",
+          questions: queryResult.questions || [],
+        };
+        break;
+      }
+
+      case "MINDMAP": {
+        // Create mindmap artifact through MCP
+        const artifact = await mcpClient.createStudioArtifact(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "mindmap"
+        );
+
+        // Poll for completion
+        const pollStart = Date.now();
+        let pollResult = await mcpClient.pollArtifactStatus(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          artifact.id
+        );
+        
+        let elapsed = Date.now() - pollStart;
+        
+        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          pollResult = await mcpClient.pollArtifactStatus(
+            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+            artifact.id
+          );
+          elapsed = Date.now() - pollStart;
+        }
+
+        if (pollResult.status !== "COMPLETED") {
+          throw new MCPClientError("Mindmap generation failed or timed out", "unknown", 500);
+        }
+
+        // Query for mindmap content
+        const queryResult = await mcpClient.queryNotebook(
+          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
+          "generate mind map about the source material"
+        );
+
+        result = {
+          type: "mindmap",
+          title: queryResult.title || "Generated Mind Map",
+          structure: queryResult.structure || [],
+        };
+        break;
+      }
+
+      default:
+        throw new MCPClientError(`Unsupported content type: ${request.contentType}`, "unknown", 400);
     }
 
-    // Store the raw response and mark as COMPLETED
+    // Update the generation record with results
     await prisma.generatedContent.update({
       where: { id: content.id },
       data: {
         status: "COMPLETED",
-        rawResponse: result.data,
+        rawResponse: result,
+        artifactId: result.artifactId || null,
+        elapsed: result.elapsed || null,
       },
     });
 
     return { id: content.id, status: "COMPLETED" };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error during generation";
+    let status: GenerationStatus = "FAILED";
+    let errorCode = 500;
 
+    // Handle MCPClientError specifically
+    if (error instanceof MCPClientError) {
+      if (error.type === "rateLimited") status = "FAILED";
+      else if (error.type === "authExpired") status = "FAILED";
+      else if (error.type === "notFound") status = "FAILED";
+      else status = "FAILED";
+      errorCode = error.code || 500;
+    }
+
+    // Update the generation record with error
     await prisma.generatedContent.update({
       where: { id: content.id },
       data: {
-        status: "FAILED",
-        errorMessage,
+        status,
+        errorMessage: errorMessage,
       },
     });
 
-    return { id: content.id, status: "FAILED" };
+    return { id: content.id, status };
   }
 }
 
@@ -215,6 +311,9 @@ export async function getGenerationStatus(id: string): Promise<StatusResponse | 
     errorMessage: content.errorMessage,
     audioExercise: content.audioExercise,
     flashcardDeck: content.flashcardDecks[0] ?? null,
+    notebookId: content.notebookId,
+    artifactId: content.artifactId,
+    elapsed: content.elapsed,
   };
 }
 
@@ -310,6 +409,17 @@ export async function reviewContent(
       case "QUIZ": {
         // Quiz content is stored in rawResponse; no additional model yet.
         // Future: create a QuizResult or QuestionSet model.
+        break;
+      }
+
+      case "MINDMAP": {
+        // Create MindMap record or handle mindmap-specific storage
+        await prisma.generatedContent.update({
+          where: { id },
+          data: {
+            // Store mindmap-specific data
+          },
+        });
         break;
       }
 

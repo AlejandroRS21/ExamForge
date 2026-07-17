@@ -35,8 +35,18 @@ export const registerSchema = z
 export const answerSubmitSchema = z.object({
   attemptId: z.string().cuid(),
   questionId: z.string().cuid(),
-  givenAnswer: z.any(), // Type-dependent, validated per type by exam engine
+  givenAnswer: z.any().optional(), // Type-dependent, validated per type by exam engine; optional for in-progress saves
   timeSpentSeconds: z.number().int().min(0).max(3600).default(0),
+});
+
+// NotebookLM MCP Generation Schemas
+
+export const generateContentSchema = z.object({
+  sourceType: z.enum(["URL", "TEXT", "YOUTUBE"]),
+  sourceData: z.string().min(1, "Source data is required"),
+  contentType: z.enum(["QUIZ", "AUDIO", "FLASHCARDS", "MINDMAP"]),
+  createdById: z.string().cuid(),
+  notebookId: z.string().optional(),
 });
 
 export const heartbeatSchema = z.object({
@@ -107,12 +117,6 @@ export const setGoalSchema = z.object({
 });
 
 // ─── NotebookLM Schemas ─────────────────────────────────────────────────────
-
-export const generateContentSchema = z.object({
-  sourceType: z.enum(["URL", "TEXT", "YOUTUBE"]),
-  sourceData: z.string().min(1, "Source data is required"),
-  contentType: z.enum(["QUIZ", "AUDIO", "FLASHCARDS"]),
-});
 
 export const reviewContentSchema = z.object({
   action: z.enum(["APPROVE", "REJECT"]),

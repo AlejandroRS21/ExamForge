@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     // Validate with Zod
     const parsed = answerSubmitSchema.safeParse(body);
     if (!parsed.success) {
+      console.error("[exams/submit] Validation failed:", JSON.stringify(body), parsed.error.issues);
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.issues },
         { status: 400 },
