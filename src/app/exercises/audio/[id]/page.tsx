@@ -1,26 +1,27 @@
 // ExamForge — Audio Exercise Student Page
 // Server component: fetches exercise data, renders AudioExerciseView client component
+// Wraps content in Suspense boundary and ErrorBoundary for resilience
 
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { AudioExerciseView } from "@/components/exercises/AudioExerciseView";
+import { ErrorBoundary } from "@/components/exercises/ErrorBoundary";
+import { AudioExerciseSkeleton } from "@/components/exercises/AudioExerciseSkeleton";
 
 interface AudioExercisePageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function AudioExercisePage({ params }: AudioExercisePageProps) {
-  const { id } = await params;
+async function AudioExerciseContent({ id }: { id: string }) {
   const session = await auth();
 
-  // Require authentication
   if (!session?.user) {
     redirect(`/auth/login?callbackUrl=/exercises/audio/${id}`);
   }
 
-  // Fetch exercise
   const exercise = await prisma.audioExercise.findUnique({
     where: { id },
     select: {
@@ -41,7 +42,6 @@ export default async function AudioExercisePage({ params }: AudioExercisePagePro
     notFound();
   }
 
-  // Convert audioData to base64 for client consumption
   const audioBase64 = exercise.audioData
     ? Buffer.from(exercise.audioData).toString("base64")
     : null;
@@ -56,6 +56,16 @@ export default async function AudioExercisePage({ params }: AudioExercisePagePro
     audioData: audioBase64,
     attemptCount: exercise.attemptCount,
   };
+
+  return (
+    <ErrorBoundary>
+      <AudioExerciseView exercise={exerciseData} />
+    </ErrorBoundary>
+  );
+}
+
+export default async function AudioExercisePage({ params }: AudioExercisePageProps) {
+  const { id } = await params;
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,7 +95,7 @@ export default async function AudioExercisePage({ params }: AudioExercisePagePro
         </div>
       </header>
 
-      {/* Exercise content */}
+      {/* Exercise content with Suspense */}
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="mb-6">
           <Link
@@ -99,7 +109,9 @@ export default async function AudioExercisePage({ params }: AudioExercisePagePro
           </Link>
         </div>
 
-        <AudioExerciseView exercise={exerciseData} />
+        <Suspense fallback={<AudioExerciseSkeleton />}>
+          <AudioExerciseContent id={id} />
+        </Suspense>
       </main>
     </div>
   );

@@ -1,11 +1,15 @@
 // ExamForge — Flashcard Deck Review Page
 // Server component: auth guard, fetch deck + due cards, render FlashcardViewer
+// Wraps content in Suspense boundary and ErrorBoundary for resilience
 
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { FlashcardViewer } from "@/components/flashcards/FlashcardViewer";
+import { ErrorBoundary } from "@/components/exercises/ErrorBoundary";
+import { FlashcardViewerSkeleton } from "@/components/flashcards/FlashcardViewerSkeleton";
 
 const SESSION_CARD_LIMIT = 20;
 
@@ -13,15 +17,13 @@ interface DeckPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function FlashcardDeckPage({ params }: DeckPageProps) {
-  const { id } = await params;
+async function FlashcardDeckContent({ id }: { id: string }) {
   const session = await auth();
 
   if (!session?.user) {
     redirect(`/auth/login?callbackUrl=/flashcards/decks/${id}`);
   }
 
-  // Fetch deck
   const deck = await prisma.flashcardDeck.findUnique({
     where: { id },
     include: {
@@ -35,7 +37,6 @@ export default async function FlashcardDeckPage({ params }: DeckPageProps) {
     notFound();
   }
 
-  // Get due cards only (limited session)
   const now = new Date();
   const dueCards = deck.flashcards
     .filter((card) => card.nextReviewAt === null || card.nextReviewAt <= now)
@@ -48,6 +49,34 @@ export default async function FlashcardDeckPage({ params }: DeckPageProps) {
     hint: card.hint,
     isDue: card.nextReviewAt === null || card.nextReviewAt <= now,
   }));
+
+  return (
+    <ErrorBoundary>
+      <>
+        {/* Deck info */}
+        <div className="mb-8 space-y-1">
+          <h1 className="text-2xl font-bold">{deck.title}</h1>
+          {deck.description && (
+            <p className="text-sm text-muted-foreground">{deck.description}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {deck.cardCount} card{deck.cardCount !== 1 ? "s" : ""}
+            &nbsp;&bull;&nbsp;
+            {dueCards.length} due for review
+            {dueCards.length > SESSION_CARD_LIMIT && (
+              <span> (showing first {SESSION_CARD_LIMIT})</span>
+            )}
+          </p>
+        </div>
+
+        <FlashcardViewer deckId={id} cards={cardsData} />
+      </>
+    </ErrorBoundary>
+  );
+}
+
+export default async function FlashcardDeckPage({ params }: DeckPageProps) {
+  const { id } = await params;
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,7 +106,7 @@ export default async function FlashcardDeckPage({ params }: DeckPageProps) {
         </div>
       </header>
 
-      {/* Page content */}
+      {/* Page content with Suspense */}
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Back link */}
         <div className="mb-6">
@@ -92,24 +121,9 @@ export default async function FlashcardDeckPage({ params }: DeckPageProps) {
           </Link>
         </div>
 
-        {/* Deck info */}
-        <div className="mb-8 space-y-1">
-          <h1 className="text-2xl font-bold">{deck.title}</h1>
-          {deck.description && (
-            <p className="text-sm text-muted-foreground">{deck.description}</p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {deck.cardCount} card{deck.cardCount !== 1 ? "s" : ""}
-            &nbsp;&bull;&nbsp;
-            {dueCards.length} due for review
-            {dueCards.length > SESSION_CARD_LIMIT && (
-              <span> (showing first {SESSION_CARD_LIMIT})</span>
-            )}
-          </p>
-        </div>
-
-        {/* Flashcard Viewer */}
-        <FlashcardViewer deckId={id} cards={cardsData} />
+        <Suspense fallback={<FlashcardViewerSkeleton />}>
+          <FlashcardDeckContent id={id} />
+        </Suspense>
       </main>
     </div>
   );

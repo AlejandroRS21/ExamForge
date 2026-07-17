@@ -1,20 +1,22 @@
 // ExamForge — Flashcards Home Page
 // Server component: auth guard + fetch decks, render FlashcardDeckList
+// Wraps content in Suspense boundary and ErrorBoundary for resilience
 
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { FlashcardDeckList } from "@/components/flashcards/FlashcardDeckList";
+import { ErrorBoundary } from "@/components/exercises/ErrorBoundary";
 
-export default async function FlashcardsPage() {
+async function FlashcardsContent() {
   const session = await auth();
 
   if (!session?.user) {
     redirect("/auth/login?callbackUrl=/flashcards");
   }
 
-  // Fetch decks with card counts and due info
   const decks = await prisma.flashcardDeck.findMany({
     orderBy: { createdAt: "desc" },
     include: {
@@ -50,6 +52,10 @@ export default async function FlashcardsPage() {
     };
   });
 
+  return <FlashcardDeckList decks={decksData} />;
+}
+
+export default async function FlashcardsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Nav bar */}
@@ -99,8 +105,12 @@ export default async function FlashcardsPage() {
           </p>
         </div>
 
-        {/* Deck list */}
-        <FlashcardDeckList decks={decksData} />
+        {/* Deck list with ErrorBoundary and Suspense */}
+        <ErrorBoundary>
+          <Suspense fallback={<FlashcardDeckList decks={[]} loading={true} />}>
+            <FlashcardsContent />
+          </Suspense>
+        </ErrorBoundary>
       </main>
     </div>
   );
