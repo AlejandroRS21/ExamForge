@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       sourceData: parsed.data.sourceData,
       contentType: parsed.data.contentType,
       createdById: session.user.id!,
+      notebookId: parsed.data.notebookId,
     });
 
     return NextResponse.json(result, { status: 201 });

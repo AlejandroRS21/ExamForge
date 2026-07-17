@@ -13,6 +13,7 @@ const sidebarLinks = [
   { href: "/admin/review", label: "Review Queue", icon: "✅" },
   { href: "/admin/parts", label: "Exam Parts", icon: "📋" },
   { href: "/admin/users", label: "Users", icon: "👥" },
+  { href: "/admin/notebooklm", label: "NotebookLM", icon: "📓" },
 ];
 
 export default async function AdminLayout({

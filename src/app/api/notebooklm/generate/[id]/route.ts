@@ -26,7 +26,12 @@ export async function GET(
       return NextResponse.json({ error: "Generation request not found" }, { status: 404 });
     }
 
-    return NextResponse.json(status);
+    return NextResponse.json({
+      ...status,
+      notebookId: status.notebookId ?? null,
+      artifactId: status.artifactId ?? null,
+      elapsedSeconds: status.elapsed ?? null,
+    });
   } catch (error) {
     console.error("[notebooklm/generate] GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
