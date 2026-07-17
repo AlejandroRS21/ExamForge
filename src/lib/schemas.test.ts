@@ -194,81 +194,81 @@ describe("audioSubmitSchema", () => {
 // ─── flashcardReviewSchema ───────────────────────────────────────────────────
 
 describe("flashcardReviewSchema", () => {
-  it("accepts valid card rating (quality 0)", () => {
+  it("accepts valid card rating (rating 0)", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: 0,
+      rating: 0,
     });
     expect(result.success).toBe(true);
   });
 
-  it("accepts valid card rating (quality 3)", () => {
+  it("accepts valid card rating (rating 2)", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: 3,
+      rating: 2,
     });
     expect(result.success).toBe(true);
   });
 
-  it("accepts valid card rating (quality 5)", () => {
+  it("accepts valid card rating (rating 3)", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: 5,
+      rating: 3,
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects quality below 0", () => {
+  it("rejects rating below 0", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: -1,
+      rating: -1,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects quality above 5", () => {
+  it("rejects rating above 3", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: 6,
+      rating: 4,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects non-integer quality", () => {
+  it("rejects non-integer rating", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: 2.5,
+      rating: 2.5,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects invalid cardId format", () => {
+  it("rejects empty cardId", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "",
-      quality: 3,
+      rating: 3,
     });
-    // cuid validation - empty string should fail
+    // empty string should fail min(1) validation
     expect(result.success).toBe(false);
   });
 
   it("rejects missing cardId", () => {
     const result = flashcardReviewSchema.safeParse({
-      quality: 3,
+      rating: 3,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects missing quality", () => {
+  it("rejects missing rating", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects string quality", () => {
+  it("rejects string rating", () => {
     const result = flashcardReviewSchema.safeParse({
       cardId: "clx123abc",
-      quality: "good",
+      rating: "good",
     });
     expect(result.success).toBe(false);
   });
@@ -309,7 +309,7 @@ describe("ZodError shape on invalid input", () => {
     if (!result.success) {
       const paths = result.error.issues.map((i) => i.path.join("."));
       expect(paths).toContain("cardId");
-      expect(paths).toContain("quality");
+      expect(paths).toContain("rating");
     }
   });
 });

@@ -101,9 +101,9 @@ async function callNotebookLM(
           transcript: "This is a placeholder transcript for the generated audio exercise. In production, NotebookLM would generate an audio overview from the source material.",
           duration: 180,
           questions: [
-            { id: "aq1", question: "What is mentioned first?", timestamp: 15 },
-            { id: "aq2", question: "What key example is given?", timestamp: 60 },
-            { id: "aq3", question: "What is the main conclusion?", timestamp: 120 },
+            { id: "aq1", question: "What is mentioned first?", correctAnswer: "A", type: "MC", options: ["A) The speaker's background", "B) The main course topic", "C) Course requirements", "D) The schedule"], timestamp: 15 },
+            { id: "aq2", question: "What key example is given?", correctAnswer: "B", type: "MC", options: ["A) Example one", "B) Example two", "C) Example three", "D) Example four"], timestamp: 60 },
+            { id: "aq3", question: "What is the main conclusion?", correctAnswer: "C", type: "MC", options: ["A) Conclusion one", "B) Conclusion two", "C) Conclusion three", "D) Conclusion four"], timestamp: 120 },
           ],
         },
       };

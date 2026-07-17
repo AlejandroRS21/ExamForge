@@ -124,8 +124,8 @@ export const audioSubmitSchema = z.object({
 });
 
 export const flashcardReviewSchema = z.object({
-  cardId: z.string().cuid(),
-  quality: z.number().int().min(0).max(5),
+  cardId: z.string().min(1),
+  rating: z.number().int().min(0).max(3),
 });
 
 // ─── Types ──────────────────────────────────────────────────────────────────
