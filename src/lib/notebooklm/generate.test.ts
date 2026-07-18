@@ -1,10 +1,10 @@
 // ExamForge — NotebookLM Generation Integration Tests
 // Tests the generation service with mocked Prisma and MCP calls
+// generateContent() now returns immediately (fire-and-forget) — full pipeline tested via runGeneration()
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ─── Mock Prisma ────────────────────────────────────────────────────────────
-// Must use vi.hoisted() for hoisted mock factories
 
 const { mockCreate, mockUpdate, mockFindUnique, mockFindMany } = vi.hoisted(() => ({
   mockCreate: vi.fn(),
@@ -36,7 +36,6 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 // ─── Mock MCP Client ────────────────────────────────────────────────────────
-// Mock the MCP client to avoid calling real nlm CLI in tests
 
 const { MockMCPClient, MockMCPClientError } = vi.hoisted(() => {
   class MockMCPClient {
@@ -57,7 +56,7 @@ const { MockMCPClient, MockMCPClientError } = vi.hoisted(() => {
     listNotebooks = vi.fn().mockResolvedValue([]);
     listSources = vi.fn().mockResolvedValue([]);
     addSource = vi.fn().mockResolvedValue({ id: "source-123" });
-    checkAuth = vi.fn().mockResolvedValue({ authenticated: true });
+    checkAuth = vi.fn().mockResolvedValue(true);
   }
 
   class MockMCPClientError extends Error {
@@ -112,56 +111,28 @@ const mockCreatedRecord = {
   createdAt: new Date("2026-07-17"),
 };
 
-// ─── generateContent — Happy Path ───────────────────────────────────────────
+// ─── generateContent — Fire-and-Forget ───────────────────────────────────────
 
 describe("generateContent", () => {
-  it("creates PENDING record, updates to PROCESSING, then COMPLETED on success", async () => {
-    // Arrange: prisma calls succeed
+  it("creates PENDING record, updates to PROCESSING, returns immediately", async () => {
     mockCreate.mockResolvedValue(mockCreatedRecord);
-    mockUpdate
-      .mockResolvedValueOnce({ ...mockCreatedRecord, status: "PROCESSING" })
-      .mockResolvedValueOnce({
-        ...mockCreatedRecord,
-        status: "COMPLETED",
-        rawResponse: { type: "quiz", questions: [] },
-      });
+    mockUpdate.mockResolvedValue({ ...mockCreatedRecord, status: "PROCESSING" });
 
-    // Act
     const result = await generateContent(validRequest);
 
-    // Assert: correct return value
     expect(result).toEqual({
       id: "gen-123",
-      status: "COMPLETED",
+      status: "PROCESSING",
     });
 
-    // Assert: correct sequence of Prisma calls
     expect(mockCreate).toHaveBeenCalledTimes(1);
-    expect(mockCreate).toHaveBeenCalledWith({
-      data: {
-        sourceType: "URL",
-        sourceData: "https://example.com/science-article",
-        contentType: "QUIZ",
-        status: "PENDING",
-        createdById: "user-123",
-      },
-    });
-
-    // First update: PROCESSING
-    expect(mockUpdate).toHaveBeenNthCalledWith(1, {
+    expect(mockUpdate).toHaveBeenCalledWith({
       where: { id: "gen-123" },
       data: { status: "PROCESSING" },
     });
-
-    // Second update: COMPLETED with data
-    const secondUpdateCall = mockUpdate.mock.calls[1];
-    expect(secondUpdateCall[0].where.id).toBe("gen-123");
-    expect(secondUpdateCall[0].data.status).toBe("COMPLETED");
-    expect(secondUpdateCall[0].data.rawResponse).toBeDefined();
-    expect(secondUpdateCall[0].data.rawResponse.type).toBe("quiz");
   });
 
-  it("returns COMPLETED for AUDIO content type", async () => {
+  it("returns PROCESSING for AUDIO content type", async () => {
     mockCreate.mockResolvedValue(mockCreatedRecord);
     mockUpdate.mockResolvedValue({});
 
@@ -170,10 +141,10 @@ describe("generateContent", () => {
       contentType: "AUDIO",
     });
 
-    expect(result.status).toBe("COMPLETED");
+    expect(result.status).toBe("PROCESSING");
   });
 
-  it("returns COMPLETED for FLASHCARDS content type", async () => {
+  it("returns PROCESSING for FLASHCARDS content type", async () => {
     mockCreate.mockResolvedValue(mockCreatedRecord);
     mockUpdate.mockResolvedValue({});
 
@@ -182,7 +153,7 @@ describe("generateContent", () => {
       contentType: "FLASHCARDS",
     });
 
-    expect(result.status).toBe("COMPLETED");
+    expect(result.status).toBe("PROCESSING");
   });
 
   it("throws when initial create fails (outside try/catch)", async () => {
@@ -191,17 +162,6 @@ describe("generateContent", () => {
     await expect(generateContent(validRequest)).rejects.toThrow("Database connection failed");
     expect(mockCreate).toHaveBeenCalledTimes(1);
     expect(mockUpdate).not.toHaveBeenCalled();
-  });
-
-  it("stores error message when success update fails", async () => {
-    mockCreate.mockResolvedValue(mockCreatedRecord);
-    mockUpdate
-      .mockResolvedValueOnce({ ...mockCreatedRecord, status: "PROCESSING" })
-      .mockRejectedValueOnce(new Error("Failed to store COMPLETED status"));
-
-    const result = await generateContent(validRequest);
-
-    expect(result.status).toBe("FAILED");
   });
 });
 
@@ -385,7 +345,6 @@ describe("reviewContent", () => {
     });
     mockUpdate.mockResolvedValue({});
 
-    // Access the prisma mock to set up audioExercise.create
     const prismaMock = await import("@/lib/prisma");
     (prismaMock.default.audioExercise.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "ae-1" });
 

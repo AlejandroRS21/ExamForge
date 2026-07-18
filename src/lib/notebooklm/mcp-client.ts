@@ -1,8 +1,7 @@
 // ExamForge — NotebookLM MCP Client
 // Real MCP client for calling NotebookLM CLI tools with retry, rate-limit awareness, and auth handling
 
-import { exec } from "child_process";
-import { promisify } from "util";
+import { execFile } from "child_process";
 
 const TYPE_TO_CODE: Record<string, number> = {
   rateLimited: 429,
@@ -95,9 +94,7 @@ export class MCPClient {
     const nlmPath = "nlm";
     
     return new Promise((resolve, reject) => {
-      const commandArgs = [nlmPath, ...args];
-      
-      const proc = exec(commandArgs.join(" "), { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
+      const proc = execFile(nlmPath, args, { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
         if (error) {
           let errorType: "rateLimited" | "authExpired" | "notFound" | "unknown" = "unknown";
           let errorCode = error.code || 500;

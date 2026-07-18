@@ -6,12 +6,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 // Must use vi.hoisted() for hoisted mock factories
 
-const { execMock } = vi.hoisted(() => ({
-  execMock: vi.fn(),
+const { execFileMock } = vi.hoisted(() => ({
+  execFileMock: vi.fn(),
 }));
 
 vi.mock("child_process", () => ({
-  exec: execMock,
+  execFile: execFileMock,
 }));
 
 vi.mock("util", () => ({
@@ -27,15 +27,15 @@ import { MCPClient, MCPClientError, resetDailyUsage } from "./mcp-client";
 const mockNotebookId = "fa8414d0-a476-4fad-a6a7-be1167880228";
 const mockArtifactId = "artifact-123";
 
-// exec callback pattern helpers
+// execFile callback pattern helpers — execFile(nlmPath, args, options, callback)
 const mockNlmResponse = (jsonData: any) => {
-  return (_cmd: string, _opts: any, callback: Function) => {
+  return (_cmd: string, _args: any[], _opts: any, callback: Function) => {
     callback(null, JSON.stringify(jsonData), "");
   };
 };
 
 const mockNlmError = (stderr: string, exitCode: number) => {
-  return (_cmd: string, _opts: any, callback: Function) => {
+  return (_cmd: string, _args: any[], _opts: any, callback: Function) => {
     const error = new Error(stderr);
     (error as any).code = exitCode;
     callback(error, "", stderr);
@@ -128,22 +128,23 @@ describe("MCPClient — Rate Limit Tracking", () => {
 
 describe("MCPClient — Auth Check", () => {
   it("should return true when auth is configured", async () => {
-    execMock.mockImplementation(mockNlmResponse({
+    execFileMock.mockImplementation(mockNlmResponse({
       auth_status: "configured",
       version: "0.8.4",
     }));
 
     const result = await client.checkAuth();
     expect(result).toBe(true);
-    expect(execMock).toHaveBeenCalledWith(
-      expect.stringContaining("server"),
+    expect(execFileMock).toHaveBeenCalledWith(
+      "nlm",
+      expect.arrayContaining(["server"]),
       expect.any(Object),
       expect.any(Function),
     );
   });
 
   it("should return false when auth is not configured", async () => {
-    execMock.mockImplementation(mockNlmResponse({
+    execFileMock.mockImplementation(mockNlmResponse({
       auth_status: "not_configured",
       version: "0.8.4",
     }));
@@ -153,7 +154,7 @@ describe("MCPClient — Auth Check", () => {
   });
 
   it("should throw MCPClientError when nlm command fails", async () => {
-    execMock.mockImplementation(mockNlmError("Authentication failed", 1));
+    execFileMock.mockImplementation(mockNlmError("Authentication failed", 1));
 
     await expect(client.checkAuth()).rejects.toThrow(MCPClientError);
   });
@@ -169,12 +170,13 @@ describe("MCPClient — Notebook Operations", () => {
         { id: "notebook-2", title: "Test Notebook" },
       ];
 
-      execMock.mockImplementation(mockNlmResponse({ notebooks: mockNotebooks }));
+      execFileMock.mockImplementation(mockNlmResponse({ notebooks: mockNotebooks }));
 
       const result = await client.listNotebooks();
       expect(result).toEqual(mockNotebooks);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("notebook"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["notebook"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -188,12 +190,13 @@ describe("MCPClient — Notebook Operations", () => {
         { id: "source-2", type: "TEXT", content: "Sample text" },
       ];
 
-      execMock.mockImplementation(mockNlmResponse({ sources: mockSources }));
+      execFileMock.mockImplementation(mockNlmResponse({ sources: mockSources }));
 
       const result = await client.listSources(mockNotebookId);
       expect(result).toEqual(mockSources);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("source"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["source"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -203,12 +206,13 @@ describe("MCPClient — Notebook Operations", () => {
   describe("addSource(notebookId, type, data)", () => {
     it("should call nlm source add with type and data", async () => {
       const mockResult = { success: true, sourceId: "new-source-123" };
-      execMock.mockImplementation(mockNlmResponse(mockResult));
+      execFileMock.mockImplementation(mockNlmResponse(mockResult));
 
       const result = await client.addSource(mockNotebookId, "URL", "https://example.com");
       expect(result).toEqual(mockResult);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("source"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["source"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -229,12 +233,13 @@ describe("MCPClient — Studio Operations", () => {
         sourceIds: ["source-1"],
       };
 
-      execMock.mockImplementation(mockNlmResponse(mockArtifact));
+      execFileMock.mockImplementation(mockNlmResponse(mockArtifact));
 
       const result = await client.createStudioArtifact(mockNotebookId, "audio", ["source-1"]);
       expect(result).toEqual(mockArtifact);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("studio"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["studio"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -248,12 +253,13 @@ describe("MCPClient — Studio Operations", () => {
         status: "pending",
       };
 
-      execMock.mockImplementation(mockNlmResponse(mockArtifact));
+      execFileMock.mockImplementation(mockNlmResponse(mockArtifact));
 
       const result = await client.createStudioArtifact(mockNotebookId, "flashcards");
       expect(result).toEqual(mockArtifact);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("studio"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["studio"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -271,12 +277,13 @@ describe("MCPClient — Studio Operations", () => {
         downloadUrl: "https://example.com/audio.mp4",
       };
 
-      execMock.mockImplementation(mockNlmResponse(mockStatus));
+      execFileMock.mockImplementation(mockNlmResponse(mockStatus));
 
       const result = await client.pollArtifactStatus(mockNotebookId, mockArtifactId);
       expect(result).toEqual(mockStatus);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("studio"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["studio"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -295,12 +302,13 @@ describe("MCPClient — Query Operations", () => {
         confidence: 0.95,
       };
 
-      execMock.mockImplementation(mockNlmResponse(mockQueryResult));
+      execFileMock.mockImplementation(mockNlmResponse(mockQueryResult));
 
       const result = await client.queryNotebook(mockNotebookId, "What is the main topic?");
       expect(result).toEqual(mockQueryResult);
-      expect(execMock).toHaveBeenCalledWith(
-        expect.stringContaining("notebook"),
+      expect(execFileMock).toHaveBeenCalledWith(
+        "nlm",
+        expect.arrayContaining(["notebook"]),
         expect.any(Object),
         expect.any(Function),
       );
@@ -313,7 +321,7 @@ describe("MCPClient — Query Operations", () => {
 describe("MCPClient — Error Handling", () => {
   describe("execNlm() error handling", () => {
     it("should throw MCPClientError with rate limited type on 429", async () => {
-      execMock.mockImplementation(mockNlmError("rate limit exceeded", 429));
+      execFileMock.mockImplementation(mockNlmError("rate limit exceeded", 429));
 
       await expect(client["execNlm"](["notebook", "list", "--json"]))
         .rejects
@@ -324,7 +332,7 @@ describe("MCPClient — Error Handling", () => {
     });
 
     it("should throw MCPClientError with auth expired type on 401", async () => {
-      execMock.mockImplementation(mockNlmError("auth required 401", 401));
+      execFileMock.mockImplementation(mockNlmError("auth required 401", 401));
 
       await expect(client["execNlm"](["notebook", "list", "--json"]))
         .rejects
@@ -335,7 +343,7 @@ describe("MCPClient — Error Handling", () => {
     });
 
     it("should throw MCPClientError with not found type on 404", async () => {
-      execMock.mockImplementation(mockNlmError("not found 404", 404));
+      execFileMock.mockImplementation(mockNlmError("not found 404", 404));
 
       await expect(client["execNlm"](["notebook", "list", "--json"]))
         .rejects
@@ -346,7 +354,7 @@ describe("MCPClient — Error Handling", () => {
     });
 
     it("should throw MCPClientError with generic type on other error codes", async () => {
-      execMock.mockImplementation(mockNlmError("Server error", 500));
+      execFileMock.mockImplementation(mockNlmError("Server error", 500));
 
       await expect(client["execNlm"](["notebook", "list", "--json"]))
         .rejects

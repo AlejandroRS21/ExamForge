@@ -44,30 +44,16 @@ export interface StatusResponse {
 
 const mcpClient = new MCPClient();
 
-/**
- * Generate content via NotebookLM MCP and store the result in the database.
- * Creates a GeneratedContent record, calls the MCP client, and updates the record.
- * Returns the generation ID and initial status.
- */
-export async function generateContent(request: GenerateRequest): Promise<GenerateResponse> {
-  // Create initial PENDING record
-  const content = await prisma.generatedContent.create({
-    data: {
-      sourceType: request.sourceType,
-      sourceData: request.sourceData,
-      contentType: request.contentType,
-      status: "PENDING",
-      createdById: request.createdById,
-      notebookId: request.notebookId,
-    },
+// Fire-and-forget wrapper for async generation
+async function runGeneration(contentId: string, request: GenerateRequest) {
+  const content = await prisma.generatedContent.findUnique({
+    where: { id: contentId },
   });
-
-  // Update to PROCESSING
-  await prisma.generatedContent.update({
-    where: { id: content.id },
-    data: { status: "PROCESSING" },
-  });
-
+  
+  if (!content || content.status !== "PROCESSING") {
+    throw new Error("Content not found or not in PROCESSING status");
+  }
+  
   try {
     // Handle different content types through MCP
     let result;
@@ -107,6 +93,8 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
           transcript: pollResult.transcript || null,
           duration: pollResult.duration || null,
           questions: pollResult.questions || [],
+          artifactId: artifact.id,
+          elapsed,
         };
         break;
       }
@@ -150,6 +138,8 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
           type: "flashcards",
           title: queryResult.title || "Flashcard Deck",
           cards: queryResult.cards || [],
+          artifactId: artifact.id,
+          elapsed,
         };
         break;
       }
@@ -193,6 +183,8 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
           type: "quiz",
           title: queryResult.title || "Generated Quiz",
           questions: queryResult.questions || [],
+          artifactId: artifact.id,
+          elapsed,
         };
         break;
       }
@@ -236,6 +228,8 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
           type: "mindmap",
           title: queryResult.title || "Generated Mind Map",
           structure: queryResult.structure || [],
+          artifactId: artifact.id,
+          elapsed,
         };
         break;
       }
@@ -244,7 +238,7 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
         throw new MCPClientError(`Unsupported content type: ${request.contentType}`, "unknown", 400);
     }
 
-    // Update the generation record with results
+    // Update the generation record with results including artifactId and elapsed
     await prisma.generatedContent.update({
       where: { id: content.id },
       data: {
@@ -281,6 +275,37 @@ export async function generateContent(request: GenerateRequest): Promise<Generat
 
     return { id: content.id, status };
   }
+}
+
+/**
+ * Generate content via NotebookLM MCP and store the result in the database.
+ * Creates a GeneratedContent record, calls the MCP client, and updates the record.
+ * Returns the generation ID and initial status.
+ */
+export async function generateContent(request: GenerateRequest): Promise<GenerateResponse> {
+  // Create initial PENDING record
+  const content = await prisma.generatedContent.create({
+    data: {
+      sourceType: request.sourceType,
+      sourceData: request.sourceData,
+      contentType: request.contentType,
+      status: "PENDING",
+      createdById: request.createdById,
+      notebookId: request.notebookId,
+    },
+  });
+
+  // Update to PROCESSING
+  await prisma.generatedContent.update({
+    where: { id: content.id },
+    data: { status: "PROCESSING" },
+  });
+
+  // Fire-and-forget: start async generation
+  runGeneration(content.id, request).catch(console.error);
+  
+  // Return immediately with processing status
+  return { id: content.id, status: "PROCESSING" };
 }
 
 /**
