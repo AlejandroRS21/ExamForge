@@ -136,8 +136,6 @@ export class MCPClient {
         }
       });
       
-      proc.stdout?.on("data", () => {});
-      proc.stderr?.on("data", () => {});
     });
   }
 

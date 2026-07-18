@@ -6,7 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { FlashcardReview } from "@/components/learn/FlashcardReview";
+import { FlashcardViewer } from "@/components/flashcards/FlashcardViewer";
 
 interface FlashcardPageProps {
   params: Promise<{ deckId: string }>;
@@ -66,7 +66,7 @@ async function FlashcardContent({ deckId }: { deckId: string }) {
         </p>
       </div>
 
-      <FlashcardReview cards={cardsData} />
+      <FlashcardViewer cards={cardsData} />
     </div>
   );
 }

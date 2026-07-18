@@ -9,24 +9,14 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
-// Cleanup stale entries every 5 minutes
-const CLEANUP_INTERVAL = 5 * 60 * 1000;
+// Periodic cleanup — evict expired entries on each access
 let lastCleanup = Date.now();
+const CLEANUP_INTERVAL = 5 * 60 * 1000;
 
 function cleanup(): void {
   const now = Date.now();
   if (now - lastCleanup < CLEANUP_INTERVAL) return;
   lastCleanup = now;
-  for (const [key, entry] of store) {
-    if (now >= entry.resetAt) {
-      store.delete(key);
-    }
-  }
-}
-
-// Add TTL cleanup on every access to make the Map store more robust
-function cleanupExpired(): void {
-  const now = Date.now();
   for (const [key, entry] of store) {
     if (now >= entry.resetAt) {
       store.delete(key);
@@ -54,7 +44,6 @@ export function checkRateLimit(
   windowMs: number = 15 * 60 * 1000,
 ): RateLimitResult {
   cleanup();
-  cleanupExpired(); // Additional cleanup on each access for better TTL handling
 
   const now = Date.now();
   const entry = store.get(key);

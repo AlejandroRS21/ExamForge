@@ -12,12 +12,12 @@ interface FlashcardData {
   id: string;
   front: string;
   back: string;
-  hint: string | null;
-  isDue: boolean;
+  hint?: string | null;
+  isDue?: boolean;
 }
 
 interface FlashcardViewerProps {
-  deckId: string;
+  deckId?: string;
   cards: FlashcardData[];
   onSessionComplete?: () => void;
 }
@@ -98,27 +98,31 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
       setError(null);
 
       try {
-        const res = await fetch(`/api/flashcards/decks/${deckId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cardId: currentCard.id, rating }),
-        });
+        // API-backed mode: submit rating to server
+        if (deckId) {
+          const res = await fetch(`/api/flashcards/decks/${deckId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cardId: currentCard.id, rating }),
+          });
 
-        const data = await res.json();
+          const data = await res.json();
 
-        if (!res.ok) {
-          setError(data.error ?? "Failed to submit rating");
-          return;
-        }
+          if (!res.ok) {
+            setError(data.error ?? "Failed to submit rating");
+            return;
+          }
 
-        // Record rating locally
-        setRatings((prev) => ({ ...prev, [currentCard.id]: rating }));
+          setRatings((prev) => ({ ...prev, [currentCard.id]: rating }));
 
-        // Check if session is complete
-        if (data.sessionComplete) {
-          setSessionComplete(true);
-          onSessionComplete?.();
-          return;
+          if (data.sessionComplete) {
+            setSessionComplete(true);
+            onSessionComplete?.();
+            return;
+          }
+        } else {
+          // Local-only mode: track rating in state
+          setRatings((prev) => ({ ...prev, [currentCard.id]: rating }));
         }
 
         // Advance to next card or complete

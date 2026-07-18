@@ -7,10 +7,14 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 interface AudioPlayerProps {
-  /** Base64-encoded audio data */
-  audioBase64: string | null;
-  /** MIME type of the audio (e.g. "audio/mpeg") */
-  mimeType: string;
+  /** Base64-encoded audio data (mutually exclusive with src) */
+  audioBase64?: string | null;
+  /** MIME type of the audio (required when using audioBase64) */
+  mimeType?: string;
+  /** URL to audio file (mutually exclusive with audioBase64) */
+  src?: string;
+  /** Optional title for accessibility */
+  title?: string;
   /** Optional duration in seconds for display before metadata loads */
   duration?: number | null;
   /** Optional className for styling wrapper */
@@ -30,7 +34,9 @@ function formatTime(seconds: number): string {
 
 export function AudioPlayer({
   audioBase64,
-  mimeType,
+  mimeType = "audio/mpeg",
+  src,
+  title,
   duration: propDuration,
   className = "",
 }: AudioPlayerProps) {
@@ -40,11 +46,11 @@ export function AudioPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(propDuration ?? 0);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(src ?? null);
 
-  // Create blob URL from base64 data on mount
+  // Create blob URL from base64 data on mount (when no src provided)
   useEffect(() => {
-    if (!audioBase64) return;
+    if (src || !audioBase64) return;
 
     try {
       const binaryStr = atob(audioBase64);
@@ -202,7 +208,7 @@ export function AudioPlayer({
       ref={containerRef}
       className={`rounded-xl border bg-card p-4 space-y-3 ${className}`}
       role="region"
-      aria-label="Audio player"
+      aria-label={title ? `Audio player: ${title}` : "Audio player"}
       tabIndex={-1}
     >
       {/* Hidden audio element */}

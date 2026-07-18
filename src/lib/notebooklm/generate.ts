@@ -44,48 +44,52 @@ export interface StatusResponse {
 
 const mcpClient = new MCPClient();
 
+const DEFAULT_NOTEBOOK = "fa8414d0-a476-4fad-a6a7-be1167880228";
+const POLL_INTERVAL_MS = 5_000;
+const POLL_TIMEOUT_MS = 300_000; // 5 minutes
+
+/** Poll artifact status until completion or timeout. */
+async function pollUntilComplete(
+  notebookId: string,
+  artifactId: string,
+  label: string,
+): Promise<{ result: any; elapsed: number }> {
+  const start = Date.now();
+  let pollResult = await mcpClient.pollArtifactStatus(notebookId, artifactId);
+  let elapsed = Date.now() - start;
+
+  while (pollResult.status === "PROCESSING" && elapsed < POLL_TIMEOUT_MS) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    pollResult = await mcpClient.pollArtifactStatus(notebookId, artifactId);
+    elapsed = Date.now() - start;
+  }
+
+  if (pollResult.status !== "COMPLETED") {
+    throw new MCPClientError(`${label} failed or timed out`, "unknown", 500);
+  }
+
+  return { result: pollResult, elapsed };
+}
+
 // Fire-and-forget wrapper for async generation
 async function runGeneration(contentId: string, request: GenerateRequest) {
   const content = await prisma.generatedContent.findUnique({
     where: { id: contentId },
   });
-  
+
   if (!content || content.status !== "PROCESSING") {
     throw new Error("Content not found or not in PROCESSING status");
   }
-  
+
+  const nbId = content.notebookId || DEFAULT_NOTEBOOK;
+
   try {
-    // Handle different content types through MCP
-    let result;
+    let result: Record<string, any>;
+
     switch (request.contentType) {
       case "AUDIO": {
-        // Create audio artifact through MCP
-        const artifact = await mcpClient.createStudioArtifact(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "audio"
-        );
-        
-        // Poll for completion
-        const pollStart = Date.now();
-        let pollResult = await mcpClient.pollArtifactStatus(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          artifact.id
-        );
-        
-        let elapsed = Date.now() - pollStart;
-        
-        while (pollResult.status === "PROCESSING" && elapsed < 300000) { // 5 minute timeout
-          await new Promise(resolve => setTimeout(resolve, 5000)); // Poll every 5 seconds
-          pollResult = await mcpClient.pollArtifactStatus(
-            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-            artifact.id
-          );
-          elapsed = Date.now() - pollStart;
-        }
-        
-        if (pollResult.status !== "COMPLETED") {
-          throw new MCPClientError("Audio generation failed or timed out", "unknown", 500);
-        }
+        const artifact = await mcpClient.createStudioArtifact(nbId, "audio");
+        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Audio generation");
 
         result = {
           type: "audio",
@@ -100,38 +104,12 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
       }
 
       case "FLASHCARDS": {
-        // Create flashcards artifact through MCP
-        const artifact = await mcpClient.createStudioArtifact(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "flashcards"
-        );
+        const artifact = await mcpClient.createStudioArtifact(nbId, "flashcards");
+        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Flashcards generation");
 
-        // Poll for completion
-        const pollStart = Date.now();
-        let pollResult = await mcpClient.pollArtifactStatus(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          artifact.id
-        );
-        
-        let elapsed = Date.now() - pollStart;
-        
-        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          pollResult = await mcpClient.pollArtifactStatus(
-            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-            artifact.id
-          );
-          elapsed = Date.now() - pollStart;
-        }
-
-        if (pollResult.status !== "COMPLETED") {
-          throw new MCPClientError("Flashcards generation failed or timed out", "unknown", 500);
-        }
-
-        // Query for flashcards content
         const queryResult = await mcpClient.queryNotebook(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "generate flashcards about the source material"
+          nbId,
+          "generate flashcards about the source material",
         );
 
         result = {
@@ -145,38 +123,12 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
       }
 
       case "QUIZ": {
-        // Create quiz artifact through MCP
-        const artifact = await mcpClient.createStudioArtifact(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "quiz"
-        );
+        const artifact = await mcpClient.createStudioArtifact(nbId, "quiz");
+        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Quiz generation");
 
-        // Poll for completion
-        const pollStart = Date.now();
-        let pollResult = await mcpClient.pollArtifactStatus(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          artifact.id
-        );
-        
-        let elapsed = Date.now() - pollStart;
-        
-        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          pollResult = await mcpClient.pollArtifactStatus(
-            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-            artifact.id
-          );
-          elapsed = Date.now() - pollStart;
-        }
-
-        if (pollResult.status !== "COMPLETED") {
-          throw new MCPClientError("Quiz generation failed or timed out", "unknown", 500);
-        }
-
-        // Query for quiz content
         const queryResult = await mcpClient.queryNotebook(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "generate quiz questions about the source material"
+          nbId,
+          "generate quiz questions about the source material",
         );
 
         result = {
@@ -190,38 +142,12 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
       }
 
       case "MINDMAP": {
-        // Create mindmap artifact through MCP
-        const artifact = await mcpClient.createStudioArtifact(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "mindmap"
-        );
+        const artifact = await mcpClient.createStudioArtifact(nbId, "mindmap");
+        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Mindmap generation");
 
-        // Poll for completion
-        const pollStart = Date.now();
-        let pollResult = await mcpClient.pollArtifactStatus(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          artifact.id
-        );
-        
-        let elapsed = Date.now() - pollStart;
-        
-        while (pollResult.status === "PROCESSING" && elapsed < 300000) {
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          pollResult = await mcpClient.pollArtifactStatus(
-            content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-            artifact.id
-          );
-          elapsed = Date.now() - pollStart;
-        }
-
-        if (pollResult.status !== "COMPLETED") {
-          throw new MCPClientError("Mindmap generation failed or timed out", "unknown", 500);
-        }
-
-        // Query for mindmap content
         const queryResult = await mcpClient.queryNotebook(
-          content.notebookId || "fa8414d0-a476-4fad-a6a7-be1167880228",
-          "generate mind map about the source material"
+          nbId,
+          "generate mind map about the source material",
         );
 
         result = {
@@ -238,7 +164,6 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
         throw new MCPClientError(`Unsupported content type: ${request.contentType}`, "unknown", 400);
     }
 
-    // Update the generation record with results including artifactId and elapsed
     await prisma.generatedContent.update({
       where: { id: content.id },
       data: {
@@ -249,31 +174,19 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
       },
     });
 
-    return { id: content.id, status: "COMPLETED" };
+    return { id: content.id, status: "COMPLETED" as const };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error during generation";
-    let status: GenerationStatus = "FAILED";
-    let errorCode = 500;
 
-    // Handle MCPClientError specifically
-    if (error instanceof MCPClientError) {
-      if (error.type === "rateLimited") status = "FAILED";
-      else if (error.type === "authExpired") status = "FAILED";
-      else if (error.type === "notFound") status = "FAILED";
-      else status = "FAILED";
-      errorCode = error.code || 500;
-    }
-
-    // Update the generation record with error
     await prisma.generatedContent.update({
       where: { id: content.id },
       data: {
-        status,
-        errorMessage: errorMessage,
+        status: "FAILED",
+        errorMessage,
       },
     });
 
-    return { id: content.id, status };
+    return { id: content.id, status: "FAILED" as const };
   }
 }
 
@@ -438,13 +351,7 @@ export async function reviewContent(
       }
 
       case "MINDMAP": {
-        // Create MindMap record or handle mindmap-specific storage
-        await prisma.generatedContent.update({
-          where: { id },
-          data: {
-            // Store mindmap-specific data
-          },
-        });
+        // Mindmap data is stored in rawResponse — no separate model yet.
         break;
       }
 

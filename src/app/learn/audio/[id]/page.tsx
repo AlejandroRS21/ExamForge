@@ -6,7 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { AudioPlayer } from "@/components/learn/AudioPlayer";
+import { AudioPlayer } from "@/components/exercises/AudioPlayer";
 
 interface AudioPageProps {
   params: Promise<{ id: string }>;
