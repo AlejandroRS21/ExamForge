@@ -19,6 +19,8 @@ interface AudioPlayerProps {
   duration?: number | null;
   /** Optional className for styling wrapper */
   className?: string;
+  /** Optional direct download URL for audio file */
+  downloadUrl?: string;
 }
 
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5] as const;
@@ -39,6 +41,7 @@ export function AudioPlayer({
   title,
   duration: propDuration,
   className = "",
+  downloadUrl,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,11 +49,11 @@ export function AudioPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(propDuration ?? 0);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [audioUrl, setAudioUrl] = useState<string | null>(src ?? null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(src || downloadUrl || null);
 
-  // Create blob URL from base64 data on mount (when no src provided)
+  // Create blob URL from base64 data on mount (when no src or downloadUrl provided)
   useEffect(() => {
-    if (src || !audioBase64) return;
+    if (src || downloadUrl || !audioBase64) return;
 
     try {
       const binaryStr = atob(audioBase64);

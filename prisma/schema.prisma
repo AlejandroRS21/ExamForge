@@ -441,6 +441,7 @@ model AudioExercise {
   attemptCount       Int           @default(0)
   status             ContentStatus @default(DRAFT)
   examPartId         String?
+  downloadUrl        String?
   createdAt          DateTime      @default(now())
 
   generatedContent   GeneratedContent @relation(fields: [generatedContentId], references: [id], onDelete: Cascade)

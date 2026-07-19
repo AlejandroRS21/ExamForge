@@ -12,17 +12,25 @@ export async function GET(
 
   const exercise = await prisma.audioExercise.findUnique({
     where: { id },
-    select: { audioData: true, mimeType: true },
+    select: { audioData: true, mimeType: true, downloadUrl: true },
   });
 
-  if (!exercise || !exercise.audioData) {
+  if (!exercise) {
     return NextResponse.json({ error: "Audio not found" }, { status: 404 });
   }
 
-  return new NextResponse(Buffer.from(exercise.audioData), {
-    headers: {
-      "Content-Type": exercise.mimeType,
-      "Cache-Control": "public, max-age=86400",
-    },
-  });
+  // Prefer downloadUrl over audioData if available, otherwise fall back to stored audio data
+  if (exercise.downloadUrl) {
+    return NextResponse.redirect(exercise.downloadUrl);
+  } else if (exercise.audioData) {
+    return new NextResponse(Buffer.from(exercise.audioData), {
+      headers: {
+        "Content-Type": exercise.mimeType,
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  } else {
+    return NextResponse.json({ error: "Audio not found" }, { status: 404 });
+  }
+}
 }

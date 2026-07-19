@@ -28,6 +28,7 @@ async function AudioContent({ id }: { id: string }) {
       transcript: true,
       duration: true,
       status: true,
+      downloadUrl: true,
     },
   });
 
@@ -67,7 +68,7 @@ async function AudioContent({ id }: { id: string }) {
         </p>
       </div>
 
-      <AudioPlayer src={`/api/audio/${exercise.id}`} title={exercise.title} />
+      <AudioPlayer src={`/api/audio/${exercise.id}`} title={exercise.title} downloadUrl={exercise.downloadUrl || undefined} />
 
       {exercise.transcript && (
         <details className="rounded-xl border bg-card">
