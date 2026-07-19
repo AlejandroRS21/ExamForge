@@ -5,48 +5,94 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0.042 265.755);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.001 286.375);
-  --secondary-foreground: oklch(0.205 0.042 265.755);
-  --muted: oklch(0.965 0.001 286.375);
-  --muted-foreground: oklch(0.556 0.009 286.286);
-  --accent: oklch(0.965 0.001 286.375);
-  --accent-foreground: oklch(0.205 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0.004 286.375);
-  --input: oklch(0.922 0.004 286.375);
-  --ring: oklch(0.205 0.042 265.755);
+  /* Neuroinclusive soft blue/green palette — see src/lib/design-tokens.ts
+     for the single source of truth + AA contrast verification. */
+  --background: oklch(0.985 0.006 95);
+  --foreground: oklch(0.30 0.03 250);
+  --card: oklch(0.995 0.004 95);
+  --card-foreground: oklch(0.30 0.03 250);
+  --popover: oklch(0.995 0.004 95);
+  --popover-foreground: oklch(0.30 0.03 250);
+  --primary: oklch(0.52 0.11 210);
+  --primary-foreground: oklch(0.99 0.005 95);
+  --secondary: oklch(0.94 0.015 220);
+  --secondary-foreground: oklch(0.35 0.04 210);
+  --muted: oklch(0.95 0.012 210);
+  --muted-foreground: oklch(0.48 0.03 210);
+  --accent: oklch(0.93 0.03 165);
+  --accent-foreground: oklch(0.38 0.06 165);
+  --destructive: oklch(0.52 0.16 25);
+  --destructive-foreground: oklch(0.99 0.005 95);
+  --border: oklch(0.65 0.02 220);
+  --input: oklch(0.65 0.02 220);
+  --ring: oklch(0.52 0.11 210);
   --radius: 0.625rem;
+
+  /* Semantic status tokens — success/warning/error/info. `error` mirrors the
+     destructive family, `info` mirrors the primary family. Each tone has a
+     solid variant (base/foreground) and a tinted surface variant, consumed
+     by `getStatusToneClasses()` in a later PR. */
+  --success: oklch(0.52 0.09 165);
+  --success-foreground: oklch(0.99 0.005 95);
+  --success-surface: oklch(0.95 0.03 165);
+  --success-border: oklch(0.75 0.06 165);
+
+  --warning: oklch(0.50 0.15 65);
+  --warning-foreground: oklch(0.99 0.005 95);
+  --warning-surface: oklch(0.97 0.025 65);
+  --warning-border: oklch(0.80 0.08 65);
+
+  --error: oklch(0.52 0.16 25);
+  --error-foreground: oklch(0.99 0.005 95);
+  --error-surface: oklch(0.95 0.03 25);
+  --error-border: oklch(0.78 0.07 25);
+
+  --info: oklch(0.52 0.11 210);
+  --info-foreground: oklch(0.99 0.005 95);
+  --info-surface: oklch(0.96 0.03 210);
+  --info-border: oklch(0.75 0.05 210);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0.042 265.755);
-  --secondary: oklch(0.269 0.015 286.375);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0.015 286.375);
-  --muted-foreground: oklch(0.708 0.01 286.286);
-  --accent: oklch(0.269 0.015 286.375);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.269 0.015 286.375);
-  --input: oklch(0.269 0.015 286.375);
-  --ring: oklch(0.439 0.023 286.375);
+  --background: oklch(0.20 0.02 250);
+  --foreground: oklch(0.92 0.01 250);
+  --card: oklch(0.24 0.02 250);
+  --card-foreground: oklch(0.92 0.01 250);
+  --popover: oklch(0.24 0.02 250);
+  --popover-foreground: oklch(0.92 0.01 250);
+  --primary: oklch(0.70 0.10 210);
+  --primary-foreground: oklch(0.16 0.02 250);
+  --secondary: oklch(0.28 0.02 220);
+  --secondary-foreground: oklch(0.92 0.01 250);
+  --muted: oklch(0.27 0.02 210);
+  --muted-foreground: oklch(0.72 0.02 210);
+  --accent: oklch(0.30 0.05 165);
+  --accent-foreground: oklch(0.90 0.05 165);
+  --destructive: oklch(0.65 0.17 25);
+  --destructive-foreground: oklch(0.16 0.02 250);
+  --border: oklch(0.50 0.02 220);
+  --input: oklch(0.50 0.02 220);
+  --ring: oklch(0.70 0.10 210);
+
+  --success: oklch(0.68 0.11 165);
+  --success-foreground: oklch(0.16 0.02 250);
+  --success-surface: oklch(0.28 0.05 165);
+  --success-border: oklch(0.45 0.08 165);
+
+  --warning: oklch(0.72 0.14 65);
+  --warning-foreground: oklch(0.16 0.02 250);
+  --warning-surface: oklch(0.30 0.06 65);
+  --warning-border: oklch(0.48 0.10 65);
+
+  --error: oklch(0.65 0.17 25);
+  --error-foreground: oklch(0.16 0.02 250);
+  --error-surface: oklch(0.25 0.06 25);
+  --error-border: oklch(0.48 0.10 25);
+
+  --info: oklch(0.70 0.10 210);
+  --info-foreground: oklch(0.16 0.02 250);
+  --info-surface: oklch(0.28 0.05 210);
+  --info-border: oklch(0.45 0.08 210);
 }
 
 @theme inline {
@@ -80,6 +126,44 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Semantic status colors — generates bg-success/text-success-foreground/
+     bg-success-surface/border-success-border utilities (and warning/error/info). */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-surface: var(--success-surface);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-border: var(--warning-border);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-error-surface: var(--error-surface);
+  --color-error-border: var(--error-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-surface: var(--info-surface);
+  --color-info-border: var(--info-border);
+
+  /* Spacing scale — generous whitespace reduces cognitive load.
+     Tailwind v4 `--spacing-*` namespace generates p-/gap-/space-y-* utilities. */
+  --spacing-compact: 0.5rem;
+  --spacing-normal: 1rem;
+  --spacing-generous: 1.5rem;
+  --spacing-breathing: 2rem;
+
+  /* Line height — increased for reading-heavy content (question prompts,
+     prose). Tailwind v4 `--leading-*` namespace generates leading-reading. */
+  --leading-reading: 1.75;
+
+  /* Content max-width — prevents overwhelming line lengths.
+     Tailwind v4 `--container-*` namespace generates max-w-content. */
+  --container-content: 72ch;
+
+  /* Motion — slower base transition duration reduces sensory flicker.
+     Overrides Tailwind's default 150ms for the bare `transition` utility. */
+  --default-transition-duration: var(--transition-normal);
 }
 
 @layer base {
@@ -88,7 +172,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: Arial, Helvetica, sans-serif;
   }
 }
 
@@ -97,28 +180,16 @@
    These tokens support ADHD/autism-friendly UX without forcing a visual redesign. */
 
 :root {
-  /* Spacing scale — generous whitespace reduces cognitive load */
-  --space-compact: 0.5rem;
-  --space-normal: 1rem;
-  --space-generous: 1.5rem;
-  --space-breathing: 2rem;
-
   /* Focus ring — thick, high-contrast, always visible for keyboard users */
   --focus-ring-width: 3px;
   --focus-ring-offset: 2px;
   --focus-ring-color: oklch(0.45 0.18 265);
 
-  /* Transition speed — slower transitions reduce sensory flicker */
+  /* Transition speed — slower transitions reduce sensory flicker.
+     --transition-normal feeds --default-transition-duration in @theme above. */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 400ms ease;
-
-  /* Content max-width — prevents overwhelming line lengths */
-  --content-max-width: 72ch;
-
-  /* Line height — increased for readability */
-  --leading-relaxed: 1.75;
-  --leading-snug: 1.5;
 }
 
 /* Focus-visible: thick ring only for keyboard navigation */
