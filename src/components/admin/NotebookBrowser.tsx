@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface Notebook {
   id: string;
@@ -53,7 +54,7 @@ export function NotebookBrowser({ onSelect, selectedNotebookId }: NotebookBrowse
       </CardHeader>
       <CardContent>
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800 mb-4">
+          <div className={`rounded-lg px-4 py-3 text-sm mb-4 ${getStatusToneClasses("error", "surface")}`}>
             {error}
           </div>
         )}

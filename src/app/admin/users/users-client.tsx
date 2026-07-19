@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROLE_OPTIONS } from "@/lib/admin/users-shared";
 import type { UserListItem } from "@/lib/admin/users-shared";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface UsersClientProps {
   users: UserListItem[];
@@ -50,11 +51,10 @@ export function UsersClient({ users, pagination, currentUserId }: UsersClientPro
     <div className="space-y-4">
       {message && (
         <div
-          className={`rounded-lg px-4 py-3 text-sm ${
-            message.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : "bg-red-50 text-red-800 border border-red-200"
-          }`}
+          className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses(
+            message.type === "success" ? "success" : "error",
+            "surface",
+          )}`}
         >
           {message.text}
         </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QuestionListItem } from "./page";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface TableProps {
   questions: QuestionListItem[];
@@ -28,9 +29,9 @@ const typeLabels: Record<string, string> = {
 };
 
 const statusStyles: Record<string, string> = {
-  DRAFT: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  ACTIVE: "bg-green-100 text-green-800 border-green-200",
-  REJECTED: "bg-red-100 text-red-800 border-red-200",
+  DRAFT: getStatusToneClasses("warning", "surface"),
+  ACTIVE: getStatusToneClasses("success", "surface"),
+  REJECTED: getStatusToneClasses("error", "surface"),
 };
 
 const difficultyStyles: Record<string, string> = {
@@ -98,11 +99,10 @@ export function QuestionsTable({ questions, pagination }: TableProps) {
       {/* Message */}
       {message && (
         <div
-          className={`rounded-lg px-4 py-3 text-sm ${
-            message.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : "bg-red-50 text-red-800 border border-red-200"
-          }`}
+          className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses(
+            message.type === "success" ? "success" : "error",
+            "surface",
+          )}`}
         >
           {message.text}
         </div>
@@ -115,14 +115,14 @@ export function QuestionsTable({ questions, pagination }: TableProps) {
           <button
             onClick={() => handleBulkAction("approve")}
             disabled={processing}
-            className="inline-flex items-center justify-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-success/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("success", "solid")}`}
           >
             Approve Selected
           </button>
           <button
             onClick={() => handleBulkAction("reject")}
             disabled={processing}
-            className="inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-error/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("error", "solid")}`}
           >
             Reject Selected
           </button>

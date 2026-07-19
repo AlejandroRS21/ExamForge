@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getQuestionById } from "@/lib/admin/questions";
 import { EditQuestionForm } from "./edit-form";
 import { ReviewButtons } from "./review-buttons";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -101,9 +102,9 @@ export default async function QuestionEditPage({ params }: PageProps) {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    DRAFT: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    ACTIVE: "bg-green-100 text-green-800 border-green-200",
-    REJECTED: "bg-red-100 text-red-800 border-red-200",
+    DRAFT: getStatusToneClasses("warning", "surface"),
+    ACTIVE: getStatusToneClasses("success", "surface"),
+    REJECTED: getStatusToneClasses("error", "surface"),
   };
 
   return (

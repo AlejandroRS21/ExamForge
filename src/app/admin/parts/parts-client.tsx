@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface PartStats {
   totalQuestions: number;
@@ -50,11 +51,10 @@ export function PartsClient({ parts, role }: PartsClientProps) {
     <div className="space-y-6">
       {message && (
         <div
-          className={`rounded-lg px-4 py-3 text-sm ${
-            message.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : "bg-red-50 text-red-800 border border-red-200"
-          }`}
+          className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses(
+            message.type === "success" ? "success" : "error",
+            "surface",
+          )}`}
         >
           {message.text}
         </div>
@@ -107,9 +107,9 @@ export function PartsClient({ parts, role }: PartsClientProps) {
                         <span className="text-purple-600">{part.stats.byDifficulty.C} hard</span>
                       </div>
                       <div className="flex gap-2 text-xs justify-end">
-                        <span className="text-yellow-600">{part.stats.byStatus.DRAFT} draft</span>
-                        <span className="text-green-600">{part.stats.byStatus.ACTIVE} active</span>
-                        <span className="text-red-600">{part.stats.byStatus.REJECTED} rejected</span>
+                        <span className="text-warning">{part.stats.byStatus.DRAFT} draft</span>
+                        <span className="text-success">{part.stats.byStatus.ACTIVE} active</span>
+                        <span className="text-error">{part.stats.byStatus.REJECTED} rejected</span>
                       </div>
                     </div>
                     {canEdit && (

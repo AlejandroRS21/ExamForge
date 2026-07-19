@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getRecentEdits } from "@/lib/admin/history";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 async function getStats() {
   const [totalQuestions, byStatus, totalParts, recentEdits] = await Promise.all([
@@ -52,17 +53,17 @@ export default async function AdminDashboardPage() {
           <p className="text-sm text-muted-foreground">Total Questions</p>
           <p className="text-3xl font-bold">{stats.totalQuestions}</p>
         </div>
-        <div className="rounded-xl border p-6 space-y-2 border-yellow-200 bg-yellow-50/50">
-          <p className="text-sm text-yellow-700 font-medium">Draft</p>
-          <p className="text-3xl font-bold text-yellow-800">{stats.draftCount}</p>
+        <div className={`rounded-xl p-6 space-y-2 ${getStatusToneClasses("warning", "surface")}`}>
+          <p className="text-sm font-medium">Draft</p>
+          <p className="text-3xl font-bold">{stats.draftCount}</p>
         </div>
-        <div className="rounded-xl border p-6 space-y-2 border-green-200 bg-green-50/50">
-          <p className="text-sm text-green-700 font-medium">Active</p>
-          <p className="text-3xl font-bold text-green-800">{stats.activeCount}</p>
+        <div className={`rounded-xl p-6 space-y-2 ${getStatusToneClasses("success", "surface")}`}>
+          <p className="text-sm font-medium">Active</p>
+          <p className="text-3xl font-bold">{stats.activeCount}</p>
         </div>
-        <div className="rounded-xl border p-6 space-y-2 border-red-200 bg-red-50/50">
-          <p className="text-sm text-red-700 font-medium">Rejected</p>
-          <p className="text-3xl font-bold text-red-800">{stats.rejectedCount}</p>
+        <div className={`rounded-xl p-6 space-y-2 ${getStatusToneClasses("error", "surface")}`}>
+          <p className="text-sm font-medium">Rejected</p>
+          <p className="text-3xl font-bold">{stats.rejectedCount}</p>
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import {
   lightPalette,
   darkPalette,
   statusTokens,
+  getStatusToneClasses,
 } from "./design-tokens";
 
 const GLOBALS_CSS_PATH = path.resolve(__dirname, "../app/globals.css");
@@ -124,6 +125,19 @@ describe("statusTokens contrast (WCAG AA)", () => {
     expect(statusTokens.light.error).toBeDefined();
     expect((statusTokens.light as Record<string, unknown>).danger).toBeUndefined();
   });
+
+  // REL-1 (PR1 review follow-up): the `-border` role must independently meet
+  // the 3:1 UI-component contrast bar against its own paired surface — the
+  // solid/surface-text pairs above don't cover this pairing.
+  for (const mode of ["light", "dark"] as const) {
+    for (const tone of tones) {
+      const token = statusTokens[mode][tone];
+
+      it(`${mode}.${tone} border meets 3:1 UI-component contrast against its surface`, () => {
+        expect(contrastRatio(token.surface, token.border)).toBeGreaterThanOrEqual(3);
+      });
+    }
+  }
 });
 
 // ─── Hue range compliance (spec: primary 200-220, accent 150-170) ──────────
@@ -229,5 +243,111 @@ describe("globals.css token wiring", () => {
     expect(destructiveMatch).not.toBeNull();
     expect(destructiveFgMatch).not.toBeNull();
     expect(destructiveMatch![1]).not.toBe(destructiveFgMatch![1]);
+  });
+});
+
+// ─── getStatusToneClasses() — pure token-based class string helper ─────────
+// Output IS the contract (the function's entire purpose is producing these
+// exact class strings for JSX consumption) — asserting the return value here
+// is a behavioral test, not implementation-detail coupling to a rendered DOM.
+
+describe("getStatusToneClasses", () => {
+  const tones = ["success", "warning", "error", "info"] as const;
+
+  it.each(tones)("%s solid variant returns bg-{tone} + text-{tone}-foreground", (tone) => {
+    expect(getStatusToneClasses(tone, "solid")).toBe(`bg-${tone} text-${tone}-foreground`);
+  });
+
+  it.each(tones)(
+    "%s surface variant returns bg-{tone}-surface + text-{tone} + border-{tone}-border",
+    (tone) => {
+      expect(getStatusToneClasses(tone, "surface")).toBe(
+        `bg-${tone}-surface text-${tone} border border-${tone}-border`,
+      );
+    },
+  );
+
+  it("solid and surface variants differ for the same tone", () => {
+    expect(getStatusToneClasses("success", "solid")).not.toBe(getStatusToneClasses("success", "surface"));
+  });
+});
+
+// ─── READ-1: design-tokens.ts / globals.css parity ──────────────────────────
+// Kills dual-declaration drift: palette + status values are hand-maintained in
+// TWO places (the TS source of truth and the CSS custom properties it
+// mirrors). This asserts numeric equality so an edit to one without the other
+// fails loudly instead of silently diverging.
+
+describe("design-tokens.ts / globals.css parity (dead-declaration drift guard)", () => {
+  const css = readFileSync(GLOBALS_CSS_PATH, "utf8");
+
+  function extractFirstBlock(source: string, selector: RegExp): string {
+    const match = selector.exec(source);
+    if (!match) {
+      throw new Error(`Selector not found in globals.css: ${selector}`);
+    }
+    const start = match.index + match[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < source.length && depth > 0) {
+      if (source[i] === "{") depth++;
+      if (source[i] === "}") depth--;
+      i++;
+    }
+    return source.slice(start, i - 1);
+  }
+
+  function getCssVar(block: string, name: string): string {
+    const regex = new RegExp(`--${name}:\\s*(oklch\\([^)]*\\))`);
+    const match = block.match(regex);
+    if (!match) {
+      throw new Error(`--${name} not declared in the expected globals.css block`);
+    }
+    return match[1];
+  }
+
+  function toKebab(key: string): string {
+    return key.replace(/([A-Z])/g, "-$1").toLowerCase();
+  }
+
+  // First `:root { ... }` block holds the palette + status declarations;
+  // a second, unrelated `:root` block later in the file holds focus-ring/
+  // transition tokens only — intentionally not compared here.
+  const rootBlock = extractFirstBlock(css, /:root\s*\{/);
+  const darkBlock = extractFirstBlock(css, /\.dark\s*\{/);
+
+  const paletteKeys = Object.keys(lightPalette) as Array<keyof typeof lightPalette>;
+
+  describe.each(["light", "dark"] as const)("%s palette", (mode) => {
+    const palette = mode === "light" ? lightPalette : darkPalette;
+    const block = mode === "light" ? rootBlock : darkBlock;
+
+    it.each(paletteKeys)(`%s matches globals.css --%s`, (key) => {
+      const cssValue = getCssVar(block, toKebab(key));
+      expect(parseOklch(palette[key])).toEqual(parseOklch(cssValue));
+    });
+  });
+
+  const statusTones = ["success", "warning", "error", "info"] as const;
+  const statusRoles = ["base", "foreground", "surface", "border"] as const;
+  const roleToCssSuffix: Record<(typeof statusRoles)[number], string> = {
+    base: "",
+    foreground: "-foreground",
+    surface: "-surface",
+    border: "-border",
+  };
+
+  describe.each(["light", "dark"] as const)("%s status tokens", (mode) => {
+    const block = mode === "light" ? rootBlock : darkBlock;
+
+    for (const tone of statusTones) {
+      for (const role of statusRoles) {
+        it(`${tone}.${role} matches globals.css --${tone}${roleToCssSuffix[role]}`, () => {
+          const tsValue = statusTokens[mode][tone][role];
+          const cssValue = getCssVar(block, `${tone}${roleToCssSuffix[role]}`);
+          expect(parseOklch(tsValue)).toEqual(parseOklch(cssValue));
+        });
+      }
+    }
   });
 });

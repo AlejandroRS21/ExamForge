@@ -32,6 +32,8 @@ function oklchToLinearSrgb({ l, c, h }: OklchColor): { r: number; g: number; b: 
   const a = c * Math.cos(hRad);
   const b = c * Math.sin(hRad);
 
+  // Matrix constants below are Björn Ottosson's OKLab reference implementation
+  // (LMS <-> OKLab conversion matrices; https://bottosson.github.io/posts/oklab/).
   const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
   const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
   const s_ = l - 0.0894841775 * a - 1.2914855480 * b;
@@ -125,6 +127,13 @@ export interface StatusTone {
   base: string;
   foreground: string;
   surface: string;
+  /**
+   * Border color paired with `surface`. Tuned independently from `base` to
+   * reach >=3:1 UI-component contrast against `surface` specifically (PR1
+   * review follow-up REL-1 — reusing `base` here left this pairing at
+   * ~1.7-2.4:1 across all tones).
+   */
+  border: string;
 }
 
 export const statusTokens = {
@@ -133,21 +142,25 @@ export const statusTokens = {
       base: "oklch(0.52 0.09 165)",
       foreground: "oklch(0.99 0.005 95)",
       surface: "oklch(0.95 0.03 165)",
+      border: "oklch(0.60 0.10 165)",
     },
     warning: {
       base: "oklch(0.50 0.15 65)",
       foreground: "oklch(0.99 0.005 95)",
       surface: "oklch(0.97 0.025 65)",
+      border: "oklch(0.63 0.13 65)",
     },
     error: {
       base: lightPalette.destructive,
       foreground: lightPalette.destructiveForeground,
       surface: "oklch(0.95 0.03 25)",
+      border: "oklch(0.62 0.14 25)",
     },
     info: {
       base: lightPalette.primary,
       foreground: lightPalette.primaryForeground,
       surface: "oklch(0.96 0.03 210)",
+      border: "oklch(0.61 0.11 210)",
     },
   },
   dark: {
@@ -155,21 +168,41 @@ export const statusTokens = {
       base: "oklch(0.68 0.11 165)",
       foreground: "oklch(0.16 0.02 250)",
       surface: "oklch(0.28 0.05 165)",
+      border: "oklch(0.56 0.09 165)",
     },
     warning: {
       base: "oklch(0.72 0.14 65)",
       foreground: "oklch(0.16 0.02 250)",
       surface: "oklch(0.30 0.06 65)",
+      border: "oklch(0.59 0.12 65)",
     },
     error: {
       base: darkPalette.destructive,
       foreground: darkPalette.destructiveForeground,
       surface: "oklch(0.25 0.06 25)",
+      border: "oklch(0.56 0.14 25)",
     },
     info: {
       base: darkPalette.primary,
       foreground: darkPalette.primaryForeground,
       surface: "oklch(0.28 0.05 210)",
+      border: "oklch(0.56 0.10 210)",
     },
   },
 } as const satisfies Record<"light" | "dark", Record<"success" | "warning" | "error" | "info", StatusTone>>;
+
+// ─── getStatusToneClasses() — pure token-based class string helper ─────────
+// Replaces the two raw Tailwind status-color patterns found across the
+// codebase (`bg-x-50/text-x-700/border-x-200` and `bg-x-600 text-white`)
+// with references to the semantic tokens above, wired via `@theme inline`
+// in globals.css (`bg-success`, `text-success-foreground`, etc.).
+
+export type StatusToneName = "success" | "warning" | "error" | "info";
+export type StatusToneVariant = "surface" | "solid";
+
+export function getStatusToneClasses(tone: StatusToneName, variant: StatusToneVariant): string {
+  if (variant === "solid") {
+    return `bg-${tone} text-${tone}-foreground`;
+  }
+  return `bg-${tone}-surface text-${tone} border border-${tone}-border`;
+}

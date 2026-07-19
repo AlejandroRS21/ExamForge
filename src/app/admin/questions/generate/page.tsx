@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { GenerateForm } from "./generate-form";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 export default async function GenerateQuestionsPage() {
   const session = await auth();
@@ -30,9 +31,9 @@ export default async function GenerateQuestionsPage() {
 
       <GenerateForm parts={parts} />
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
-        <h3 className="text-sm font-semibold text-amber-800">Important Notes</h3>
-        <ul className="mt-2 text-sm text-amber-700 list-disc list-inside space-y-1">
+      <div className={`rounded-xl p-4 ${getStatusToneClasses("warning", "surface")}`}>
+        <h3 className="text-sm font-semibold">Important Notes</h3>
+        <ul className="mt-2 text-sm list-disc list-inside space-y-1">
           <li>
             AI-generated questions are placeholders — always review for accuracy, appropriateness,
             and alignment with Cambridge B2 First standards.

@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface ReviewButtonsProps {
   questionId: string;
@@ -56,7 +57,7 @@ export function ReviewButtons({ questionId, status }: ReviewButtonsProps) {
       {message ? (
         <span
           className={`text-xs font-medium ${
-            message.type === "success" ? "text-green-600" : "text-red-600"
+            message.type === "success" ? "text-success" : "text-error"
           }`}
         >
           {message.text}
@@ -66,14 +67,14 @@ export function ReviewButtons({ questionId, status }: ReviewButtonsProps) {
           <button
             onClick={() => handleAction("approve")}
             disabled={processing}
-            className="inline-flex items-center justify-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-success/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("success", "solid")}`}
           >
             {processing ? "..." : "Approve"}
           </button>
           <button
             onClick={() => handleAction("reject")}
             disabled={processing}
-            className="inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            className={`inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-error/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("error", "solid")}`}
           >
             {processing ? "..." : "Reject"}
           </button>

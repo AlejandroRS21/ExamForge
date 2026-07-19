@@ -4,6 +4,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { GenerateContentForm } from "@/components/admin/GenerateContentForm";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 export default async function GenerateContentPage() {
   const session = await auth();
@@ -23,9 +24,9 @@ export default async function GenerateContentPage() {
 
       <GenerateContentForm />
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
-        <h3 className="text-sm font-semibold text-amber-800">About Generation</h3>
-        <ul className="mt-2 text-sm text-amber-700 list-disc list-inside space-y-1">
+      <div className={`rounded-xl p-4 ${getStatusToneClasses("warning", "surface")}`}>
+        <h3 className="text-sm font-semibold">About Generation</h3>
+        <ul className="mt-2 text-sm list-disc list-inside space-y-1">
           <li>
             Content is generated using NotebookLM and saved with <strong>COMPLETED</strong> status.
           </li>

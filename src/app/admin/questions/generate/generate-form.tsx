@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface GenerateFormProps {
   parts: Array<{ id: string; label: string; partNumber: number; timeMinutes: number }>;
@@ -123,7 +124,7 @@ export function GenerateForm({ parts }: GenerateFormProps) {
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
           {error}
         </div>
       )}
@@ -140,9 +141,9 @@ export function GenerateForm({ parts }: GenerateFormProps) {
           </div>
 
           {result.errors.length > 0 && (
-            <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3">
-              <p className="text-sm font-medium text-yellow-800">Errors</p>
-              <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
+            <div className={`rounded-lg px-4 py-3 ${getStatusToneClasses("warning", "surface")}`}>
+              <p className="text-sm font-medium">Errors</p>
+              <ul className="mt-1 text-sm list-disc list-inside">
                 {result.errors.map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}

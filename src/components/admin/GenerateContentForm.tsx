@@ -4,6 +4,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 type SourceType = "URL" | "TEXT" | "YOUTUBE";
 type ContentType = "QUIZ" | "AUDIO" | "FLASHCARDS";
@@ -135,10 +136,10 @@ export function GenerateContentForm() {
 
   const statusBadge = (s: GenerationStatus) => {
     const colors: Record<GenerationStatus, string> = {
-      PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      PENDING: getStatusToneClasses("warning", "surface"),
       PROCESSING: "bg-blue-100 text-blue-800 border-blue-200",
-      COMPLETED: "bg-green-100 text-green-800 border-green-200",
-      FAILED: "bg-red-100 text-red-800 border-red-200",
+      COMPLETED: getStatusToneClasses("success", "surface"),
+      FAILED: getStatusToneClasses("error", "surface"),
     };
     return (
       <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${colors[s]}`}>
@@ -218,7 +219,7 @@ export function GenerateContentForm() {
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
           {error}
         </div>
       )}
@@ -244,14 +245,14 @@ export function GenerateContentForm() {
           )}
 
           {status.status === "FAILED" && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+            <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
               {status.errorMessage ?? "Generation failed with no error message."}
             </div>
           )}
 
           {status.status === "COMPLETED" && (
             <div className="space-y-3">
-              <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+              <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("success", "surface")}`}>
                 Content generated successfully!
               </div>
 

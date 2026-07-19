@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface PendingContent {
   id: string;
@@ -80,7 +81,7 @@ export function ReviewQueue() {
     const colors: Record<string, string> = {
       QUIZ: "bg-purple-100 text-purple-800 border-purple-200",
       AUDIO: "bg-blue-100 text-blue-800 border-blue-200",
-      FLASHCARDS: "bg-green-100 text-green-800 border-green-200",
+      FLASHCARDS: getStatusToneClasses("success", "surface"),
     };
     const label = type.charAt(0) + type.slice(1).toLowerCase();
     return (
@@ -102,7 +103,7 @@ export function ReviewQueue() {
     <div className="space-y-4">
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
           {error}
         </div>
       )}
@@ -163,14 +164,14 @@ export function ReviewQueue() {
                       <button
                         onClick={() => handleReview(item.id, "APPROVE")}
                         disabled={actionLoading === item.id}
-                        className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                        className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-success/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("success", "solid")}`}
                       >
                         {actionLoading === item.id ? "..." : "Approve"}
                       </button>
                       <button
                         onClick={() => handleReview(item.id, "REJECT")}
                         disabled={actionLoading === item.id}
-                        className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                        className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-error/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("error", "solid")}`}
                       >
                         {actionLoading === item.id ? "..." : "Reject"}
                       </button>
