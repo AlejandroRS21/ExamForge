@@ -17,9 +17,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ExamForge — B2 First Practice Platform",
-  description:
-    "Prepare for the Cambridge B2 First (FCE) exam with realistic practice tests, AI-powered feedback, and progress tracking.",
+  title: {
+    default: "ExamForge — Cambridge B2 First Practice",
+    template: "%s | ExamForge",
+  },
+  description: "Practice Cambridge B2 First with AI-powered exercises, flashcards, and mock exams.",
+  openGraph: {
+    title: "ExamForge",
+    description: "Cambridge B2 First Practice Platform",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
