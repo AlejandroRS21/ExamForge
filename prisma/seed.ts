@@ -33,6 +33,21 @@ async function main() {
     console.log(`  ✓ Admin user already exists`);
   }
 
+  // ── Tester user (plain USER role, for manual QA of student-facing flows) ──
+  const testerPassword = await bcrypt.hash("Tester123!", 10);
+  const existingTester = await query(`SELECT id FROM "User" WHERE email = $1`, ["tester@examforge.com"]);
+  if (existingTester.rows.length === 0) {
+    const now = new Date();
+    await query(
+      `INSERT INTO "User" (id, name, email, "passwordHash", "emailVerified", role, "createdAt", "updatedAt")
+       VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $6)`,
+      ["Tester", "tester@examforge.com", testerPassword, now, "USER", now]
+    );
+    console.log(`  ✓ Tester user: tester@examforge.com (password: Tester123!)`);
+  } else {
+    console.log(`  ✓ Tester user already exists`);
+  }
+
   // ── Exam parts ──────────────────────────────────────────────────────
   const parts = [
     { id: "ruoe-part-1", label: "R&UoE Part 1", paper: "R&UoE", n: 1, time: 8, qc: 8, desc: "Multiple-choice cloze" },
