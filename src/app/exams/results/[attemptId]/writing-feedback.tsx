@@ -53,10 +53,10 @@ export function WritingFeedback({ submissions }: WritingFeedbackProps) {
                 Target: {submission.writingPrompt.wordCountMin}–{submission.writingPrompt.wordCountMax}
               </span>
               {submission.wordCount < submission.writingPrompt.wordCountMin && (
-                <span className="text-amber-500 font-medium">Under word limit</span>
+                <span className="text-warning font-medium">Under word limit</span>
               )}
               {submission.wordCount > submission.writingPrompt.wordCountMax && (
-                <span className="text-amber-500 font-medium">Over word limit</span>
+                <span className="text-warning font-medium">Over word limit</span>
               )}
             </div>
 

@@ -93,18 +93,18 @@ export default async function DashboardPage() {
 
         {/* ─── Weak Areas Alert ─── */}
         {stats.weakAreas.length > 0 && (
-          <div className="rounded-xl border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-800 p-6 space-y-3">
-            <h2 className="text-lg font-semibold text-red-800 dark:text-red-300">
+          <div className="rounded-xl border border-error-border bg-error-surface p-6 space-y-3">
+            <h2 className="text-lg font-semibold text-error">
               Areas needing attention
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {stats.weakAreas.slice(0, 3).map((area) => (
                 <div key={area.partId} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                  <span className="text-sm font-medium text-error">
                     {area.partLabel}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-red-600 dark:text-red-400">
+                    <span className="text-sm text-error">
                       {Math.round(area.accuracy)}%
                     </span>
                     <Link

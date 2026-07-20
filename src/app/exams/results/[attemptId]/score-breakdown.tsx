@@ -35,10 +35,10 @@ export function ScoreBreakdown({ partStats }: ScoreBreakdownProps) {
           {partStats.map((stat, i) => {
             const barColor =
               stat.percentage >= 80
-                ? "bg-green-500"
+                ? "bg-success"
                 : stat.percentage >= 60
-                  ? "bg-amber-500"
-                  : "bg-red-500";
+                  ? "bg-warning"
+                  : "bg-error";
 
             return (
               <tr key={stat.partId} className={i % 2 === 0 ? "bg-card" : "bg-muted/20"}>

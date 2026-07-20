@@ -179,7 +179,7 @@ export function PracticeModeClient({
               <span
                 className={`text-xs ${
                   saveMessage === "Saved"
-                    ? "text-green-600 dark:text-green-400"
+                    ? "text-success"
                     : "text-destructive"
                 }`}
               >

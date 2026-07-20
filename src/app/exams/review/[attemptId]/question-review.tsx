@@ -76,8 +76,8 @@ export function QuestionReview({
     <div
       className={`rounded-xl border p-5 space-y-3 transition-all ${
         isCorrect
-          ? "border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20"
-          : "border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20"
+          ? "border-success-border bg-success-surface"
+          : "border-error-border bg-error-surface"
       }`}
     >
       {/* Header */}
@@ -87,8 +87,8 @@ export function QuestionReview({
           <div
             className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
               isCorrect
-                ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
-                : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
+                ? "bg-success-surface text-success"
+                : "bg-error-surface text-error"
             }`}
           >
             {isCorrect ? "✓" : "✗"}
@@ -137,10 +137,10 @@ export function QuestionReview({
         <span
           className={`flex-shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full ${
             question.difficulty === "C"
-              ? "bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400"
+              ? "bg-error-surface text-error"
               : question.difficulty === "A"
-                ? "bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400"
-                : "bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400"
+                ? "bg-success-surface text-success"
+                : "bg-warning-surface text-warning"
           }`}
         >
           {difficultyLabels[question.difficulty] ?? question.difficulty}
@@ -153,7 +153,7 @@ export function QuestionReview({
           <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
             Your Answer
           </p>
-          <p className={`text-sm font-medium ${isCorrect ? "text-green-600" : "text-red-600"}`}>
+          <p className={`text-sm font-medium ${isCorrect ? "text-success" : "text-error"}`}>
             {formatAnswer(givenAnswer)}
           </p>
         </div>
@@ -161,7 +161,7 @@ export function QuestionReview({
           <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
             Correct Answer
           </p>
-          <p className="text-sm font-medium text-green-600">
+          <p className="text-sm font-medium text-success">
             {formatCorrectAnswer(question.correctAnswer)}
           </p>
         </div>

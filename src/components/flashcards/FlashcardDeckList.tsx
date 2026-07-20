@@ -124,7 +124,7 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
                 </span>
               )}
               {deck.dueCount === 0 && deck.cardCount > 0 && (
-                <span className="flex items-center gap-1 text-green-600">
+                <span className="flex items-center gap-1 text-success">
                   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>

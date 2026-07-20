@@ -159,7 +159,7 @@ export function GoalsClient({ goals }: GoalsClientProps) {
           </div>
 
           {activeGoal.achieved && (
-            <div className="rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+            <div className="rounded-lg bg-success-surface border border-success-border px-4 py-3 text-sm text-success">
               🎉 Goal achieved!
             </div>
           )}
@@ -187,7 +187,7 @@ export function GoalsClient({ goals }: GoalsClientProps) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    <span className="text-xs text-success font-medium">
                       Achieved ✓
                     </span>
                     {goal.achievedAt && (

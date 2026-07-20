@@ -131,7 +131,7 @@ export function ExamTimer({
       <div
         className={`font-mono text-lg font-bold tabular-nums transition-colors
           ${isCritical ? "text-destructive animate-pulse" : ""}
-          ${isUrgent && !isCritical ? "text-amber-500" : ""}
+          ${isUrgent && !isCritical ? "text-warning" : ""}
           ${!isUrgent ? "text-foreground" : ""}
         `}
         aria-live="polite"
@@ -145,7 +145,7 @@ export function ExamTimer({
       )}
 
       {isUrgent && !isCritical && (
-        <span className="text-[10px] font-medium text-amber-500 uppercase tracking-wider">
+        <span className="text-[10px] font-medium text-warning uppercase tracking-wider">
           Nearly done
         </span>
       )}

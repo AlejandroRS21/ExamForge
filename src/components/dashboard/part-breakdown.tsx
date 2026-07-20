@@ -39,21 +39,21 @@ export function PartBreakdownTable({ data, weakAreas }: PartBreakdownProps) {
               part.attempts === 0
                 ? "bg-muted"
                 : part.accuracy >= 80
-                  ? "bg-green-500"
+                  ? "bg-success"
                   : part.accuracy >= 60
-                    ? "bg-yellow-500"
-                    : "bg-red-500";
+                    ? "bg-warning"
+                    : "bg-error";
 
             return (
               <tr
                 key={part.partId}
-                className={`border-b last:border-b-0 ${isWeak ? "bg-red-50/50 dark:bg-red-950/20" : ""}`}
+                className={`border-b last:border-b-0 ${isWeak ? "bg-error-surface" : ""}`}
               >
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{part.partLabel}</span>
                     {isWeak && (
-                      <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-400">
+                      <span className="inline-flex items-center rounded-full bg-error-surface px-2 py-0.5 text-xs font-medium text-error">
                         Needs practice
                       </span>
                     )}
@@ -72,7 +72,7 @@ export function PartBreakdownTable({ data, weakAreas }: PartBreakdownProps) {
                     <span
                       className={`text-sm font-medium ${
                         isWeak
-                          ? "text-red-600 dark:text-red-400"
+                          ? "text-error"
                           : part.attempts === 0
                             ? "text-muted-foreground"
                             : ""

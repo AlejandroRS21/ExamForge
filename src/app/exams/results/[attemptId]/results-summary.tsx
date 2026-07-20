@@ -27,14 +27,14 @@ export function ResultsSummary({
   // SE-05: Partial attempts
   if (isPartial) {
     return (
-      <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-6 text-center">
-        <h2 className="text-lg font-semibold text-amber-800 dark:text-amber-300 mb-2">
+      <div className="rounded-xl border border-warning-border bg-warning-surface p-6 text-center">
+        <h2 className="text-lg font-semibold text-warning mb-2">
           Incomplete Attempt
         </h2>
-        <p className="text-sm text-amber-700 dark:text-amber-400">
+        <p className="text-sm text-warning">
           Complete all parts to see your score.
         </p>
-        <p className="text-xs text-amber-600 dark:text-amber-500 mt-2">
+        <p className="text-xs text-warning/80 mt-2">
           You answered {answeredCount} of {questionCount} questions.
           {status === "TIMED_OUT"
             ? " The exam was auto-submitted when time ran out."

@@ -207,8 +207,8 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
       {/* Disclaimer */}
       {attempt.totalScore !== null && (
-        <div className="mt-8 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-4">
-          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+        <div className="mt-8 rounded-lg border border-warning-border bg-warning-surface p-4">
+          <p className="text-xs text-warning leading-relaxed">
             {SCORE_DISCLAIMER}
           </p>
         </div>

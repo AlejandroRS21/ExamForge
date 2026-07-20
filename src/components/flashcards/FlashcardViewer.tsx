@@ -162,17 +162,17 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
         </div>
 
         <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto">
-          <div className="rounded-lg bg-red-50 dark:bg-red-950/30 p-3">
-            <div className="text-lg font-bold text-red-600 dark:text-red-400">{againCount}</div>
-            <div className="text-[10px] text-red-600/70 dark:text-red-400/70">Again</div>
+          <div className="rounded-lg bg-error-surface p-3">
+            <div className="text-lg font-bold text-error">{againCount}</div>
+            <div className="text-[10px] text-error/70">Again</div>
           </div>
-          <div className="rounded-lg bg-orange-50 dark:bg-orange-950/30 p-3">
-            <div className="text-lg font-bold text-orange-600 dark:text-orange-400">{hardCount}</div>
-            <div className="text-[10px] text-orange-600/70 dark:text-orange-400/70">Hard</div>
+          <div className="rounded-lg bg-warning-surface p-3">
+            <div className="text-lg font-bold text-warning">{hardCount}</div>
+            <div className="text-[10px] text-warning/70">Hard</div>
           </div>
-          <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-3">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">{goodCount}</div>
-            <div className="text-[10px] text-green-600/70 dark:text-green-400/70">Good</div>
+          <div className="rounded-lg bg-success-surface p-3">
+            <div className="text-lg font-bold text-success">{goodCount}</div>
+            <div className="text-[10px] text-success/70">Good</div>
           </div>
           <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-3">
             <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{easyCount}</div>
@@ -235,7 +235,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-800 dark:text-red-200">
+        <div className="rounded-lg bg-error-surface border border-error-border px-4 py-3 text-sm text-error">
           {error}
         </div>
       )}
@@ -306,7 +306,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(0)}
               disabled={submitting}
-              className="rounded-lg bg-red-600 px-3 py-3 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="rounded-lg bg-error px-3 py-3 text-sm font-medium text-error-foreground hover:bg-error/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
               aria-label="Rate Again — card will be shown again today"
               type="button"
             >
@@ -316,7 +316,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(1)}
               disabled={submitting}
-              className="rounded-lg bg-orange-600 px-3 py-3 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              className="rounded-lg bg-warning px-3 py-3 text-sm font-medium text-warning-foreground hover:bg-warning/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning"
               aria-label="Rate Hard — card will be shown again tomorrow"
               type="button"
             >
@@ -326,7 +326,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             <button
               onClick={() => handleRate(2)}
               disabled={submitting}
-              className="rounded-lg bg-green-600 px-3 py-3 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="rounded-lg bg-success px-3 py-3 text-sm font-medium text-success-foreground hover:bg-success/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success"
               aria-label="Rate Good — card scheduled for review in 1-3 days"
               type="button"
             >

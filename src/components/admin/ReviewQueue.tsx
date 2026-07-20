@@ -81,7 +81,7 @@ export function ReviewQueue() {
     const colors: Record<string, string> = {
       QUIZ: "bg-purple-100 text-purple-800 border-purple-200",
       AUDIO: "bg-blue-100 text-blue-800 border-blue-200",
-      FLASHCARDS: getStatusToneClasses("success", "surface"),
+      FLASHCARDS: "bg-green-100 text-green-800 border-green-200",
     };
     const label = type.charAt(0) + type.slice(1).toLowerCase();
     return (

@@ -107,7 +107,7 @@ export default async function ExamsPage() {
               Full timed exam with real B2 First timing. One shot — no pauses.
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-amber-50 dark:bg-amber-950 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+          <span className="inline-flex items-center rounded-full bg-warning-surface px-3 py-1 text-xs font-medium text-warning">
             Timed
           </span>
         </div>
@@ -140,7 +140,7 @@ export default async function ExamsPage() {
               <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
                 <span>{part.questionCount} questions</span>
                 <span>{part.timeMinutes} min</span>
-                <span className="text-amber-500 font-medium">Timed</span>
+                <span className="text-warning font-medium">Timed</span>
               </div>
             </Link>
           ))}

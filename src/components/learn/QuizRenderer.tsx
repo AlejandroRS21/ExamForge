@@ -55,10 +55,10 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
 
     const scoreColor =
       score >= 80
-        ? "text-green-600"
+        ? "text-success"
         : score >= 50
-          ? "text-yellow-600"
-          : "text-red-600";
+          ? "text-warning"
+          : "text-error";
 
     return (
       <div className="rounded-xl border bg-card p-8 text-center space-y-6" role="status" aria-label="Quiz results">
@@ -79,8 +79,8 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
                 key={q.id}
                 className={`rounded-lg border p-4 ${
                   isCorrect
-                    ? "border-green-200 bg-green-50/50"
-                    : "border-red-200 bg-red-50/50"
+                    ? "border-success-border bg-success-surface"
+                    : "border-error-border bg-error-surface"
                 }`}
               >
                 <p className="text-sm font-medium mb-1">
@@ -88,10 +88,10 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
                 </p>
                 <div className="flex items-center gap-2 text-xs">
                   {isCorrect ? (
-                    <span className="text-green-700 font-medium">Correct</span>
+                    <span className="text-success font-medium">Correct</span>
                   ) : (
                     <>
-                      <span className="text-red-700 font-medium">Incorrect</span>
+                      <span className="text-error font-medium">Incorrect</span>
                       <span className="text-muted-foreground">
                         &mdash; Your answer: {userAnswer ?? "None"}
                       </span>
@@ -166,9 +166,9 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
 
             if (showFeedback) {
               if (isOptionCorrect) {
-                optionStyle = "border-green-500 bg-green-50 dark:bg-green-950/30";
+                optionStyle = "border-success-border bg-success-surface";
               } else if (isSelected && !isOptionCorrect) {
-                optionStyle = "border-red-500 bg-red-50 dark:bg-red-950/30";
+                optionStyle = "border-error-border bg-error-surface";
               }
             } else if (isSelected) {
               optionStyle = "border-primary bg-primary/5";
@@ -190,12 +190,12 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
                 </span>
                 <span>{option}</span>
                 {showFeedback && isOptionCorrect && (
-                  <svg className="ml-auto h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <svg className="ml-auto h-4 w-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 )}
                 {showFeedback && isSelected && !isOptionCorrect && (
-                  <svg className="ml-auto h-4 w-4 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <svg className="ml-auto h-4 w-4 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -211,8 +211,8 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
           <div
             className={`rounded-lg px-4 py-3 text-sm ${
               isCorrect
-                ? "bg-green-50 border border-green-200 text-green-800 dark:bg-green-950/30 dark:border-green-800 dark:text-green-200"
-                : "bg-red-50 border border-red-200 text-red-800 dark:bg-red-950/30 dark:border-red-800 dark:text-red-200"
+                ? "bg-success-surface border border-success-border text-success"
+                : "bg-error-surface border border-error-border text-error"
             }`}
             role="status"
             aria-live="polite"

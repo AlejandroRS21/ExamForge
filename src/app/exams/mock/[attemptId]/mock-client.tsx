@@ -243,7 +243,7 @@ export function MockExamClient({
       <header className="border-b px-6 py-3 flex items-center justify-between bg-card">
         <div className="flex items-center gap-4">
           <h1 className="text-sm font-semibold">{currentPartLabel}</h1>
-          <span className="inline-flex items-center rounded-full bg-amber-50 dark:bg-amber-950 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+          <span className="inline-flex items-center rounded-full bg-warning-surface px-2 py-0.5 text-[10px] font-medium text-warning uppercase tracking-wider">
             Mock
           </span>
         </div>
@@ -394,7 +394,7 @@ export function MockExamClient({
               Unanswered questions will be marked as incorrect.
             </p>
             {answeredCount < questions.length && (
-              <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-3 text-xs text-amber-700 dark:text-amber-300">
+              <div className="rounded-lg bg-warning-surface border border-warning-border p-3 text-xs text-warning">
                 ⚠️ {questions.length - answeredCount} unanswered question
                 {questions.length - answeredCount !== 1 ? "s" : ""}
               </div>

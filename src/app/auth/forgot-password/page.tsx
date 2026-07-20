@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm space-y-6 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 rounded-full bg-success-surface flex items-center justify-center mb-4">
             <span className="text-3xl">📧</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Check Your Email</h1>

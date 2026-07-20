@@ -95,10 +95,10 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
   // Score color
   const scoreColor =
     result && result.score >= 80
-      ? "text-green-600"
+      ? "text-success"
       : result && result.score >= 50
-        ? "text-yellow-600"
-        : "text-red-600";
+        ? "text-warning"
+        : "text-error";
 
   return (
     <div className="space-y-8">
@@ -188,7 +188,7 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
 
           {/* Error */}
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800" role="alert" aria-live="assertive">
+            <div className="rounded-lg bg-error-surface border border-error-border px-4 py-3 text-sm text-error" role="alert" aria-live="assertive">
               {error}
             </div>
           )}
@@ -232,8 +232,8 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
                   key={d.questionId}
                   className={`rounded-lg border p-4 ${
                     d.correct
-                      ? "border-green-200 bg-green-50/50"
-                      : "border-red-200 bg-red-50/50"
+                      ? "border-success-border bg-success-surface"
+                      : "border-error-border bg-error-surface"
                   }`}
                 >
                   <p className="text-sm font-medium mb-1">
@@ -241,10 +241,10 @@ export function AudioExerciseView({ exercise }: AudioExerciseViewProps) {
                   </p>
                   <div className="flex items-center gap-2 text-xs">
                     {d.correct ? (
-                      <span className="text-green-700 font-medium">Correct</span>
+                      <span className="text-success font-medium">Correct</span>
                     ) : (
                       <>
-                        <span className="text-red-700 font-medium">Incorrect</span>
+                        <span className="text-error font-medium">Incorrect</span>
                         <span className="text-muted-foreground">
                           &mdash; Correct answer: {d.correctAnswer}
                         </span>

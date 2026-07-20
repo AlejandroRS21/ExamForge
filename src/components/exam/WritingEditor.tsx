@@ -50,7 +50,7 @@ export function WritingEditor({
   const wordStatusColor = isOverMax
     ? "text-destructive"
     : isUnderMin
-      ? "text-amber-500"
+      ? "text-warning"
       : "text-muted-foreground";
 
   // Auto-save with debounce (3s after last keystroke)
@@ -160,7 +160,7 @@ export function WritingEditor({
           </span>
 
           {isUnderMin && (
-            <span className="text-amber-500 font-medium">
+            <span className="text-warning font-medium">
               Min. {wordCountMin} words
             </span>
           )}
@@ -188,7 +188,7 @@ export function WritingEditor({
           )}
 
           {!isSaving && hasUnsavedRef.current && (
-            <span className="text-amber-500">Unsaved changes</span>
+            <span className="text-warning">Unsaved changes</span>
           )}
 
           {saveError && (
