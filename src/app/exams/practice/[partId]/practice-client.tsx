@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AnswerInput } from "@/components/exam/AnswerInput";
 import { ProgressIndicator } from "@/components/exam/ProgressIndicator";
 import type { QuestionDisplayData } from "@/components/exam/AnswerInput";
+import { getStatusToneClasses } from "@/lib/design-tokens";
 
 interface PracticeModeClientProps {
   part: {
@@ -238,7 +239,7 @@ export function PracticeModeClient({
                     <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
                       💡 Hint available
                     </summary>
-                    <p className="mt-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 leading-relaxed">
+                    <p className={`mt-2 p-3 rounded-lg leading-relaxed ${getStatusToneClasses("info", "surface")}`}>
                       {currentQuestion.prompt.hint}
                     </p>
                   </details>

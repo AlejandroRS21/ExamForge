@@ -13,9 +13,57 @@ import {
   darkPalette,
   statusTokens,
   getStatusToneClasses,
+  focusRingColor,
 } from "./design-tokens";
 
 const GLOBALS_CSS_PATH = path.resolve(__dirname, "../app/globals.css");
+
+// ─── Shared test infra — hoisted so multiple describe blocks below can reuse
+// the same parsed globals.css / source-tree data without redundant re-reads. ───
+
+function extractThemeBlocks(source: string): string {
+  const blocks: string[] = [];
+  const regex = /@theme[^{]*\{/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(source)) !== null) {
+    const start = match.index + match[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < source.length && depth > 0) {
+      if (source[i] === "{") depth++;
+      if (source[i] === "}") depth--;
+      i++;
+    }
+    blocks.push(source.slice(start, i - 1));
+  }
+  return blocks.join("\n");
+}
+
+const themeContent = extractThemeBlocks(readFileSync(GLOBALS_CSS_PATH, "utf8"));
+
+const SRC_DIR = path.resolve(__dirname, "..");
+
+function collectSourceFiles(dir: string): string[] {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  const files: string[] = [];
+  for (const entry of entries) {
+    if (entry.name === "node_modules" || entry.name === ".next") continue;
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectSourceFiles(fullPath));
+    } else if (
+      /\.(ts|tsx)$/.test(entry.name) &&
+      !/\.(test|spec)\.(ts|tsx)$/.test(entry.name)
+    ) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+const sourceText = collectSourceFiles(SRC_DIR)
+  .map((file) => readFileSync(file, "utf8"))
+  .join("\n");
 
 // ─── contrastRatio() — pure math, no fixtures needed ────────────────────────
 
@@ -102,6 +150,25 @@ describe("darkPalette contrast (WCAG AA)", () => {
   });
 });
 
+// ─── Focus ring — CRITICAL-1 (verify report): dark mode failed 3:1 UI-
+// component AA with no test coverage at all. Proves both modes independently
+// against each mode's own --background using the same contrastRatio() used
+// throughout this file.
+
+describe("focus ring contrast (WCAG AA UI component, >=3:1)", () => {
+  it("light mode focus ring meets 3:1 against light background", () => {
+    expect(contrastRatio(lightPalette.background, focusRingColor.light)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("dark mode focus ring meets 3:1 against dark background", () => {
+    expect(contrastRatio(darkPalette.background, focusRingColor.dark)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("dark mode focus ring has a .dark override distinct from the light value", () => {
+    expect(focusRingColor.dark).not.toBe(focusRingColor.light);
+  });
+});
+
 // ─── Semantic status tokens — success/warning/error/info ───────────────────
 
 describe("statusTokens contrast (WCAG AA)", () => {
@@ -185,31 +252,11 @@ describe("palette hue ranges", () => {
 describe("globals.css token wiring", () => {
   const css = readFileSync(GLOBALS_CSS_PATH, "utf8");
 
-  function extractThemeBlocks(source: string): string {
-    const blocks: string[] = [];
-    const regex = /@theme[^{]*\{/g;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(source)) !== null) {
-      const start = match.index + match[0].length;
-      let depth = 1;
-      let i = start;
-      while (i < source.length && depth > 0) {
-        if (source[i] === "{") depth++;
-        if (source[i] === "}") depth--;
-        i++;
-      }
-      blocks.push(source.slice(start, i - 1));
-    }
-    return blocks.join("\n");
-  }
-
-  const themeContent = extractThemeBlocks(css);
-
   it("does not hardcode font-family: Arial on body", () => {
     expect(css).not.toMatch(/font-family:\s*Arial/i);
   });
 
-  const spacingTokens = ["--spacing-compact", "--spacing-normal", "--spacing-generous", "--spacing-breathing"];
+  const spacingTokens = ["--spacing-normal", "--spacing-generous", "--spacing-breathing"];
   it.each(spacingTokens)("%s is wired inside an @theme block", (token) => {
     expect(themeContent).toContain(token);
   });
@@ -283,39 +330,13 @@ describe("spacing/leading/width token adoption (PR3 — kills dead-token regress
   // never referenced by any component is a silent regression waiting to
   // happen. This walks the actual page/component source tree (not just
   // globals.css) so the assertion fails if a future refactor strips the last
-  // real usage of one of these utilities.
-
-  const SRC_DIR = path.resolve(__dirname, "..");
-
-  function collectSourceFiles(dir: string): string[] {
-    const entries = readdirSync(dir, { withFileTypes: true });
-    const files: string[] = [];
-    for (const entry of entries) {
-      if (entry.name === "node_modules" || entry.name === ".next") continue;
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        files.push(...collectSourceFiles(fullPath));
-      } else if (
-        /\.(ts|tsx)$/.test(entry.name) &&
-        !/\.(test|spec)\.(ts|tsx)$/.test(entry.name)
-      ) {
-        files.push(fullPath);
-      }
-    }
-    return files;
-  }
-
-  const sourceText = collectSourceFiles(SRC_DIR)
-    .map((file) => readFileSync(file, "utf8"))
-    .join("\n");
+  // real usage of one of these utilities. (`sourceText`/`SRC_DIR` are hoisted
+  // module-level consts, shared with the orphan-token audit block below.)
 
   // Exact utility classes the design doc's PR3 adoption plan names explicitly:
   // `max-w-2xl -> max-w-content`, `py-8 -> py-breathing`, `space-y-8 ->
   // space-y-generous`, `p-8 -> p-breathing` (admin), reading-prose `leading-reading`,
   // plus `gap-normal` consumed by the new LearnHeader nav.
-  // `--spacing-compact` remains declared-but-unconsumed for a future
-  // finer-grained slice (documented deferral, same pattern as PR2b's
-  // untouched `blue` occurrences).
   const expectedUtilities = ["max-w-content", "py-breathing", "space-y-generous", "p-breathing", "leading-reading", "gap-normal"];
 
   it.each(expectedUtilities)("%s is referenced by at least one component/page", (utility) => {
@@ -326,6 +347,137 @@ describe("spacing/leading/width token adoption (PR3 — kills dead-token regress
     const layout = readFileSync(path.resolve(__dirname, "../app/learn/layout.tsx"), "utf8");
     expect(layout).toContain("max-w-content");
     expect(layout).toContain("py-breathing");
+  });
+});
+
+// ─── CRITICAL-2 (verify report): full declared-token orphan audit ──────────
+// The block above only ever checked a hand-picked (curated) subset of
+// utilities, so a passing suite never actually proved "zero orphaned
+// tokens" — it silently excluded `--spacing-compact`, `--transition-fast`,
+// and `--transition-slow`, all of which had zero real usages anywhere.
+// This block instead PARSES the actual set of declared custom properties
+// from globals.css (no hand-picked token list) and requires each one to
+// prove real consumption, so a newly-added dead token fails loudly instead
+// of silently falling outside an unmaintained allow-list.
+
+describe("no orphaned design tokens (full declared-token audit)", () => {
+  const css = readFileSync(GLOBALS_CSS_PATH, "utf8");
+
+  function extractAllBlocks(source: string, selector: RegExp): string[] {
+    const blocks: string[] = [];
+    const flags = selector.flags.includes("g") ? selector.flags : `${selector.flags}g`;
+    const re = new RegExp(selector.source, flags);
+    let match: RegExpExecArray | null;
+    while ((match = re.exec(source)) !== null) {
+      const start = match.index + match[0].length;
+      let depth = 1;
+      let i = start;
+      while (i < source.length && depth > 0) {
+        if (source[i] === "{") depth++;
+        if (source[i] === "}") depth--;
+        i++;
+      }
+      blocks.push(source.slice(start, i - 1));
+    }
+    return blocks;
+  }
+
+  // Every plain `:root { }` block (palette+status, then focus-ring/transition)
+  // and every `.dark { }` block (palette+status override, focus-ring-color
+  // override). Deliberately excludes `@theme` (generic Tailwind wiring,
+  // audited separately below) and `@media` overrides (re-declarations of
+  // tokens already captured here, e.g. forced-colors' `Highlight` value).
+  const rootAndDarkSource = [
+    ...extractAllBlocks(css, /:root\s*\{/g),
+    ...extractAllBlocks(css, /\.dark\s*\{/g),
+  ].join("\n");
+
+  const declaredRootDarkTokens = new Set<string>();
+  {
+    const declRegex = /--([a-z0-9-]+):/g;
+    let m: RegExpExecArray | null;
+    while ((m = declRegex.exec(rootAndDarkSource)) !== null) {
+      declaredRootDarkTokens.add(m[1]);
+    }
+  }
+
+  it("token discovery regex still finds the known neuroinclusive tokens (guards against a silently broken parser)", () => {
+    expect(declaredRootDarkTokens.size).toBeGreaterThan(10);
+    for (const known of ["background", "focus-ring-color", "success-border"]) {
+      expect(declaredRootDarkTokens.has(known)).toBe(true);
+    }
+  });
+
+  // These are never referenced as a literal Tailwind utility class name —
+  // they compose into other declarations via `var(--token)`, either directly
+  // in a CSS rule (focus ring, transition) or via a `@theme` alias
+  // (`--color-background: var(--background)`, etc). Proving `var(--token)`
+  // appears elsewhere in globals.css is the correct non-orphan proof for
+  // this group; the resulting `@theme` alias utilities are covered by the
+  // dedicated palette/status contrast + `getStatusToneClasses` tests above.
+  const selfConsumedViaVar = new Set([
+    "background", "foreground", "card", "card-foreground", "popover", "popover-foreground",
+    "primary", "primary-foreground", "secondary", "secondary-foreground", "muted", "muted-foreground",
+    "accent", "accent-foreground", "destructive", "destructive-foreground", "border", "input", "ring",
+    "radius",
+    "success", "success-foreground", "success-surface", "success-border",
+    "warning", "warning-foreground", "warning-surface", "warning-border",
+    "error", "error-foreground", "error-surface", "error-border",
+    "info", "info-foreground", "info-surface", "info-border",
+    "focus-ring-width", "focus-ring-offset", "focus-ring-color",
+    "transition-normal",
+  ]);
+
+  it.each([...declaredRootDarkTokens].sort())("--%s is consumed (not orphaned)", (name) => {
+    expect(selfConsumedViaVar.has(name)).toBe(true);
+    expect(css).toMatch(new RegExp(`var\\(--${name}\\)`));
+  });
+
+  // `@theme` also directly declares utility-generating tokens that have no
+  // plain `:root` mirror (spacing/leading/container namespace). These must
+  // resolve to a real, literally-used Tailwind utility class in src/ — this
+  // is exactly the category `--spacing-compact` silently escaped.
+  // Scope note: the regex below only matches the `spacing`/`leading`/
+  // `container`/`color` namespaces (the ones this design system actually
+  // added tokens to). It deliberately does not match `--radius-*` or
+  // `--font-*` — pre-existing shadcn/Next.js scaffold defaults that predate
+  // the neuroinclusive design system and are out of this change's scope.
+  // `color-*` matches are skipped below: they're aliases of base tokens
+  // already proven non-orphan via `var()` composition above.
+  const NAMESPACE_UTILITY_PREFIXES: Record<string, string[]> = {
+    spacing: [
+      "p-", "px-", "py-", "pt-", "pb-", "pl-", "pr-",
+      "gap-", "gap-x-", "gap-y-", "space-x-", "space-y-",
+      "m-", "mx-", "my-", "mt-", "mb-", "ml-", "mr-", "w-", "h-",
+    ],
+    leading: ["leading-"],
+    container: ["max-w-"],
+  };
+
+  const themeOnlyDeclared = new Map<string, { namespace: string; key: string }>();
+  {
+    const declRegex = /--(spacing|leading|container|color)-([a-z0-9-]+):/g;
+    let m: RegExpExecArray | null;
+    while ((m = declRegex.exec(themeContent)) !== null) {
+      const [, namespace, key] = m;
+      if (namespace === "color") continue; // color-* aliases: covered above via base token.
+      themeOnlyDeclared.set(`${namespace}-${key}`, { namespace, key });
+    }
+  }
+
+  it("discovers the @theme-only spacing/leading/container tokens", () => {
+    expect(themeOnlyDeclared.size).toBeGreaterThan(0);
+    expect(themeOnlyDeclared.has("container-content")).toBe(true);
+  });
+
+  it.each([...themeOnlyDeclared.entries()])("--%s resolves to a real utility used in src/", (fullName, { namespace, key }) => {
+    const prefixes = NAMESPACE_UTILITY_PREFIXES[namespace] ?? [];
+    const used = prefixes.some((prefix) => sourceText.includes(`${prefix}${key}`));
+    expect(used).toBe(true);
+  });
+
+  it("--default-transition-duration composes the validated --transition-normal token", () => {
+    expect(themeContent).toMatch(/--default-transition-duration:\s*var\(--transition-normal\)/);
   });
 });
 

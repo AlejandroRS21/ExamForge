@@ -118,6 +118,16 @@ export const darkPalette = {
   ring: "oklch(0.70 0.10 210)",
 } as const;
 
+// ─── Focus ring — mirrors the :root / .dark override in globals.css ────────
+// Hue 265 (violet) is intentionally distinct from --ring/--primary's hue 210
+// so the focus indicator reads as a separate signal. Verified >=3:1
+// UI-component AA against each mode's --background in design-tokens.test.ts.
+
+export const focusRingColor = {
+  light: "oklch(0.45 0.18 265)",
+  dark: "oklch(0.62 0.18 265)",
+} as const;
+
 // ─── Semantic status tokens — success/warning/error/info ───────────────────
 // `error` mirrors the destructive family; `info` mirrors the primary family.
 // Each tone exposes base/foreground/surface for the two rendering variants
