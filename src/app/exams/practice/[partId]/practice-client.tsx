@@ -11,6 +11,8 @@
 // redesigned neutral TimerChip itself (see ExamTimer.tsx) still applies to
 // the timed Mock exam flow.
 
+"use client";
+
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { AnswerInput } from "@/components/exam/AnswerInput";
