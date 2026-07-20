@@ -45,3 +45,6 @@ sdd/
 
 # Pencil design tool workspace files
 *.pen
+
+# CodeGraph local index
+.codegraph/

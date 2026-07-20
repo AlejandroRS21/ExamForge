@@ -16,6 +16,8 @@ export interface DashboardStats {
     longestStreak: number;
   };
   avgTimePerQuestion: number | null;
+  /** Exact total study time across all completed attempts, in seconds. */
+  totalTimeSeconds: number;
   totalCorrect: number;
   totalQuestions: number;
   recentAttempts: RecentAttempt[];
@@ -179,6 +181,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       longestStreak: streakInfo.longestStreak,
     },
     avgTimePerQuestion,
+    totalTimeSeconds: totalTime,
     totalCorrect,
     totalQuestions,
     recentAttempts: recentAttempts.map((a) => ({

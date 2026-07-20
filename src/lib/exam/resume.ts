@@ -4,6 +4,7 @@
 
 import prisma from "@/lib/prisma";
 import type { QuestionForDisplay, WritingPromptForDisplay } from "@/lib/exam/create";
+import { buildResumeCta, type ResumeCta } from "./resume-cta";
 
 export interface SavedAnswer {
   questionId: string;
@@ -159,6 +160,38 @@ export async function restoreSession(attemptId: string): Promise<SessionRestoreD
         }
       : null,
   };
+}
+
+/**
+ * Find the user's most recent in-progress PART practice attempt (excludes
+ * full mocks, which have no single `partId` to resume into) and build the
+ * Dashboard "Continue where you left off" CTA from real attempt data.
+ * Returns null when there is no such attempt — the Dashboard omits the CTA
+ * row entirely in that case rather than showing a fabricated placeholder.
+ */
+export async function getResumeCta(userId: string): Promise<ResumeCta | null> {
+  const attempt = await prisma.examAttempt.findFirst({
+    where: { userId, status: "IN_PROGRESS", type: "PRACTICE", partId: { not: null } },
+    orderBy: { startedAt: "desc" },
+    select: {
+      id: true,
+      partId: true,
+      questionCount: true,
+      examPart: { select: { label: true, description: true } },
+      answers: { select: { questionId: true } },
+    },
+  });
+
+  if (!attempt || !attempt.partId || !attempt.examPart) return null;
+
+  return buildResumeCta({
+    attemptId: attempt.id,
+    partId: attempt.partId,
+    partLabel: attempt.examPart.label,
+    partDescription: attempt.examPart.description,
+    answeredCount: attempt.answers.length,
+    questionCount: attempt.questionCount,
+  });
 }
 
 /**
