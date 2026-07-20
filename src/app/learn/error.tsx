@@ -8,7 +8,7 @@ export default function LearnError({
   reset: () => void;
 }) {
   return (
-    <div className="container mx-auto px-4 py-8 text-center">
+    <div className="text-center">
       <h2 className="text-2xl font-bold text-destructive mb-4">
         Something went wrong in learning
       </h2>

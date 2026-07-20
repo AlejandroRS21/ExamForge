@@ -120,49 +120,22 @@ export default async function QuizPage({ params }: QuizPageProps) {
   const { id } = await params;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link
-            href="/dashboard"
-            className="text-sm font-bold tracking-tight hover:text-primary transition-colors"
-          >
-            ExamForge
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/exams"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Exams
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </header>
+    <>
+      <div className="mb-6">
+        <Link
+          href="/dashboard"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back to Dashboard
+        </Link>
+      </div>
 
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="mb-6">
-          <Link
-            href="/dashboard"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            Back to Dashboard
-          </Link>
-        </div>
-
-        <Suspense fallback={<QuizSkeleton />}>
-          <QuizContent id={id} />
-        </Suspense>
-      </main>
-    </div>
+      <Suspense fallback={<QuizSkeleton />}>
+        <QuizContent id={id} />
+      </Suspense>
+    </>
   );
 }

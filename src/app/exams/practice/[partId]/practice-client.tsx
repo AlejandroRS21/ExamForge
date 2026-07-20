@@ -219,7 +219,7 @@ export function PracticeModeClient({
                 {currentQuestion.prompt?.readingPassage && (
                   <div
                     id="reading-passage"
-                    className="hidden rounded-lg bg-muted/30 border p-4 text-sm leading-relaxed"
+                    className="hidden rounded-lg bg-muted/30 border p-4 text-sm leading-reading"
                   >
                     {currentQuestion.prompt.readingPassage}
                   </div>
@@ -227,7 +227,7 @@ export function PracticeModeClient({
 
                 {/* Question text */}
                 {currentQuestion.prompt?.text && (
-                  <p className="text-sm leading-relaxed">
+                  <p className="text-sm leading-reading">
                     {currentQuestion.prompt.text}
                   </p>
                 )}

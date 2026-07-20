@@ -4,7 +4,7 @@
 // No jsdom/RTL by design decision — pure token-string + math assertions only.
 
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import path from "path";
 import {
   contrastRatio,
@@ -277,6 +277,57 @@ describe("getStatusToneClasses", () => {
 // TWO places (the TS source of truth and the CSS custom properties it
 // mirrors). This asserts numeric equality so an edit to one without the other
 // fails loudly instead of silently diverging.
+
+describe("spacing/leading/width token adoption (PR3 — kills dead-token regression)", () => {
+  // Mirrors the PR1->PR2 color-token guard: a token wired into `@theme` but
+  // never referenced by any component is a silent regression waiting to
+  // happen. This walks the actual page/component source tree (not just
+  // globals.css) so the assertion fails if a future refactor strips the last
+  // real usage of one of these utilities.
+
+  const SRC_DIR = path.resolve(__dirname, "..");
+
+  function collectSourceFiles(dir: string): string[] {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    const files: string[] = [];
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name === ".next") continue;
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...collectSourceFiles(fullPath));
+      } else if (
+        /\.(ts|tsx)$/.test(entry.name) &&
+        !/\.(test|spec)\.(ts|tsx)$/.test(entry.name)
+      ) {
+        files.push(fullPath);
+      }
+    }
+    return files;
+  }
+
+  const sourceText = collectSourceFiles(SRC_DIR)
+    .map((file) => readFileSync(file, "utf8"))
+    .join("\n");
+
+  // Exact utility classes the design doc's PR3 adoption plan names explicitly:
+  // `max-w-2xl -> max-w-content`, `py-8 -> py-breathing`, `space-y-8 ->
+  // space-y-generous`, `p-8 -> p-breathing` (admin), reading-prose `leading-reading`,
+  // plus `gap-normal` consumed by the new LearnHeader nav.
+  // `--spacing-compact` remains declared-but-unconsumed for a future
+  // finer-grained slice (documented deferral, same pattern as PR2b's
+  // untouched `blue` occurrences).
+  const expectedUtilities = ["max-w-content", "py-breathing", "space-y-generous", "p-breathing", "leading-reading", "gap-normal"];
+
+  it.each(expectedUtilities)("%s is referenced by at least one component/page", (utility) => {
+    expect(sourceText).toContain(utility);
+  });
+
+  it("LearnShell layout wires both the width and spacing tokens together", () => {
+    const layout = readFileSync(path.resolve(__dirname, "../app/learn/layout.tsx"), "utf8");
+    expect(layout).toContain("max-w-content");
+    expect(layout).toContain("py-breathing");
+  });
+});
 
 describe("design-tokens.ts / globals.css parity (dead-declaration drift guard)", () => {
   const css = readFileSync(GLOBALS_CSS_PATH, "utf8");

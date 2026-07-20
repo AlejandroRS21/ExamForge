@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="container mx-auto px-4 py-8 animate-pulse">
+    <div className="animate-pulse">
       {/* Header skeleton */}
       <div className="h-8 bg-muted rounded w-1/3 mb-6" />
       

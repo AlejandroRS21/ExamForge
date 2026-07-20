@@ -109,7 +109,7 @@ export function QuestionReview({
             </div>
 
             {/* Question text */}
-            <div className="mt-2 text-sm leading-relaxed">
+            <div className="mt-2 text-sm leading-reading">
               {typeof question.prompt === "string" ? (
                 <p>{question.prompt}</p>
               ) : (
@@ -122,7 +122,7 @@ export function QuestionReview({
                       <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
                         Show passage
                       </summary>
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                      <p className="mt-2 text-xs leading-reading text-muted-foreground whitespace-pre-wrap">
                         {question.prompt.readingPassage}
                       </p>
                     </details>

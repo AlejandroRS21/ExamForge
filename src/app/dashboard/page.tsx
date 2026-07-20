@@ -24,8 +24,8 @@ export default async function DashboardPage() {
   const hasData = stats.completedAttempts > 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="space-y-8">
+    <div className="container mx-auto px-4 py-breathing">
+      <div className="space-y-generous">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
