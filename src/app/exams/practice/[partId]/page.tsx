@@ -82,7 +82,6 @@ export default async function PracticePartPage({ params }: PracticePartPageProps
   return (
     <PracticeModeClient
       part={part}
-      allParts={allParts}
       attemptId={practiceAttempt.attemptId}
       initialQuestions={practiceAttempt.questions}
       savedAnswers={savedAnswers}

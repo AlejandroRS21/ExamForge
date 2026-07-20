@@ -28,11 +28,11 @@ export function MultipleChoice({
       {optionEntries.map(({ value, label }) => (
         <label
           key={value}
-          className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors
+          className={`flex items-start gap-3 rounded-lg p-4 cursor-pointer transition-colors
             ${
               selectedAnswer === value
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/30"
+                ? "border-[3px] border-primary bg-info-surface"
+                : "border border-border bg-card hover:border-muted-foreground/30"
             }
             ${disabled ? "opacity-60 cursor-not-allowed" : ""}
           `}

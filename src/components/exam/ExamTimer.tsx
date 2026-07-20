@@ -126,33 +126,33 @@ export function ExamTimer({
   const isUrgent = remainingSeconds <= 300; // 5 minutes
   const isCritical = remainingSeconds <= 60; // 1 minute
 
+  // TimerChip — matches the approved Pencil ExamPractice mockup (id EPS1o,
+  // node "TimerChip"): a neutral `secondary` pill, never red/destructive at
+  // any urgency level. Urgency is communicated via the "Nearly done"/"Time
+  // running out" text labels only (still within the chip's neutral palette),
+  // never via color. The critical-state pulse is intentionally the plain
+  // Tailwind `animate-pulse` utility so the existing global
+  // `@media (prefers-reduced-motion: reduce)` rule in globals.css (which
+  // forces all animation/transition durations to 0.01ms) already disables
+  // it for users who request reduced motion — no separate logic needed.
   return (
-    <div className="flex items-center gap-2">
-      <div
-        className={`font-mono text-lg font-bold tabular-nums transition-colors
-          ${isCritical ? "text-destructive animate-pulse" : ""}
-          ${isUrgent && !isCritical ? "text-warning" : ""}
-          ${!isUrgent ? "text-foreground" : ""}
-        `}
-        aria-live="polite"
-        aria-label={`${minutes} minutes and ${seconds} seconds remaining`}
-      >
+    <div
+      className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-secondary-foreground"
+      aria-live="polite"
+      aria-label={`${minutes} minutes and ${seconds} seconds remaining`}
+    >
+      <span aria-hidden="true" className="text-sm leading-none">⏱</span>
+      <span className={`font-mono text-sm font-medium tabular-nums ${isCritical ? "animate-pulse" : ""}`}>
         {formatted}
-      </div>
+      </span>
 
       {isSyncing && (
-        <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" title="Syncing..." />
+        <span className="w-1.5 h-1.5 rounded-full bg-secondary-foreground/50" title="Syncing..." />
       )}
 
-      {isUrgent && !isCritical && (
-        <span className="text-[10px] font-medium text-warning uppercase tracking-wider">
-          Nearly done
-        </span>
-      )}
-
-      {isCritical && (
-        <span className="text-[10px] font-medium text-destructive uppercase tracking-wider animate-pulse">
-          Time running out!
+      {isUrgent && (
+        <span className="text-[10px] font-medium uppercase tracking-wider text-secondary-foreground/80">
+          {isCritical ? "Time running out" : "Nearly done"}
         </span>
       )}
     </div>
