@@ -51,6 +51,18 @@
   --info-foreground: oklch(0.99 0.005 95);
   --info-surface: oklch(0.96 0.03 210);
   --info-border: oklch(0.61 0.11 210);
+
+  /* Focus warm — single primary-CTA accent (60-30-10 rule). Reserved for
+     exactly one primary call-to-action per section (Dashboard "Readiness
+     Journey" mockup's Resume button). No .dark override: verified >=3:1
+     against --background in dark mode via contrastRatio() in
+     design-tokens.test.ts, so the light values are reused as-is.
+     --focus-warm-foreground reuses --foreground (not the mockup's literal
+     #FEFEFB) — that pair only cleared ~2.4:1; reusing --foreground brings it
+     to ~5.55:1. See src/lib/design-tokens.ts `focusWarmTokens`. */
+  --focus-warm: oklch(0.734 0.128 51.2);
+  --focus-warm-foreground: oklch(0.30 0.03 250);
+  --focus-warm-surface: oklch(0.948 0.023 52.7);
 }
 
 .dark {
@@ -145,6 +157,12 @@
   --color-info-foreground: var(--info-foreground);
   --color-info-surface: var(--info-surface);
   --color-info-border: var(--info-border);
+
+  /* Focus warm — generates bg-focus-warm/text-focus-warm-foreground/
+     bg-focus-warm-surface utilities (see :root above). */
+  --color-focus-warm: var(--focus-warm);
+  --color-focus-warm-foreground: var(--focus-warm-foreground);
+  --color-focus-warm-surface: var(--focus-warm-surface);
 
   /* Spacing scale — generous whitespace reduces cognitive load.
      Tailwind v4 `--spacing-*` namespace generates p-/gap-/space-y-* utilities. */

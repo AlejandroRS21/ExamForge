@@ -207,6 +207,27 @@ export const statusTokens = {
 // with references to the semantic tokens above, wired via `@theme inline`
 // in globals.css (`bg-success`, `text-success-foreground`, etc.).
 
+// ─── Focus warm — single primary-CTA accent (60-30-10 color-psychology rule) ──
+// Reserved ONLY for the one primary call-to-action per section (Dashboard
+// "Readiness Journey" mockup, e.g. the Resume button) — never a general
+// status tone, so it intentionally does not join `statusTokens` above.
+// Base/surface are the approved mockup's ground-truth hex (#E8905A / #FBEAE0),
+// converted to this file's oklch format. `foreground` deliberately reuses
+// `lightPalette.foreground` instead of the mockup's literal #FEFEFB: that
+// pair only reached ~2.4:1 contrast (below the 4.5:1 every `statusTokens`
+// pair passes, and below the 3:1 UI-component minimum) — measured via
+// `contrastRatio()`, not guessed. Reusing the existing dark foreground token
+// brings the CTA label to ~5.55:1, verified in design-tokens.test.ts.
+//
+// No `.dark` override: verified via `contrastRatio()` in design-tokens.test.ts
+// that `base` still clears >=3:1 against `darkPalette.background` (~7.4:1), so
+// the light-mode values are reused as-is in dark mode.
+export const focusWarmTokens = {
+  base: "oklch(0.734 0.128 51.2)",
+  foreground: lightPalette.foreground,
+  surface: "oklch(0.948 0.023 52.7)",
+} as const;
+
 export type StatusToneName = "success" | "warning" | "error" | "info";
 export type StatusToneVariant = "surface" | "solid";
 

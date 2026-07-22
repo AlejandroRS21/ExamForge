@@ -14,6 +14,7 @@ import {
   statusTokens,
   getStatusToneClasses,
   focusRingColor,
+  focusWarmTokens,
 } from "./design-tokens";
 
 const GLOBALS_CSS_PATH = path.resolve(__dirname, "../app/globals.css");
@@ -166,6 +167,32 @@ describe("focus ring contrast (WCAG AA UI component, >=3:1)", () => {
 
   it("dark mode focus ring has a .dark override distinct from the light value", () => {
     expect(focusRingColor.dark).not.toBe(focusRingColor.light);
+  });
+});
+
+// ─── Focus warm — single primary-CTA accent (Dashboard "Readiness Journey") ─
+// base/surface are the approved mockup's ground-truth hex; foreground was
+// fixed to reuse lightPalette.foreground (see contrast test below). Unlike
+// focusRingColor, this has no .dark override — verified below that it
+// doesn't need one.
+
+describe("focusWarmTokens contrast", () => {
+  it("does not join the 4-tone statusTokens object (it's a one-off CTA accent, not a status tone)", () => {
+    expect((statusTokens.light as Record<string, unknown>).focusWarm).toBeUndefined();
+  });
+
+  it("base clears the >=3:1 UI-component minimum against the dark background, justifying no .dark override", () => {
+    expect(contrastRatio(focusWarmTokens.base, darkPalette.background)).toBeGreaterThanOrEqual(3);
+  });
+
+  // The approved mockup's literal hex pair (#E8905A / #FEFEFB) only reached
+  // ~2.4:1 — below the 4.5:1 every statusTokens solid pair passes, and below
+  // even the 3:1 UI-component minimum. `foreground` was fixed to reuse
+  // `lightPalette.foreground` instead of the mockup's literal value, which
+  // brings this pair to AA-passing contrast like every other solid pair.
+  it("base/foreground clears the 4.5:1 text contrast minimum", () => {
+    const ratio = contrastRatio(focusWarmTokens.base, focusWarmTokens.foreground);
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
   });
 });
 
@@ -426,6 +453,7 @@ describe("no orphaned design tokens (full declared-token audit)", () => {
     "info", "info-foreground", "info-surface", "info-border",
     "focus-ring-width", "focus-ring-offset", "focus-ring-color",
     "transition-normal",
+    "focus-warm", "focus-warm-foreground", "focus-warm-surface",
   ]);
 
   it.each([...declaredRootDarkTokens].sort())("--%s is consumed (not orphaned)", (name) => {
@@ -552,5 +580,16 @@ describe("design-tokens.ts / globals.css parity (dead-declaration drift guard)",
         });
       }
     }
+  });
+
+  // No `.dark` override for focus-warm — only rootBlock is checked (see
+  // "focusWarmTokens contrast" describe above for why light values are
+  // reused as-is in dark mode).
+  describe("focusWarmTokens", () => {
+    it.each(["base", "foreground", "surface"] as const)("%s matches globals.css --focus-warm%s", (role) => {
+      const suffix = role === "base" ? "" : `-${role}`;
+      const cssValue = getCssVar(rootBlock, `focus-warm${suffix}`);
+      expect(parseOklch(focusWarmTokens[role])).toEqual(parseOklch(cssValue));
+    });
   });
 });
