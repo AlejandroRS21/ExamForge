@@ -3,8 +3,9 @@
 // T-702: Recharts line chart, skill breakdown table, weak-area highlight
 // Neuroinclusive UI adoption: applies the approved "Dashboard — Readiness
 // Journey" Pencil mockup — shared LearnHeader, time-of-day greeting with a
-// decorative Focus mode pill, an exam-readiness donut + this-week mini-stats
-// hero row, a papers-journey node row (only the 2 real papers this app's
+// decorative Focus mode pill, an exam-readiness donut + progress mini-stats
+// hero row (all-time totals — see the mini-stats block below for why the
+// mockup's "This week" framing was dropped), a papers-journey node row (only the 2 real papers this app's
 // schema supports — R&UoE and Writing), a weak-areas + achievement-medallions
 // row, and a real "continue where you left off" CTA using the single warm
 // primary-CTA accent (60-30-10 color-psychology rule).
@@ -130,7 +131,7 @@ export default async function DashboardPage() {
             </div>
           ) : null}
 
-          {/* ─── Hero row: exam readiness donut + this-week mini-stats ─── */}
+          {/* ─── Hero row: exam readiness donut + progress mini-stats ─── */}
           {hasData ? (
             <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
               {/* Readiness card */}
@@ -179,9 +180,11 @@ export default async function DashboardPage() {
                 </div>
               </div>
 
-              {/* This week mini-stats */}
+              {/* Mini-stats — all-time totals, not week-scoped (stats.ts has
+                  no date-range filter on totalQuestions/totalTimeSeconds), so
+                  this must not claim to be "This week" like the mockup did. */}
               <div className="flex flex-col gap-6 rounded-xl border bg-card p-8">
-                <h2 className="text-sm font-semibold text-foreground">This week</h2>
+                <h2 className="text-sm font-semibold text-foreground">Your progress</h2>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
