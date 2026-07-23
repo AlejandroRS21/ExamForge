@@ -224,6 +224,114 @@ function getEmptyEvaluation(): WritingEvaluation {
 }
 
 /**
+ * Evaluate writing using Claude API against Cambridge B2 First rubric.
+ * Returns structured scores + feedback for each of the 4 criteria.
+ * Falls back to heuristic if Claude call fails (with console warning).
+ *
+ * @param content - The writing submission text
+ * @param wordCountMin - Minimum expected word count
+ * @param wordCountMax - Maximum expected word count
+ * @param writingPrompt - The original task prompt (for context)
+ * @returns WritingEvaluation with AI-generated scores and feedback
+ */
+export async function evaluateWritingWithClaude(
+  content: string,
+  wordCountMin: number,
+  wordCountMax: number,
+  writingPrompt: string,
+): Promise<WritingEvaluation> {
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return getEmptyEvaluation();
+  }
+
+  try {
+    const { Anthropic } = await import("@anthropic-ai/sdk");
+    const client = new Anthropic();
+
+    const systemPrompt = `You are a Cambridge B2 First (FCE) writing assessment expert evaluating student essays.
+Use the official rubric: 4 criteria (Content, Communicative Achievement, Organisation, Language), each scored 0-5.
+
+Respond with ONLY valid JSON matching this exact schema:
+{
+  "content": <0-5>,
+  "communicativeAchievement": <0-5>,
+  "organisation": <0-5>,
+  "language": <0-5>,
+  "content_feedback": "<criterion-specific feedback>",
+  "ca_feedback": "<criterion-specific feedback>",
+  "organisation_feedback": "<criterion-specific feedback>",
+  "language_feedback": "<criterion-specific feedback>",
+  "overall_feedback": "<summary feedback>"
+}`;
+
+    const userPrompt = `Task: ${writingPrompt}
+
+Word count requirements: ${wordCountMin}-${wordCountMax} words
+
+Student response:
+${trimmed}
+
+---
+
+Evaluate this essay using the Cambridge B2 First rubric. Score each criterion 0-5 and provide specific, actionable feedback. Be rigorous: B2 is a high standard.`;
+
+    const message = await client.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 500,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }],
+    });
+
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+
+    // Parse JSON response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.warn("Claude returned non-JSON response for writing eval, falling back to heuristic");
+      return evaluateWriting(trimmed, wordCountMin, wordCountMax);
+    }
+
+    const result = JSON.parse(jsonMatch[0]);
+
+    // Validate structure
+    if (
+      typeof result.content !== "number" ||
+      typeof result.communicativeAchievement !== "number" ||
+      typeof result.organisation !== "number" ||
+      typeof result.language !== "number"
+    ) {
+      console.warn("Claude response missing required score fields, falling back to heuristic");
+      return evaluateWriting(trimmed, wordCountMin, wordCountMax);
+    }
+
+    const scores: WritingRubricScores = {
+      content: Math.max(0, Math.min(5, Math.round(result.content))),
+      communicativeAchievement: Math.max(0, Math.min(5, Math.round(result.communicativeAchievement))),
+      organisation: Math.max(0, Math.min(5, Math.round(result.organisation))),
+      language: Math.max(0, Math.min(5, Math.round(result.language))),
+    };
+
+    const feedback: WritingRubricFeedback = {
+      content: result.content_feedback || RUBRIC_DESCRIPTORS.content[scores.content],
+      communicativeAchievement: result.ca_feedback || RUBRIC_DESCRIPTORS.communicativeAchievement[scores.communicativeAchievement],
+      organisation: result.organisation_feedback || RUBRIC_DESCRIPTORS.organisation[scores.organisation],
+      language: result.language_feedback || RUBRIC_DESCRIPTORS.language[scores.language],
+      overall: result.overall_feedback || getOverallFeedback(scores),
+    };
+
+    const totalScore = scores.content + scores.communicativeAchievement + scores.organisation + scores.language;
+    const averageScore = totalScore / 4;
+
+    return { scores, feedback, totalScore, averageScore };
+  } catch (error) {
+    console.error("Claude API error during writing evaluation:", error);
+    // Fallback to heuristic
+    return evaluateWriting(trimmed, wordCountMin, wordCountMax);
+  }
+}
+
+/**
  * Get the Cambridge B2 First writing rubric criteria labels and descriptions.
  */
 export function getWritingRubricCriteria(): {
