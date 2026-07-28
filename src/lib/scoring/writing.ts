@@ -4,6 +4,20 @@
 //
 // Rubric criteria definitions based on Cambridge B2 First assessment guidelines.
 
+import { generateJSON } from "@/lib/ai/client";
+
+interface WritingAIResponse {
+  content: number;
+  communicativeAchievement: number;
+  organisation: number;
+  language: number;
+  content_feedback?: string;
+  ca_feedback?: string;
+  organisation_feedback?: string;
+  language_feedback?: string;
+  overall_feedback?: string;
+}
+
 export interface WritingRubricScores {
   content: number;        // 0-5: Relevance, task completion, inclusion of required points
   communicativeAchievement: number; // 0-5: Register, tone, effect on target reader
@@ -224,9 +238,11 @@ function getEmptyEvaluation(): WritingEvaluation {
 }
 
 /**
- * Evaluate writing using Claude API against Cambridge B2 First rubric.
- * Returns structured scores + feedback for each of the 4 criteria.
- * Falls back to heuristic if Claude call fails (with console warning).
+ * Evaluate writing using the shared 9router AI client against the Cambridge B2
+ * First rubric. Returns structured scores + feedback for each of the 4 criteria.
+ * Falls back to heuristic if the AI call fails or returns invalid structure.
+ *
+ * Name retained (`evaluateWritingWithClaude`) to avoid breaking callers.
  *
  * @param content - The writing submission text
  * @param wordCountMin - Minimum expected word count
@@ -245,11 +261,7 @@ export async function evaluateWritingWithClaude(
     return getEmptyEvaluation();
   }
 
-  try {
-    const { Anthropic } = await import("@anthropic-ai/sdk");
-    const client = new Anthropic();
-
-    const systemPrompt = `You are a Cambridge B2 First (FCE) writing assessment expert evaluating student essays.
+  const systemPrompt = `You are a Cambridge B2 First (FCE) writing assessment expert evaluating student essays.
 Use the official rubric: 4 criteria (Content, Communicative Achievement, Organisation, Language), each scored 0-5.
 
 Respond with ONLY valid JSON matching this exact schema:
@@ -265,7 +277,7 @@ Respond with ONLY valid JSON matching this exact schema:
   "overall_feedback": "<summary feedback>"
 }`;
 
-    const userPrompt = `Task: ${writingPrompt}
+  const userPrompt = `Task: ${writingPrompt}
 
 Word count requirements: ${wordCountMin}-${wordCountMax} words
 
@@ -276,59 +288,43 @@ ${trimmed}
 
 Evaluate this essay using the Cambridge B2 First rubric. Score each criterion 0-5 and provide specific, actionable feedback. Be rigorous: B2 is a high standard.`;
 
-    const message = await client.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
+  const result = await generateJSON<WritingAIResponse>({
+    systemPrompt,
+    userPrompt,
+    maxTokens: 500,
+  });
 
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-
-    // Parse JSON response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.warn("Claude returned non-JSON response for writing eval, falling back to heuristic");
-      return evaluateWriting(trimmed, wordCountMin, wordCountMax);
-    }
-
-    const result = JSON.parse(jsonMatch[0]);
-
-    // Validate structure
-    if (
-      typeof result.content !== "number" ||
-      typeof result.communicativeAchievement !== "number" ||
-      typeof result.organisation !== "number" ||
-      typeof result.language !== "number"
-    ) {
-      console.warn("Claude response missing required score fields, falling back to heuristic");
-      return evaluateWriting(trimmed, wordCountMin, wordCountMax);
-    }
-
-    const scores: WritingRubricScores = {
-      content: Math.max(0, Math.min(5, Math.round(result.content))),
-      communicativeAchievement: Math.max(0, Math.min(5, Math.round(result.communicativeAchievement))),
-      organisation: Math.max(0, Math.min(5, Math.round(result.organisation))),
-      language: Math.max(0, Math.min(5, Math.round(result.language))),
-    };
-
-    const feedback: WritingRubricFeedback = {
-      content: result.content_feedback || RUBRIC_DESCRIPTORS.content[scores.content],
-      communicativeAchievement: result.ca_feedback || RUBRIC_DESCRIPTORS.communicativeAchievement[scores.communicativeAchievement],
-      organisation: result.organisation_feedback || RUBRIC_DESCRIPTORS.organisation[scores.organisation],
-      language: result.language_feedback || RUBRIC_DESCRIPTORS.language[scores.language],
-      overall: result.overall_feedback || getOverallFeedback(scores),
-    };
-
-    const totalScore = scores.content + scores.communicativeAchievement + scores.organisation + scores.language;
-    const averageScore = totalScore / 4;
-
-    return { scores, feedback, totalScore, averageScore };
-  } catch (error) {
-    console.error("Claude API error during writing evaluation:", error);
-    // Fallback to heuristic
+  // Validate structure — fall back to heuristic on null or missing score fields
+  if (
+    !result ||
+    typeof result.content !== "number" ||
+    typeof result.communicativeAchievement !== "number" ||
+    typeof result.organisation !== "number" ||
+    typeof result.language !== "number"
+  ) {
+    console.warn("AI writing eval unavailable or invalid, falling back to heuristic");
     return evaluateWriting(trimmed, wordCountMin, wordCountMax);
   }
+
+  const scores: WritingRubricScores = {
+    content: Math.max(0, Math.min(5, Math.round(result.content))),
+    communicativeAchievement: Math.max(0, Math.min(5, Math.round(result.communicativeAchievement))),
+    organisation: Math.max(0, Math.min(5, Math.round(result.organisation))),
+    language: Math.max(0, Math.min(5, Math.round(result.language))),
+  };
+
+  const feedback: WritingRubricFeedback = {
+    content: result.content_feedback || RUBRIC_DESCRIPTORS.content[scores.content],
+    communicativeAchievement: result.ca_feedback || RUBRIC_DESCRIPTORS.communicativeAchievement[scores.communicativeAchievement],
+    organisation: result.organisation_feedback || RUBRIC_DESCRIPTORS.organisation[scores.organisation],
+    language: result.language_feedback || RUBRIC_DESCRIPTORS.language[scores.language],
+    overall: result.overall_feedback || getOverallFeedback(scores),
+  };
+
+  const totalScore = scores.content + scores.communicativeAchievement + scores.organisation + scores.language;
+  const averageScore = totalScore / 4;
+
+  return { scores, feedback, totalScore, averageScore };
 }
 
 /**

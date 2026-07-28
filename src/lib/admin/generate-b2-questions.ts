@@ -1,7 +1,7 @@
 // ExamForge — AI-Powered B2 Question Generation
 // Generate realistic Cambridge B2 First questions using Claude
 
-import { Anthropic } from "@anthropic-ai/sdk";
+import { generateJSON } from "@/lib/ai/client";
 import prisma from "@/lib/prisma";
 import type { QuestionType, QuestionDifficulty } from "@/generated/prisma/client";
 
@@ -69,8 +69,6 @@ async function generateSingleQuestion(
   difficulty: QuestionDifficulty,
   attemptNum: number,
 ): Promise<GeneratedQuestion | null> {
-  const client = new Anthropic();
-
   const systemPrompt = `You are a Cambridge B2 First (FCE) exam question writer. Generate realistic, high-quality exam questions that match official Cambridge standards. Always respond with valid JSON only.`;
 
   const userPrompt = `Generate a B2 First exam question for: ${partId}
@@ -93,35 +91,24 @@ IMPORTANT: Respond with ONLY valid JSON matching this exact schema:
 
 Make the question realistic, contextual, and aligned with Cambridge B2 standards. For MC, all options must be plausible. For Writing topics, provide clear, engaging prompts.`;
 
-  try {
-    const message = await client.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 600,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    });
+  const result = await generateJSON<GeneratedQuestion>({
+    systemPrompt,
+    userPrompt,
+    maxTokens: 600,
+  });
 
-    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-
-    if (!jsonMatch) {
-      console.warn(`[Gen ${attemptNum}] No JSON found for ${partId}, attempt ${attemptNum}`);
-      return null;
-    }
-
-    const result = JSON.parse(jsonMatch[0]) as GeneratedQuestion;
-
-    // Validate structure
-    if (!result.type || !result.prompt || typeof result.correctAnswer !== "string" || !result.difficulty) {
-      console.warn(`[Gen ${attemptNum}] Invalid structure for ${partId}`);
-      return null;
-    }
-
-    return result;
-  } catch (error) {
-    console.error(`[Gen ${attemptNum}] Error generating for ${partId}:`, error);
+  if (!result) {
+    console.warn(`[Gen ${attemptNum}] No AI result for ${partId}, attempt ${attemptNum}`);
     return null;
   }
+
+  // Validate structure
+  if (!result.type || !result.prompt || typeof result.correctAnswer !== "string" || !result.difficulty) {
+    console.warn(`[Gen ${attemptNum}] Invalid structure for ${partId}`);
+    return null;
+  }
+
+  return result;
 }
 
 /**
