@@ -15,6 +15,10 @@ describe("POST /api/moments/copy", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();
+    // Default: authenticated session
+    vi.doMock("@/lib/auth", () => ({
+      auth: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+    }));
   });
 
   it("returns 204 when MOMENTS_COPY_NOTEBOOK_ID is not set", async () => {
@@ -85,5 +89,15 @@ describe("POST /api/moments/copy", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.copy).toBe("You did it!");
+  });
+
+  it("returns 204 when unauthenticated", async () => {
+    vi.doMock("@/lib/auth", () => ({
+      auth: vi.fn().mockResolvedValue(null),
+    }));
+    vi.stubEnv("MOMENTS_COPY_NOTEBOOK_ID", "nb-test-123");
+    const { POST } = await import("./route");
+    const res = await POST(makeRequest({ eventType: "EXAM_COMPLETE" }));
+    expect(res.status).toBe(204);
   });
 });

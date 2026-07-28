@@ -3,6 +3,7 @@
 // Returns { copy: string } on success, 204 on timeout/error.
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { MCPClient, MCPClientError } from "@/lib/notebooklm/mcp-client";
 import type { MomentEventType } from "@/lib/moments/types";
 import { containsBlameLanguage } from "@/lib/moments/copy";
@@ -28,7 +29,9 @@ const PROMPTS: Record<MomentEventType, string> = {
     "Give me ONE short NEUTRAL reframe sentence (max 10 words) for a study streak reset. NO blame, NO guilt, NO shame. Focus on fresh start.",
 };
 
-// In-memory cache keyed by `${eventType}:${YYYY-MM-DD}`
+// In-memory cache keyed by `${eventType}:${YYYY-MM-DD}`.
+// Max 50 entries — evict on overflow to bound memory on long-lived servers.
+const COPY_CACHE_MAX = 50;
 const copyCache = new Map<string, string>();
 
 function dayBucket(): string {
@@ -36,6 +39,12 @@ function dayBucket(): string {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  // F4: auth guard — degrade silently to 204 (matching all other failure paths)
+  const session = await auth();
+  if (!session) {
+    return new NextResponse(null, { status: 204 });
+  }
+
   let eventType: string;
   try {
     const body = await req.json();
@@ -62,12 +71,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const prompt = PROMPTS[eventType as MomentEventType];
 
   try {
+    let timeoutHandle: ReturnType<typeof setTimeout>;
     const result = await Promise.race([
       client.queryNotebook(notebookId, prompt),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), 800),
+      new Promise<never>(
+        (_, reject) =>
+          (timeoutHandle = setTimeout(() => reject(new Error("timeout")), 800)),
       ),
-    ]);
+    ]).finally(() => clearTimeout(timeoutHandle!));
 
     const copy =
       typeof result === "string"
@@ -82,6 +93,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return new NextResponse(null, { status: 204 });
     }
 
+    if (copyCache.size >= COPY_CACHE_MAX) copyCache.clear();
     copyCache.set(cacheKey, copy);
     return NextResponse.json({ copy });
   } catch (err) {

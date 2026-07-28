@@ -63,12 +63,25 @@ describe("fetchCopy", () => {
     vi.unstubAllGlobals();
   });
 
-  it("falls back to static on 204 (no body copy)", async () => {
+  it("falls back to static on 200 with empty body (no copy field)", async () => {
     vi.stubGlobal("fetch", () =>
       Promise.resolve({
         ok: true,
         json: async () => ({}),
       } as Response),
+    );
+    const result = await fetchCopy("GOAL_ACHIEVED");
+    expect(STATIC_COPY.GOAL_ACHIEVED).toContain(result);
+    vi.unstubAllGlobals();
+  });
+
+  it("falls back to static on real 204 (no body — catch path)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      () =>
+        Promise.resolve(
+          new Response(null, { status: 204 }),
+        ) as unknown as ReturnType<typeof fetch>,
     );
     const result = await fetchCopy("GOAL_ACHIEVED");
     expect(STATIC_COPY.GOAL_ACHIEVED).toContain(result);
