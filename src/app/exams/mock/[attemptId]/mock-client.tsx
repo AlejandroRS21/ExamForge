@@ -5,12 +5,15 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { v4 as uuid } from "uuid";
 import { ExamTimer } from "@/components/exam/ExamTimer";
 import { AnswerInput } from "@/components/exam/AnswerInput";
 import { ProgressIndicator } from "@/components/exam/ProgressIndicator";
 import { TabGuard } from "@/components/exam/TabGuard";
 import { WritingEditor } from "@/components/exam/WritingEditor";
 import type { QuestionDisplayData } from "@/components/exam/AnswerInput";
+import { useMoments } from "@/components/moments/MomentProvider";
+import type { CompleteResult } from "@/lib/exam/complete";
 
 interface MockExamClientProps {
   attemptId: string;
@@ -54,6 +57,7 @@ export function MockExamClient({
   currentPartId,
 }: MockExamClientProps) {
   const router = useRouter();
+  const { emit } = useMoments();
   const [answers, setAnswers] = useState<Record<string, any>>(initialSaved);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(initialRemaining);
@@ -130,13 +134,39 @@ export function MockExamClient({
         throw new Error(err.error ?? "Failed to complete");
       }
 
+      // Parse response and emit Moment events — wrapped so errors never block routing
+      try {
+        const data = (await res.json()) as CompleteResult;
+        emit({ type: "EXAM_COMPLETE", id: uuid() });
+        if (data.newAchievements?.length) {
+          for (const a of data.newAchievements) {
+            emit({
+              type: "BADGE_UNLOCKED",
+              id: uuid(),
+              payload: { achievementLabel: a.label },
+            });
+          }
+        }
+        if (data.newGoals?.length) {
+          for (const g of data.newGoals) {
+            emit({
+              type: "GOAL_ACHIEVED",
+              id: uuid(),
+              payload: { goalType: g.type },
+            });
+          }
+        }
+      } catch (momentErr) {
+        console.warn("[MockExam] Moment emit error (non-fatal):", momentErr);
+      }
+
       router.push(`/exams/results/${attemptId}`);
     } catch (err) {
       console.error("[MockExam] Complete error:", err);
       setIsSubmitting(false);
       setShowFinishConfirm(false);
     }
-  }, [attemptId, router]);
+  }, [attemptId, emit, router]);
 
   // Keyboard shortcuts
   useEffect(() => {
