@@ -51,6 +51,7 @@ describe("generateQuestions", () => {
     const result = await generateQuestions({ examPartId: "part-1", count: 2 });
     expect(result.generated).toBe(2);
     expect(result.errors).toEqual([]);
+    expect(result.source).toBe("ai");
     expect(generateJSON).toHaveBeenCalled();
   });
 
@@ -59,6 +60,7 @@ describe("generateQuestions", () => {
     const { generateQuestions } = await import("./generate");
     const result = await generateQuestions({ examPartId: "part-1", count: 3 });
     expect(result.generated).toBe(3);
+    expect(result.source).toBe("mock");
     expect(generateJSON).not.toHaveBeenCalled();
   });
 
@@ -68,6 +70,7 @@ describe("generateQuestions", () => {
     const { generateQuestions } = await import("./generate");
     const result = await generateQuestions({ examPartId: "part-1", count: 2 });
     expect(result.generated).toBe(2);
+    expect(result.source).toBe("mock");
     expect(generateJSON).toHaveBeenCalled();
   });
 
@@ -77,6 +80,7 @@ describe("generateQuestions", () => {
     const result = await generateQuestions({ examPartId: "missing", count: 1 });
     expect(result.generated).toBe(0);
     expect(result.errors).toContain("ExamPart not found");
+    expect(result.source).toBe("mock");
   });
 
   it("saves generated questions as DRAFT status", async () => {

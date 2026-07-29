@@ -41,7 +41,7 @@ export const authConfig: NextAuthConfig = {
           request?.headers?.get("x-forwarded-for") ??
           request?.headers?.get("x-real-ip") ??
           "unknown";
-        const rateCheck = checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
+        const rateCheck = await checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
         if (!rateCheck.success) {
           throw new Error("Too many login attempts. Please try again later.");
         }
@@ -75,8 +75,8 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
 
-        // Reset rate limit on successful login
-        resetRateLimit(`login:${ip}`);
+        // Reset rate limit on successful login (same limit/window as checkRateLimit above)
+        resetRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
 
         return {
           id: user.id,
@@ -114,7 +114,7 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role ?? "USER";
+        session.user.role = token.role ?? "USER";
       }
       return session;
     },

@@ -1,8 +1,18 @@
-// ExamForge — Gapped Text Component
+// ExamForge — Gapped Text Component (Duolingo Style)
 // Ordered sequence matching for GT questions (Part 5)
-// Shows sentences/paragraphs to insert into gaps, user selects order
+// Uses AnswerTile primitives, pure answer-logic helpers, and useFlip animations
 
 "use client";
+
+import React, { useRef, useLayoutEffect } from "react";
+import { AnswerTile } from "./_shared/AnswerTile";
+import { useFlip } from "./_shared/useFlip";
+import {
+  placeGapItem,
+  removeGapItem,
+  moveGapItemUp,
+  moveGapItemDown,
+} from "./_shared/answer-logic";
 
 interface GapItem {
   id: string;
@@ -11,8 +21,8 @@ interface GapItem {
 
 interface GapTextProps {
   questionId: string;
-  items: GapItem[]; // The sentences to order
-  selectedAnswer: string[] | null; // Ordered array of item IDs
+  items: GapItem[];
+  selectedAnswer: string[] | null;
   onAnswer: (questionId: string, answer: string[]) => void;
   disabled?: boolean;
 }
@@ -24,35 +34,41 @@ export function GapText({
   onAnswer,
   disabled = false,
 }: GapTextProps) {
-  // Items not yet placed in the answer
   const placedIds = selectedAnswer ?? [];
   const available = items.filter((item) => !placedIds.includes(item.id));
   const placed = placedIds
     .map((id) => items.find((i) => i.id === id))
     .filter(Boolean) as GapItem[];
 
-  const handlePlaceItem = (itemId: string) => {
-    onAnswer(questionId, [...placedIds, itemId]);
+  const { register, play } = useFlip();
+  const elementsRef = useRef<Map<string, HTMLElement | null>>(new Map());
+
+  useLayoutEffect(() => {
+    play(elementsRef.current);
+  });
+
+  const handlePlace = (itemId: string) => {
+    if (disabled) return;
+    const nextOrder = placeGapItem(placedIds, itemId);
+    onAnswer(questionId, nextOrder);
   };
 
-  const handleRemoveItem = (index: number) => {
-    const newOrder = [...placedIds];
-    newOrder.splice(index, 1);
-    onAnswer(questionId, newOrder);
+  const handleRemove = (index: number) => {
+    if (disabled) return;
+    const nextOrder = removeGapItem(placedIds, index);
+    onAnswer(questionId, nextOrder);
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newOrder = [...placedIds];
-    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-    onAnswer(questionId, newOrder);
+  const handleUp = (index: number) => {
+    if (disabled || index === 0) return;
+    const nextOrder = moveGapItemUp(placedIds, index);
+    onAnswer(questionId, nextOrder);
   };
 
-  const handleMoveDown = (index: number) => {
-    if (index >= placedIds.length - 1) return;
-    const newOrder = [...placedIds];
-    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-    onAnswer(questionId, newOrder);
+  const handleDown = (index: number) => {
+    if (disabled || index >= placedIds.length - 1) return;
+    const nextOrder = moveGapItemDown(placedIds, index);
+    onAnswer(questionId, nextOrder);
   };
 
   return (
@@ -65,18 +81,26 @@ export function GapText({
         {available.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">All sentences placed.</p>
         ) : (
-          available.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handlePlaceItem(item.id)}
-              disabled={disabled}
-              className="w-full text-left rounded-lg border border-dashed border-border bg-muted/30 p-3 text-sm
-                hover:border-primary/50 hover:bg-primary/5 transition-colors
-                disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {item.text}
-            </button>
-          ))
+          <div className="space-y-2.5">
+            {available.map((item) => (
+              <div
+                key={item.id}
+                ref={(el) => {
+                  register(`avail-${item.id}`, el);
+                  if (el) elementsRef.current.set(`avail-${item.id}`, el);
+                  else elementsRef.current.delete(`avail-${item.id}`);
+                }}
+              >
+                <AnswerTile
+                  disabled={disabled}
+                  onClick={() => handlePlace(item.id)}
+                  className="w-full text-left"
+                >
+                  {item.text}
+                </AnswerTile>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -90,46 +114,56 @@ export function GapText({
             Click sentences from the left to build your order.
           </p>
         ) : (
-          placed.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex items-start gap-2 rounded-lg border bg-background p-3"
-            >
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
-                {index + 1}
-              </span>
-              <div className="flex-1 text-sm">{item.text}</div>
-              <div className="flex flex-col gap-1 flex-shrink-0">
-                <button
-                  onClick={() => handleMoveUp(index)}
-                  disabled={disabled || index === 0}
-                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Move up"
-                >
-                  ↑
-                </button>
-                <button
-                  onClick={() => handleRemoveItem(index)}
-                  disabled={disabled}
-                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-destructive/10 text-destructive
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Remove"
-                >
-                  ✕
-                </button>
-                <button
-                  onClick={() => handleMoveDown(index)}
-                  disabled={disabled || index >= placed.length - 1}
-                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground
-                    disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Move down"
-                >
-                  ↓
-                </button>
+          <div className="space-y-2.5">
+            {placed.map((item, index) => (
+              <div
+                key={item.id}
+                ref={(el) => {
+                  register(`placed-${item.id}`, el);
+                  if (el) elementsRef.current.set(`placed-${item.id}`, el);
+                  else elementsRef.current.delete(`placed-${item.id}`);
+                }}
+                className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 shadow-sm"
+              >
+                <span className="flex-shrink-0 h-7 w-7 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                  {index + 1}
+                </span>
+                <div className="flex-1 text-sm leading-relaxed text-foreground">{item.text}</div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleUp(index)}
+                    disabled={disabled || index === 0}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground disabled:opacity-30 transition-colors"
+                    title="Move up"
+                    aria-label={`Move sentence ${index + 1} up`}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDown(index)}
+                    disabled={disabled || index >= placed.length - 1}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground disabled:opacity-30 transition-colors"
+                    title="Move down"
+                    aria-label={`Move sentence ${index + 1} down`}
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(index)}
+                    disabled={disabled}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-destructive/10 text-destructive disabled:opacity-30 transition-colors"
+                    title="Remove"
+                    aria-label={`Remove sentence ${index + 1}`}
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>

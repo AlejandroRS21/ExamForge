@@ -1,23 +1,16 @@
-// ExamForge — Practice Mode Client Component
-// Renders questions with answer inputs, handles submission via API
-// EE-01: Practice mode — pausable, no timer, hints available
-// Neuroinclusive UI adoption: applies the approved Pencil ExamPractice
-// mockup (id EPS1o) — ExamBar, question-progress track, a single-task-focus
-// 720px column, prompt kicker, passage card, and footer nav with a
-// reduced-motion note. The TimerChip from the mockup is intentionally
-// omitted here: EE-01 requires practice mode to have no timer/time
-// pressure, so showing one (even non-authoritative) would contradict that
-// requirement and the "No timer" copy already advertised on /exams. The
-// redesigned neutral TimerChip itself (see ExamTimer.tsx) still applies to
-// the timed Mock exam flow.
+// ExamForge — Practice Mode Client Component (In-Context UX + Strict Correction + Flow Navigation)
+// Renders questions in context using ContextFrame, evaluates answers with CorrectionCard, allows part switching & completion
 
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnswerInput } from "@/components/exam/AnswerInput";
 import type { QuestionDisplayData } from "@/components/exam/AnswerInput";
-import { getStatusToneClasses } from "@/lib/design-tokens";
+import { ContextFrame } from "@/components/exam/ContextFrame";
+import { CorrectionCard } from "@/components/exam/CorrectionCard";
+import { QuestionRatingWidget } from "@/components/exam/QuestionRatingWidget";
 import { getQuestionTypeLabel } from "@/lib/exam/question-type-labels";
 
 interface PracticeModeClientProps {
@@ -35,16 +28,38 @@ interface PracticeModeClientProps {
   savedAnswers?: Record<string, any>;
 }
 
+/** Helper to evaluate equality of given answer vs expected answer */
+function checkIsCorrect(given: any, expected: any): boolean {
+  if (given === null || given === undefined || expected === null || expected === undefined) {
+    return false;
+  }
+  const normGiven = String(given).trim().toLowerCase();
+  
+  if (typeof expected === "string") {
+    return normGiven === expected.trim().toLowerCase();
+  }
+  if (Array.isArray(expected)) {
+    return expected.some((exp) => String(exp).trim().toLowerCase() === normGiven);
+  }
+  if (typeof expected === "object") {
+    return JSON.stringify(given) === JSON.stringify(expected);
+  }
+  return false;
+}
+
 export function PracticeModeClient({
   part,
   attemptId,
   initialQuestions,
   savedAnswers = {},
 }: PracticeModeClientProps) {
+  const router = useRouter();
   const [questions] = useState(initialQuestions);
   const [answers, setAnswers] = useState<Record<string, any>>(savedAnswers);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const answersRef = useRef(answers);
@@ -53,7 +68,12 @@ export function PracticeModeClient({
     answersRef.current = answers;
   }, [answers]);
 
-  const currentQuestion = questions[currentIndex];
+  const currentQuestion = questions[currentIndex] as (QuestionDisplayData & {
+    correctAnswer?: any;
+    explanation?: string;
+    skillsTested?: string[];
+  }) | undefined;
+
   const progressPercent = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
   const saveAnswer = useCallback(
@@ -98,6 +118,22 @@ export function PracticeModeClient({
     [saveAnswer],
   );
 
+  const handleCompletePractice = async () => {
+    setIsCompleting(true);
+    try {
+      await fetch("/api/exams/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId }),
+      });
+      setIsFinished(true);
+    } catch (err) {
+      console.error("[PracticeMode] Complete error:", err);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   const goTo = (index: number) => {
     if (index >= 0 && index < questions.length) {
       setCurrentIndex(index);
@@ -115,24 +151,72 @@ export function PracticeModeClient({
             href="/exams"
             className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
           >
-            Back to Exams
+            Back to Exams Selection
           </Link>
         </div>
       </div>
     );
   }
 
+  // Calculate score summary if finished
+  const totalCorrect = questions.reduce((acc, q) => {
+    const given = answers[q.id];
+    const expected = (q as any).correctAnswer;
+    return checkIsCorrect(given, expected) ? acc + 1 : acc;
+  }, 0);
+
+  if (isFinished) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6 bg-background">
+        <div className="max-w-md w-full rounded-2xl border-2 border-border bg-card p-8 text-center space-y-6 shadow-md">
+          <div className="text-4xl">🎓</div>
+          <h2 className="text-xl font-bold text-foreground">Practice Session Completed!</h2>
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-1">
+            <span className="text-xs uppercase font-bold text-primary tracking-wider">Your Score</span>
+            <p className="text-3xl font-extrabold text-primary">
+              {totalCorrect} / {questions.length}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% Accuracy)
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsFinished(false)}
+              className="rounded-xl border border-border px-5 py-2.5 text-xs font-semibold hover:bg-muted transition-colors"
+            >
+              Review Answers
+            </button>
+            <Link
+              href="/exams"
+              className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              ← Select Another Exam Part
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentGivenAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
+  const hasSubmittedAnswer = currentGivenAnswer !== undefined && currentGivenAnswer !== null && currentGivenAnswer !== "";
+  const isCorrect = currentQuestion && hasSubmittedAnswer
+    ? checkIsCorrect(currentGivenAnswer, currentQuestion.correctAnswer)
+    : false;
+
   return (
     <div className="flex min-h-screen flex-col">
-      {/* ExamBar */}
-      <header className="flex h-16 items-center justify-between border-b bg-card px-12">
-        <div className="flex items-center gap-3">
+      {/* Header bar with clear exit and part switching */}
+      <header className="flex h-16 items-center justify-between border-b bg-card px-6 md:px-12">
+        <div className="flex items-center gap-4">
           <Link
             href="/exams"
-            aria-label="Exit practice"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Exit to Exams Selection"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            ✕
+            ← Change Part / Exit
           </Link>
           <h1 className="text-sm font-semibold text-foreground">
             {part.paper} — {part.label}
@@ -152,7 +236,7 @@ export function PracticeModeClient({
       </header>
 
       {/* Progress track */}
-      <div className="h-1 w-full bg-muted">
+      <div className="h-1.5 w-full bg-muted">
         <div
           className="h-full bg-primary transition-all duration-500"
           style={{ width: `${progressPercent}%` }}
@@ -160,73 +244,79 @@ export function PracticeModeClient({
       </div>
 
       {/* Main content */}
-      <main className="flex flex-1 flex-col items-center py-12">
+      <main className="flex flex-1 flex-col items-center py-8 px-4">
         {currentQuestion && (
-          <div className="flex w-full max-w-[720px] flex-col gap-8">
-            {/* Prompt block */}
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="flex w-full max-w-[760px] flex-col gap-6">
+            {/* Header badge */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-md">
                 {getQuestionTypeLabel(currentQuestion.type)}
               </span>
-              {currentQuestion.prompt?.text && (
-                <p className="text-[17px] leading-reading text-foreground">
-                  {currentQuestion.prompt.text}
-                </p>
-              )}
+              <span className="text-xs text-muted-foreground font-medium">
+                Difficulty {currentQuestion.difficulty}
+              </span>
             </div>
 
-            {/* Passage card */}
-            {currentQuestion.prompt?.readingPassage && (
-              <div className="rounded-xl border bg-card p-8 text-[15px] leading-reading text-foreground">
-                {currentQuestion.prompt.readingPassage}
-              </div>
+            {/* In-Context Frame wrapping prompt text & answer input */}
+            <ContextFrame
+              promptText={currentQuestion.prompt?.text}
+              hint={currentQuestion.prompt?.hint}
+              readingPassage={currentQuestion.prompt?.readingPassage}
+            >
+              <AnswerInput
+                question={currentQuestion}
+                selectedAnswer={answers[currentQuestion.id] ?? null}
+                onAnswer={handleAnswer}
+              />
+            </ContextFrame>
+
+            {/* Strict Pedagogical Correction Card */}
+            {hasSubmittedAnswer && currentQuestion.correctAnswer && (
+              <CorrectionCard
+                isCorrect={isCorrect}
+                givenAnswer={currentGivenAnswer}
+                correctAnswer={currentQuestion.correctAnswer}
+                explanation={currentQuestion.explanation}
+                skillsTested={currentQuestion.skillsTested}
+                difficulty={currentQuestion.difficulty}
+              />
             )}
 
-            {/* Hint (practice mode feature) */}
-            {currentQuestion.prompt?.hint && (
-              <details className="text-xs text-muted-foreground">
-                <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
-                  💡 Hint available
-                </summary>
-                <p className={`mt-2 p-3 rounded-lg leading-reading ${getStatusToneClasses("info", "surface")}`}>
-                  {currentQuestion.prompt.hint}
-                </p>
-              </details>
-            )}
-
-            {/* Answer options */}
-            <AnswerInput
-              question={currentQuestion}
-              selectedAnswer={answers[currentQuestion.id] ?? null}
-              onAnswer={handleAnswer}
-            />
+            {/* Quality Rating Widget remounted per question via key */}
+            <QuestionRatingWidget key={currentQuestion.id} questionId={currentQuestion.id} />
 
             {/* Footer nav */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2">
               <button
+                type="button"
                 onClick={() => goTo(currentIndex - 1)}
                 disabled={currentIndex === 0}
-                className="rounded-lg bg-secondary px-[18px] py-2.5 text-[13px] font-medium text-secondary-foreground
+                className="rounded-xl bg-secondary px-5 py-2.5 text-xs font-semibold text-secondary-foreground
                   hover:bg-secondary/80 transition-colors
                   disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ← Previous
               </button>
 
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span aria-hidden="true">⏸</span>
-                Reduced motion: no timer pulse, no slide transitions
-              </span>
-
-              <button
-                onClick={() => goTo(currentIndex + 1)}
-                disabled={currentIndex >= questions.length - 1}
-                className="rounded-lg bg-primary px-[18px] py-2.5 text-[13px] font-medium text-primary-foreground
-                  hover:bg-primary/90 transition-colors
-                  disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Next question →
-              </button>
+              {currentIndex === questions.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={handleCompletePractice}
+                  disabled={isCompleting}
+                  className="rounded-xl bg-success px-6 py-2.5 text-xs font-bold text-success-foreground hover:bg-success/90 transition-colors"
+                >
+                  {isCompleting ? "Evaluating..." : "Finish & Evaluate Practice ✓"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => goTo(currentIndex + 1)}
+                  className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground
+                    hover:bg-primary/90 transition-colors"
+                >
+                  Next question →
+                </button>
+              )}
             </div>
           </div>
         )}

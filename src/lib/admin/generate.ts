@@ -19,6 +19,7 @@ export interface GenerationResult {
   generated: number;
   questions: Array<{ id: string; type: string; prompt: any }>;
   errors: string[];
+  source: "ai" | "mock";
 }
 
 // ─── Question Prompts (structured per type) ─────────────────────────────────
@@ -54,13 +55,13 @@ async function callLLM(
   type: string,
   count: number,
   difficulty: string,
-): Promise<GeneratedQuestion[]> {
+): Promise<{ questions: GeneratedQuestion[]; source: "ai" | "mock" }> {
   const qType = TYPE_BY_PART[examPart.partNumber] ?? type ?? "MC";
 
   if (isAIConfigured()) {
     const aiQuestions = await generateAIQuestions(examPart, qType, count, difficulty);
     if (aiQuestions.length > 0) {
-      return aiQuestions;
+      return { questions: aiQuestions, source: "ai" };
     }
   }
 
@@ -70,7 +71,7 @@ async function callLLM(
     const q = generateMockQuestion(qType, difficulty, i + 1, examPart.label);
     if (q) questions.push(q);
   }
-  return questions;
+  return { questions, source: "mock" };
 }
 
 /**
@@ -377,7 +378,7 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
   });
 
   if (!examPart) {
-    return { generated: 0, questions: [], errors: ["ExamPart not found"] };
+    return { generated: 0, questions: [], errors: ["ExamPart not found"], source: "mock" };
   }
 
   // Determine question type from part number
@@ -393,16 +394,19 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
 
   const questionType = typeMap[examPart.partNumber];
   if (!questionType) {
-    return { generated: 0, questions: [], errors: [`Unsupported part number: ${examPart.partNumber}`] };
+    return { generated: 0, questions: [], errors: [`Unsupported part number: ${examPart.partNumber}`], source: "mock" };
   }
 
   // Call LLM with retry logic (2 retries)
   let generatedQuestions: GeneratedQuestion[] = [];
+  let source: "ai" | "mock" = "mock";
   let lastError: string | null = null;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      generatedQuestions = await callLLM(examPart, questionType, count, difficulty ?? "B");
+      const llm = await callLLM(examPart, questionType, count, difficulty ?? "B");
+      generatedQuestions = llm.questions;
+      source = llm.source;
       if (generatedQuestions.length > 0) {
         lastError = null;
         break;
@@ -415,7 +419,7 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
 
   if (lastError) {
     errors.push(`Generation failed after 3 attempts: ${lastError}`);
-    return { generated: 0, questions: [], errors };
+    return { generated: 0, questions: [], errors, source: "mock" };
   }
 
   // Save each generated question as DRAFT
@@ -439,9 +443,14 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
     }
   }
 
+  console.log(
+    `[admin/generate] ✓ Generated ${created.length}/${count} question(s) for ${examPartId} via ${source}`,
+  );
+
   return {
     generated: created.length,
     questions: created,
     errors,
+    source,
   };
 }

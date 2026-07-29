@@ -10,6 +10,20 @@ interface GenerateFormProps {
   parts: Array<{ id: string; label: string; partNumber: number; timeMinutes: number }>;
 }
 
+// Short, plain-language hints so admins can tell what each part tests
+// without knowing the Cambridge B2 First format by heart.
+const PART_DESCRIPTIONS: Record<string, string> = {
+  "ruoe-part-1": "Multiple-choice cloze — vocabulary, collocations and phrasal verbs. Pick 1 of 4 options for each gap.",
+  "ruoe-part-2": "Open cloze — grammar and structure. Fill each gap with one word (no options given).",
+  "ruoe-part-3": "Word formation — transform a root word into the right form (e.g. ARRANGE → arrangement).",
+  "ruoe-part-4": "Key word transformation — rewrite a sentence keeping its meaning, using a given key word.",
+  "ruoe-part-5": "Reading multiple choice — comprehension questions on a longer text.",
+  "ruoe-part-6": "Gapped text — reinsert removed sentences into the right gaps (cohesion & coherence).",
+  "ruoe-part-7": "Multiple matching — match questions to the section or person in the text (detail reading).",
+  "writing-part-1": "Essay — formal opinion essay (220–260 words) on a given topic.",
+  "writing-part-2": "Situational writing — email, article, report or review (200–220 words).",
+};
+
 interface GeneratedQuestion {
   id: string;
   type: string;
@@ -20,6 +34,7 @@ interface GenerationResult {
   generated: number;
   questions: GeneratedQuestion[];
   errors: string[];
+  source: "ai" | "mock";
 }
 
 export function GenerateForm({ parts }: GenerateFormProps) {
@@ -81,6 +96,9 @@ export function GenerateForm({ parts }: GenerateFormProps) {
               </option>
             ))}
           </select>
+          {PART_DESCRIPTIONS[examPartId] && (
+            <p className="text-xs text-muted-foreground">{PART_DESCRIPTIONS[examPartId]}</p>
+          )}
         </div>
 
         {/* Count */}
@@ -122,6 +140,18 @@ export function GenerateForm({ parts }: GenerateFormProps) {
         </button>
       </form>
 
+      {/* Progress — indeterminate while generating */}
+      {loading && (
+        <div className="space-y-1.5" role="status" aria-live="polite">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-1/3 animate-indeterminate rounded-full bg-primary" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Generating {count} question{count !== 1 ? "s" : ""} with AI — this can take a moment…
+          </p>
+        </div>
+      )}
+
       {/* Error */}
       {error && (
         <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
@@ -139,6 +169,22 @@ export function GenerateForm({ parts }: GenerateFormProps) {
               {result.errors.length > 0 && `, ${result.errors.length} errors`}
             </span>
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            {result.source === "ai"
+              ? "Generated with AI."
+              : "Generated with mock questions."}
+          </p>
+
+          {result.source === "mock" && (
+            <div className={`rounded-lg px-4 py-3 ${getStatusToneClasses("warning", "surface")}`}>
+              <p className="text-sm font-medium">Fell back to mock questions</p>
+              <p className="mt-1 text-sm">
+                AI generation was unavailable or returned no questions. These are
+                deterministic placeholders — review carefully before approving.
+              </p>
+            </div>
+          )}
 
           {result.errors.length > 0 && (
             <div className={`rounded-lg px-4 py-3 ${getStatusToneClasses("warning", "surface")}`}>

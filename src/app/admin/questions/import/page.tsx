@@ -8,7 +8,7 @@ import { ImportForm } from "./import-form";
 export default async function AdminImportQuestionsPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
-  const role = (session.user as any).role;
+  const role = session.user.role;
   if (role !== "ADMIN" && role !== "EDITOR") redirect("/dashboard");
 
   return (

@@ -9,7 +9,7 @@ import { getStatusToneClasses } from "@/lib/design-tokens";
 export default async function GenerateContentPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
-  const role = (session.user as any).role;
+  const role = session.user.role;
   if (role !== "ADMIN") redirect("/dashboard");
 
   return (

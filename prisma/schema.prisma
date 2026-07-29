@@ -143,6 +143,11 @@ model User {
   image             String?
   passwordHash      String?   // bcrypt hash, null for OAuth-only users
   role              Role      @default(USER)
+  hearts            Int      @default(5)
+  maxHearts         Int      @default(5)
+  lastHeartRegen    DateTime @default(now())
+  xpMultiplier      Float    @default(1.0)
+  weeklyXp          Int      @default(0)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 

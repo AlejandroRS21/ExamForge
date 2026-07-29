@@ -39,4 +39,3 @@ export async function GET(
     return NextResponse.json({ error: "Audio not found" }, { status: 404 });
   }
 }
-}
