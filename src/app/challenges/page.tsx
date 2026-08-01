@@ -67,7 +67,7 @@ export default async function ChallengesPage() {
               <div>
                 <div className="text-xs font-bold text-amber-800/70 uppercase">Meta Diaria</div>
                 <div className="text-xl font-extrabold text-amber-950">
-                  {activeGoal ? `${activeGoal.currentProgress} / ${activeGoal.targetValue}` : "Sin meta activa"}
+                  {activeGoal ? `${activeGoal.currentValue} / ${activeGoal.targetValue}` : "Sin meta activa"}
                 </div>
               </div>
             </div>

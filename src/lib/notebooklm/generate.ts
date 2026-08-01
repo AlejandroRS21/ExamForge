@@ -249,9 +249,9 @@ export async function getGenerationStatus(id: string): Promise<StatusResponse | 
     errorMessage: content.errorMessage,
     audioExercise: content.audioExercise,
     flashcardDeck: content.flashcardDecks[0] ?? null,
-    notebookId: content.notebookId,
-    artifactId: content.artifactId,
-    elapsed: content.elapsed,
+    notebookId: content.notebookId ?? undefined,
+    artifactId: content.artifactId ?? undefined,
+    elapsed: content.elapsed ?? undefined,
   };
 }
 

@@ -9,8 +9,11 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { z } from "zod/v4";
 import prisma from "@/lib/prisma";
+import { assertProductionEnv } from "@/lib/env";
 import { checkRateLimit, resetRateLimit } from "@/lib/utils/rate-limit";
 import type { NextAuthConfig } from "next-auth";
+
+assertProductionEnv();
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),

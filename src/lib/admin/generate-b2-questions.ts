@@ -4,6 +4,7 @@
 import { generateJSON } from "@/lib/ai/client";
 import prisma from "@/lib/prisma";
 import type { QuestionType, QuestionDifficulty } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 interface GeneratedQuestion {
   type: QuestionType;
@@ -187,7 +188,7 @@ export async function generateAllB2Questions(): Promise<{ created: number; faile
           examPartId: config.partId,
           type: q.type,
           prompt: q.prompt,
-          options: q.options ? JSON.stringify(q.options) : null,
+          options: q.options ? JSON.stringify(q.options) : Prisma.DbNull,
           correctAnswer: q.correctAnswer,
           difficulty: q.difficulty,
           skillsTested: q.skillsTested,
@@ -231,7 +232,7 @@ export async function generateQuestionsForPartAndSave(
       examPartId: partId,
       type: q.type,
       prompt: q.prompt,
-      options: q.options ? JSON.stringify(q.options) : null,
+      options: q.options ? JSON.stringify(q.options) : Prisma.DbNull,
       correctAnswer: q.correctAnswer,
       difficulty: q.difficulty,
       skillsTested: q.skillsTested,

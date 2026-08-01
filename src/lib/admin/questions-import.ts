@@ -2,6 +2,7 @@
 // Parses Cambridge B2 First questions from CSV format and validates against schema
 
 import type { QuestionType, QuestionDifficulty, QuestionStatus } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
 
 export interface QuestionRow {
@@ -210,7 +211,7 @@ export async function importQuestionsFromCSV(csvText: string): Promise<ImportRes
         examPartId: row.examPartId,
         type: row.type,
         prompt: row.prompt,
-        options: row.options ? JSON.stringify(row.options) : null,
+        options: row.options ? JSON.stringify(row.options) : Prisma.DbNull,
         correctAnswer: row.correctAnswer,
         difficulty: row.difficulty,
         skillsTested: row.skillsTested || [],

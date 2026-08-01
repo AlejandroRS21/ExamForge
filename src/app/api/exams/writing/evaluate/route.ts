@@ -4,6 +4,7 @@
 
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { evaluateWritingWithClaude } from "@/lib/scoring/writing";
 
@@ -63,8 +64,8 @@ export async function POST(request: Request) {
     const updated = await prisma.writingSubmission.update({
       where: { id: submission.id },
       data: {
-        scores: evaluation.scores,
-        feedback: evaluation.feedback,
+        scores: evaluation.scores as unknown as Prisma.InputJsonValue,
+        feedback: evaluation.feedback as unknown as Prisma.InputJsonValue,
       },
     });
 

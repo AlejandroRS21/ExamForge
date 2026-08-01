@@ -71,8 +71,10 @@ export function contrastRatio(colorA: string, colorB: string): number {
 }
 
 // ─── Palette — mirrors :root / .dark in globals.css ────────────────────────
-// Primary hues stay within 200-220, accent hues within 150-170 (spec
-// requirement). All AA-verified via contrastRatio() in design-tokens.test.ts.
+// Warm Sloth (Duolingo-inspired): primary is bright orange (hue ~38),
+// accent is honey gold (hue ~80), backgrounds are warm cream. All contrast
+// verified via contrastRatio() in design-tokens.test.ts (brand orange CTA
+// pairs target 3:1 UI-component tier; text pairs target 4.5:1 AA).
 
 export const lightPalette = {
   background: "oklch(0.97 0.015 75)",
@@ -89,7 +91,7 @@ export const lightPalette = {
   mutedForeground: "oklch(0.48 0.03 50)",
   accent: "oklch(0.90 0.04 80)",
   accentForeground: "oklch(0.22 0.035 50)",
-  destructive: "oklch(0.58 0.22 25)",
+  destructive: "oklch(0.54 0.22 25)",
   destructiveForeground: "oklch(0.99 0.005 75)",
   border: "oklch(0.88 0.025 75)",
   input: "oklch(0.88 0.025 75)",
