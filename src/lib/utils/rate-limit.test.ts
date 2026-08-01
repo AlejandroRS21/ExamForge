@@ -46,10 +46,15 @@ describe("Rate Limiter", () => {
       process.env.UPSTASH_REDIS_REST_URL = "https://fake-redis.upstash.io";
       process.env.UPSTASH_REDIS_REST_TOKEN = "fake-token";
 
-      // Mock Ratelimit class behavior dynamically
+      // Never hit the network: the fake Upstash host must not hang the test.
+      // checkRateLimit catches the fetch failure and falls back to memory, so
+      // we only assert the contract shape — deterministic and offline.
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockRejectedValue(new Error("network unreachable (mocked)")),
+      );
+
       const res = await checkRateLimit("test-redis-key", 5, 60000);
-      // Since it's fake URL, upstash network fetch might fail or be handled
-      // Let's verify graceful fallback or proper response format
       expect(res).toHaveProperty("success");
       expect(res).toHaveProperty("remaining");
       expect(res).toHaveProperty("resetAt");

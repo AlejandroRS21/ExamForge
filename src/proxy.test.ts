@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { middleware } from "./middleware";
+import { proxy } from "./proxy";
 
 // Mock auth-core module
 vi.mock("@/lib/auth-core", () => ({
@@ -16,12 +16,12 @@ function createMockRequest(urlStr: string): any {
   };
 }
 
-describe("Middleware Role Checking", () => {
+describe("Proxy Role Checking", () => {
   it("redirects unauthenticated users trying to access /admin", async () => {
     vi.mocked(auth).mockResolvedValueOnce(null as any);
 
     const req = createMockRequest("http://localhost:3000/admin");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect(res?.status).toBe(307);
     expect(res?.headers.get("location")).toContain("/auth/login");
@@ -37,7 +37,7 @@ describe("Middleware Role Checking", () => {
     } as any);
 
     const req = createMockRequest("http://localhost:3000/admin");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect(res?.status).toBe(307);
     expect(res?.headers.get("location")).toContain("/dashboard");
@@ -53,7 +53,7 @@ describe("Middleware Role Checking", () => {
     } as any);
 
     const req = createMockRequest("http://localhost:3000/admin");
-    const res = await middleware(req);
+    const res = await proxy(req);
 
     expect(res?.status).not.toBe(307);
   });

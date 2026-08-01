@@ -13,8 +13,6 @@ import { assertProductionEnv } from "@/lib/env";
 import { checkRateLimit, resetRateLimit } from "@/lib/utils/rate-limit";
 import type { NextAuthConfig } from "next-auth";
 
-assertProductionEnv();
-
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
@@ -124,4 +122,18 @@ export const authConfig: NextAuthConfig = {
   },
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+const nextAuth = NextAuth(authConfig);
+export const handlers = nextAuth.handlers;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
+
+// Runtime-only production env guard: asserts critical variables exist at
+// request time (not at module scope) so `next build` / Docker image builds
+// without runtime-only env vars still succeed. The server fails fast on the
+// first auth check when DATABASE_URL or AUTH_SECRET is missing in production.
+// Keeps NextAuth's overloaded `auth` signature (zero-arg Server Component /
+// proxy / route-handler forms) untouched for callers.
+export const auth: typeof nextAuth.auth = (...args: any[]): any => {
+  assertProductionEnv();
+  return nextAuth.auth(...(args as Parameters<typeof nextAuth.auth>));
+};

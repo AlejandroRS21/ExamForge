@@ -4,7 +4,6 @@
 // Uses @prisma/adapter-pg for local PostgreSQL (Docker)
 
 import { PrismaClient } from "@/generated/prisma/client";
-import { assertProductionEnv } from "@/lib/env";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -15,7 +14,6 @@ function isNeonUrl(url: string): boolean {
 }
 
 function createPrismaClient(): PrismaClient {
-  assertProductionEnv();
   const databaseUrl = process.env.DATABASE_URL ?? "";
   const isNeon = isNeonUrl(databaseUrl);
 
