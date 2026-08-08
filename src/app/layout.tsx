@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Fredoka, Quicksand } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/session-provider";
 import { MomentProvider } from "@/components/moments/MomentProvider";
@@ -17,14 +18,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+});
+
+const quicksand = Quicksand({
+  variable: "--font-quicksand",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "ExamForge — Cambridge B2 First Practice",
-    template: "%s | ExamForge",
+    default: "OpenSloth — Cambridge B2 First Practice",
+    template: "%s | OpenSloth",
   },
   description: "Practice Cambridge B2 First with AI-powered exercises, flashcards, and mock exams.",
   openGraph: {
-    title: "ExamForge",
+    title: "OpenSloth",
     description: "Cambridge B2 First Practice Platform",
     type: "website",
   },
@@ -38,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fredoka.variable} ${quicksand.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <SessionProvider>
@@ -48,7 +59,7 @@ export default function RootLayout({
             <footer className="border-t py-6 mt-auto">
               <div className="container mx-auto px-4 text-center">
                 <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                  ExamForge is an independent practice platform and is not affiliated with,
+                  OpenSloth is an independent practice platform and is not affiliated with,
                   endorsed by, or connected to Cambridge Assessment English or the University
                   of Cambridge. &quot;B2 First&quot; and &quot;Cambridge English&quot; are
                   registered trademarks of Cambridge Assessment English. All exam content
