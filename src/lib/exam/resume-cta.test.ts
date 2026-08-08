@@ -20,6 +20,7 @@ describe("buildResumeCta", () => {
       title: "Continue where you left off",
       subtitle: "R&UoE Part 3 — Word formation, question 4 of 7",
       resumeHref: "/exams/practice/ruoe-part-3",
+      partId: "ruoe-part-3",
     });
   });
 
@@ -61,5 +62,18 @@ describe("buildResumeCta", () => {
 
     expect(cta.subtitle).toBe("Writing Part 1 — Essay");
     expect(cta.subtitle).not.toContain("of 0");
+  });
+
+  it("exposes partId directly so consumers don't need to parse resumeHref", () => {
+    const cta = buildResumeCta({
+      attemptId: "attempt-1",
+      partId: "ruoe-part-3",
+      partLabel: "R&UoE Part 3",
+      partDescription: null,
+      answeredCount: 0,
+      questionCount: 5,
+    });
+
+    expect(cta.partId).toBe("ruoe-part-3");
   });
 });

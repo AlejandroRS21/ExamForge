@@ -1,5 +1,5 @@
 // ExamForge — Auth.js Core (Middleware-safe, no Prisma dependency)
-// JWT-only auth for middleware — does NOT import Prisma
+// JWT-only auth for proxy (middleware) — does NOT import Prisma
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -25,7 +25,7 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role ?? "USER";
+        session.user.role = token.role ?? "USER";
       }
       return session;
     },

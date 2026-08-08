@@ -1,9 +1,11 @@
 // ExamForge — AI Question Generation Pipeline
-// Generates B2 First questions via structured prompts to an LLM.
-// CURRENTLY USES A MOCK — replace with real LLM provider (OpenAI/Anthropic) when chosen.
+// Generates B2 First questions via structured prompts to the shared 9router client.
+// Falls back to deterministic mock generators when AI is unconfigured or fails,
+// so seeding/dev never hard-fails.
 
 import prisma from "@/lib/prisma";
 import { createQuestion } from "@/lib/admin/questions";
+import { generateJSON, isAIConfigured } from "@/lib/ai/client";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -17,6 +19,7 @@ export interface GenerationResult {
   generated: number;
   questions: Array<{ id: string; type: string; prompt: any }>;
   errors: string[];
+  source: "ai" | "mock";
 }
 
 // ─── Question Prompts (structured per type) ─────────────────────────────────
@@ -30,36 +33,93 @@ interface GeneratedQuestion {
   skillsTested: string[];
 }
 
-// ─── Mock LLM — Returns Realistic Sample Questions ──────────────────────────
-// Replace `callLLM` with actual API integration when provider is chosen.
+// ─── LLM — 9router AI with deterministic mock fallback ──────────────────────
 
+const TYPE_BY_PART: Record<number, string> = {
+  1: "MC",
+  2: "CLOZE",
+  3: "WF",
+  4: "KT",
+  5: "GT",
+  6: "MM",
+  7: "MM",
+};
+
+/**
+ * Generate `count` questions for a part. Attempts the shared 9router client
+ * first; on unconfigured/failed/empty AI, falls back to the mock generators so
+ * seeding never hard-fails. Produces the same GeneratedQuestion[] shape either way.
+ */
 async function callLLM(
-  _examPart: { label: string; partNumber: number; paper: string },
-  _type: string,
+  examPart: { label: string; partNumber: number; paper: string },
+  type: string,
   count: number,
-  _difficulty: string,
+  difficulty: string,
+): Promise<{ questions: GeneratedQuestion[]; source: "ai" | "mock" }> {
+  const qType = TYPE_BY_PART[examPart.partNumber] ?? type ?? "MC";
+
+  if (isAIConfigured()) {
+    const aiQuestions = await generateAIQuestions(examPart, qType, count, difficulty);
+    if (aiQuestions.length > 0) {
+      return { questions: aiQuestions, source: "ai" };
+    }
+  }
+
+  // Fallback: deterministic mock questions.
+  const questions: GeneratedQuestion[] = [];
+  for (let i = 0; i < count; i++) {
+    const q = generateMockQuestion(qType, difficulty, i + 1, examPart.label);
+    if (q) questions.push(q);
+  }
+  return { questions, source: "mock" };
+}
+
+/**
+ * Ask the shared 9router client for `count` B2 questions.
+ * Returns [] on any failure so callLLM can fall back to mocks.
+ */
+async function generateAIQuestions(
+  examPart: { label: string; partNumber: number; paper: string },
+  qType: string,
+  count: number,
+  difficulty: string,
 ): Promise<GeneratedQuestion[]> {
-  // Simulate network latency
-  await new Promise((r) => setTimeout(r, 500));
+  const systemPrompt = `You are a Cambridge B2 First (FCE) exam question writer. Generate realistic, high-quality exam questions that match official Cambridge standards. Always respond with valid JSON only.`;
 
   const questions: GeneratedQuestion[] = [];
-
-  // Map question type suffix from part number
-  const typeByPart: Record<number, string> = {
-    1: "MC",
-    2: "CLOZE",
-    3: "WF",
-    4: "KT",
-    5: "GT",
-    6: "MM",
-    7: "MM",
-  };
-
-  const qType = typeByPart[_examPart.partNumber] ?? "MC";
+  const diff = (["A", "B", "C"].includes(difficulty) ? difficulty : "B") as "A" | "B" | "C";
 
   for (let i = 0; i < count; i++) {
-    const q = generateMockQuestion(qType, _difficulty, i + 1, _examPart.label);
-    if (q) questions.push(q);
+    const userPrompt = `Generate ONE Cambridge B2 First "${qType}" question for exam part "${examPart.label}".
+Difficulty: ${diff === "A" ? "Easy (B2 baseline)" : diff === "B" ? "Standard (typical B2)" : "Challenge (upper B2)"}
+
+Respond with ONLY valid JSON matching this exact schema:
+{
+  "prompt": <string or object with the question text/passage>,
+  "options": <array of strings OR null>,
+  "correctAnswer": <string or array — the correct answer(s)>,
+  "explanation": "<why the answer is correct>",
+  "difficulty": "${diff}",
+  "skillsTested": ["<skill>", ...]
+}`;
+
+    const result = await generateJSON<GeneratedQuestion>({
+      systemPrompt,
+      userPrompt,
+      maxTokens: 800,
+    });
+
+    // Validate minimal contract; skip invalid so we fall back if none succeed.
+    if (result && result.prompt && result.correctAnswer !== undefined) {
+      questions.push({
+        prompt: result.prompt,
+        options: result.options,
+        correctAnswer: result.correctAnswer,
+        explanation: result.explanation ?? "AI-generated B2 First question.",
+        difficulty: (["A", "B", "C"].includes(result.difficulty) ? result.difficulty : diff) as "A" | "B" | "C",
+        skillsTested: Array.isArray(result.skillsTested) ? result.skillsTested : ["general comprehension"],
+      });
+    }
   }
 
   return questions;
@@ -318,7 +378,7 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
   });
 
   if (!examPart) {
-    return { generated: 0, questions: [], errors: ["ExamPart not found"] };
+    return { generated: 0, questions: [], errors: ["ExamPart not found"], source: "mock" };
   }
 
   // Determine question type from part number
@@ -334,16 +394,19 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
 
   const questionType = typeMap[examPart.partNumber];
   if (!questionType) {
-    return { generated: 0, questions: [], errors: [`Unsupported part number: ${examPart.partNumber}`] };
+    return { generated: 0, questions: [], errors: [`Unsupported part number: ${examPart.partNumber}`], source: "mock" };
   }
 
   // Call LLM with retry logic (2 retries)
   let generatedQuestions: GeneratedQuestion[] = [];
+  let source: "ai" | "mock" = "mock";
   let lastError: string | null = null;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      generatedQuestions = await callLLM(examPart, questionType, count, difficulty ?? "B");
+      const llm = await callLLM(examPart, questionType, count, difficulty ?? "B");
+      generatedQuestions = llm.questions;
+      source = llm.source;
       if (generatedQuestions.length > 0) {
         lastError = null;
         break;
@@ -356,7 +419,7 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
 
   if (lastError) {
     errors.push(`Generation failed after 3 attempts: ${lastError}`);
-    return { generated: 0, questions: [], errors };
+    return { generated: 0, questions: [], errors, source: "mock" };
   }
 
   // Save each generated question as DRAFT
@@ -380,9 +443,14 @@ export async function generateQuestions(request: GenerationRequest): Promise<Gen
     }
   }
 
+  console.log(
+    `[admin/generate] ✓ Generated ${created.length}/${count} question(s) for ${examPartId} via ${source}`,
+  );
+
   return {
     generated: created.length,
     questions: created,
     errors,
+    source,
   };
 }

@@ -29,11 +29,11 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const errorMessages: Record<string, string> = {
-    CredentialsSignin: "Invalid email or password",
+    CredentialsSignin: "Correo electrónico o contraseña incorrectos",
     OAuthAccountNotLinked:
-      "This email is already linked to another account",
-    OAuthSignin: "There was a problem signing in with this provider",
-    default: "An unexpected error occurred",
+      "Este correo ya está vinculado a otra cuenta",
+    OAuthSignin: "Hubo un problema al iniciar sesión con este proveedor",
+    default: "Ha ocurrido un error inesperado",
   };
 
   async function handleCredentialsLogin(e: React.FormEvent) {
@@ -71,7 +71,9 @@ export function LoginForm() {
         return;
       }
 
-      router.push(callbackUrl);
+      // ponytail: sanitize callbackUrl — only allow relative paths to prevent open redirect
+      const safeUrl = callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/dashboard";
+      router.push(safeUrl);
       router.refresh();
     } catch {
       setServerError("Connection error. Please try again.");
@@ -82,18 +84,19 @@ export function LoginForm() {
 
   function handleOAuthSignIn(provider: string) {
     setIsLoading(true);
-    signIn(provider, { callbackUrl });
+    const safeUrl = callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/dashboard";
+    signIn(provider, { callbackUrl: safeUrl });
   }
 
   return (
     <div className="space-y-4">
       {/* OAuth Buttons */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <button
           type="button"
           onClick={() => handleOAuthSignIn("google")}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50/50 px-4 py-2.5 text-sm font-semibold text-amber-950 hover:bg-amber-100/60 shadow-[0_3px_0_0_#FDE68A] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
             <path
@@ -113,71 +116,71 @@ export function LoginForm() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          Continuar con Google
         </button>
 
         <button
           type="button"
           onClick={() => handleOAuthSignIn("github")}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50/50 px-4 py-2.5 text-sm font-semibold text-amber-950 hover:bg-amber-100/60 shadow-[0_3px_0_0_#FDE68A] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
           </svg>
-          Continue with GitHub
+          Continuar con GitHub
         </button>
       </div>
 
       {/* Divider */}
-      <div className="relative">
+      <div className="relative my-2">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+          <span className="w-full border-t border-amber-200/80" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with email
+          <span className="bg-white px-3 text-amber-800/70 font-medium">
+            O continúa con correo
           </span>
         </div>
       </div>
 
       {/* Error messages */}
       {(error || serverError) && (
-        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-2xl bg-orange-50 border-2 border-orange-200 px-4 py-3 text-sm text-orange-800 font-medium">
           <p>{serverError ?? errorMessages[error ?? ""] ?? errorMessages.default}</p>
         </div>
       )}
 
       {/* Credentials Form */}
-      <form onSubmit={handleCredentialsLogin} className="space-y-3">
+      <form onSubmit={handleCredentialsLogin} className="space-y-3.5">
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
+          <label htmlFor="email" className="text-sm font-semibold text-amber-950">
+            Correo electrónico
           </label>
           <input
             id="email"
             type="email"
-            placeholder="your@email.com"
+            placeholder="tu@correo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full rounded-2xl border-2 border-amber-200 bg-amber-50/30 px-3.5 py-2.5 text-sm text-amber-950 placeholder:text-amber-700/40 focus:bg-white focus:outline-none focus:border-amber-400 transition-all"
             autoComplete="email"
           />
           {errors.email && (
-            <p className="text-xs text-destructive">{errors.email}</p>
+            <p className="text-xs text-orange-600 font-medium">{errors.email}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
+            <label htmlFor="password" className="text-sm font-semibold text-amber-950">
+              Contraseña
             </label>
             <Link
               href="/auth/forgot-password"
-              className="text-xs text-primary hover:underline"
+              className="text-xs text-orange-600 font-semibold hover:underline"
             >
-              Forgot password?
+              ¿Olvidaste tu contraseña?
             </Link>
           </div>
           <input
@@ -186,31 +189,31 @@ export function LoginForm() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full rounded-2xl border-2 border-amber-200 bg-amber-50/30 px-3.5 py-2.5 text-sm text-amber-950 placeholder:text-amber-700/40 focus:bg-white focus:outline-none focus:border-amber-400 transition-all"
             autoComplete="current-password"
           />
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password}</p>
+            <p className="text-xs text-orange-600 font-medium">{errors.password}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+          className="w-full rounded-2xl bg-gradient-to-b from-[#FF7A45] to-[#FF6B35] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 mt-2"
         >
-          {isLoading ? "Signing in..." : "Sign in"}
+          {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <a
+      <p className="text-center text-sm text-amber-900/80 font-medium pt-2">
+        ¿No tienes una cuenta?{" "}
+        <Link
           href="/auth/register"
-          className="font-medium text-primary hover:underline"
+          className="font-bold text-[#FF6B35] hover:underline"
         >
-          Create one
-        </a>
+          Crear una gratis
+        </Link>
       </p>
     </div>
   );

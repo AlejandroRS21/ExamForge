@@ -9,6 +9,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { z } from "zod/v4";
 import prisma from "@/lib/prisma";
+import { assertProductionEnv } from "@/lib/env";
 import { checkRateLimit, resetRateLimit } from "@/lib/utils/rate-limit";
 import type { NextAuthConfig } from "next-auth";
 
@@ -41,7 +42,7 @@ export const authConfig: NextAuthConfig = {
           request?.headers?.get("x-forwarded-for") ??
           request?.headers?.get("x-real-ip") ??
           "unknown";
-        const rateCheck = checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
+        const rateCheck = await checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
         if (!rateCheck.success) {
           throw new Error("Too many login attempts. Please try again later.");
         }
@@ -75,8 +76,8 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
 
-        // Reset rate limit on successful login
-        resetRateLimit(`login:${ip}`);
+        // Reset rate limit on successful login (same limit/window as checkRateLimit above)
+        resetRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
 
         return {
           id: user.id,
@@ -114,11 +115,25 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).role = token.role ?? "USER";
+        session.user.role = token.role ?? "USER";
       }
       return session;
     },
   },
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+const nextAuth = NextAuth(authConfig);
+export const handlers = nextAuth.handlers;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
+
+// Runtime-only production env guard: asserts critical variables exist at
+// request time (not at module scope) so `next build` / Docker image builds
+// without runtime-only env vars still succeed. The server fails fast on the
+// first auth check when DATABASE_URL or AUTH_SECRET is missing in production.
+// Keeps NextAuth's overloaded `auth` signature (zero-arg Server Component /
+// proxy / route-handler forms) untouched for callers.
+export const auth: typeof nextAuth.auth = (...args: any[]): any => {
+  assertProductionEnv();
+  return nextAuth.auth(...(args as Parameters<typeof nextAuth.auth>));
+};

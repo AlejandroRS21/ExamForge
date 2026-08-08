@@ -31,10 +31,16 @@ export const registerSchema = z
   });
 
 // ─── Exam Schemas ───────────────────────────────────────────────────────────
+//
+// Entity id fields are FKs to rows that either exist or don't — existence is
+// enforced by the DB/query, not by id *format*. Seed data uses readable slugs
+// (e.g. "sample-q-1", "ruoe-part-2") while runtime rows use Prisma cuids, so
+// cuid() would wrongly reject seeded ids. We validate min(1) (reject empty) and
+// let the query be the source of truth for existence.
 
 export const answerSubmitSchema = z.object({
-  attemptId: z.string().cuid(),
-  questionId: z.string().cuid(),
+  attemptId: z.string().min(1),
+  questionId: z.string().min(1),
   givenAnswer: z.any().optional(), // Type-dependent, validated per type by exam engine; optional for in-progress saves
   timeSpentSeconds: z.number().int().min(0).max(3600).default(0),
 });
@@ -45,45 +51,47 @@ export const generateContentSchema = z.object({
   sourceType: z.enum(["URL", "TEXT", "YOUTUBE"]),
   sourceData: z.string().min(1, "Source data is required"),
   contentType: z.enum(["QUIZ", "AUDIO", "FLASHCARDS", "MINDMAP"]),
-  createdById: z.string().cuid(),
+  createdById: z.string().min(1),
   notebookId: z.string().optional(),
 });
 
 export const heartbeatSchema = z.object({
-  attemptId: z.string().cuid(),
+  attemptId: z.string().min(1),
 });
 
 export const completeAttemptSchema = z.object({
-  attemptId: z.string().cuid(),
+  attemptId: z.string().min(1),
 });
 
 export const createAttemptSchema = z.object({
   type: z.enum(["PRACTICE", "MOCK"]),
-  partId: z.string().cuid().optional(),
+  partId: z.string().min(1).optional(),
   anonymousSessionId: z.string().optional(),
 });
 
 export const writingEvaluateSchema = z.object({
-  attemptId: z.string().cuid(),
-  writingPromptId: z.string().cuid(),
+  attemptId: z.string().min(1),
+  writingPromptId: z.string().min(1),
   content: z.string().min(1, "Content is required").max(10000),
 });
 
 // ─── Admin Schemas ──────────────────────────────────────────────────────────
 
 export const generateQuestionsSchema = z.object({
-  examPartId: z.string().cuid(),
+  // ExamPart ids are stable business identifiers seeded as readable slugs
+  // (e.g. "ruoe-part-2"), not Prisma cuids — so cuid() would wrongly reject them.
+  examPartId: z.string().min(1),
   count: z.number().int().min(1).max(25).default(10),
   difficulty: z.enum(["A", "B", "C"]).optional(),
 });
 
 export const approveQuestionsSchema = z.object({
-  questionIds: z.array(z.string().cuid()).min(1),
+  questionIds: z.array(z.string().min(1)).min(1),
   status: z.enum(["ACTIVE", "REJECTED"]),
 });
 
 export const updateQuestionSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string().min(1),
   prompt: z.any().optional(),
   options: z.any().optional(),
   correctAnswer: z.any().optional(),
@@ -94,7 +102,7 @@ export const updateQuestionSchema = z.object({
 });
 
 export const upsertPartSchema = z.object({
-  id: z.string().cuid().optional(),
+  id: z.string().min(1).optional(),
   label: z.string().min(1),
   paper: z.enum(["R&UoE", "Writing"]),
   partNumber: z.number().int().min(1).max(7),
@@ -105,7 +113,7 @@ export const upsertPartSchema = z.object({
 });
 
 export const updateUserRoleSchema = z.object({
-  userId: z.string().cuid(),
+  userId: z.string().min(1),
   role: z.enum(["USER", "ADMIN", "EDITOR", "VIEWER"]),
 });
 

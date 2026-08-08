@@ -26,9 +26,15 @@ function createPrismaClient(): PrismaClient {
     return new PrismaClient({ adapter });
   }
 
-  // Local PostgreSQL (Docker): use pg adapter for direct TCP connection
+  // Local PostgreSQL (Docker): use pg adapter for direct TCP connection with pooling config
+  const { Pool } = require("pg");
   const { PrismaPg } = require("@prisma/adapter-pg");
-  const adapter = new PrismaPg({ connectionString: databaseUrl });
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    max: 10,
+    idleTimeoutMillis: 30000,
+  });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 

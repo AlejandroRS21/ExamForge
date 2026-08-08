@@ -5,6 +5,7 @@
 // Matches the approved Pencil LearnHeader mockup (id IEZQZ).
 
 import Link from "next/link";
+import { MuteToggle } from "@/components/moments/MuteToggle";
 
 export function LearnHeader() {
   return (
@@ -29,6 +30,7 @@ export function LearnHeader() {
           >
             Dashboard
           </Link>
+          <MuteToggle />
         </nav>
       </div>
     </header>

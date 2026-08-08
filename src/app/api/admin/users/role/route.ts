@@ -10,7 +10,7 @@ export async function PATCH(request: Request) {
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const requesterRole = (session.user as any).role;
+  const requesterRole = session.user.role;
   if (requesterRole !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden — admin role required" }, { status: 403 });
   }

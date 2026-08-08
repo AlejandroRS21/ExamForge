@@ -1,9 +1,10 @@
 // ExamForge — Exam Selection Page
-// Shows available exam parts for practice and mock modes
+// Warm Sloth theme with part category tabs, skill badges, and 3D tactile buttons
 
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { SlothMascot } from "@/components/ui/SlothMascot";
 
 export default async function ExamsPage() {
   const session = await auth();
@@ -25,139 +26,189 @@ export default async function ExamsPage() {
   const writingParts = parts.filter((p) => p.paper === "Writing");
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight">Exam Center</h1>
-        <p className="text-muted-foreground mt-2">
-          Choose your mode — practice individual parts or take a full timed mock exam.
-        </p>
-      </div>
-
-      {/* Practice Mode */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold">Practice Mode</h2>
-            <p className="text-sm text-muted-foreground">
-              No timer, hints available, pausable. Focus on one part at a time.
+    <div className="min-h-screen bg-[#FAF6F0]">
+      <div className="container mx-auto px-4 py-10 max-w-5xl">
+        {/* Header Hero */}
+        <div className="mb-10 bg-white p-8 rounded-3xl border-2 border-amber-200/80 shadow-[0_6px_0_0_#FDE68A] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 border border-amber-300/60 text-amber-900 text-xs font-bold uppercase tracking-wide">
+              <span>🎓</span> Examen Cambridge B2 First
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-amber-950">
+              Centro de Exámenes
+            </h1>
+            <p className="text-amber-800/80 max-w-xl font-medium text-sm md:text-base">
+              Elige tu modalidad de estudio: practica partes individuales sin prisa o pon a prueba tu nivel en un simulacro completo cronometrado.
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300">
-            No timer
-          </span>
+          <SlothMascot pose="studying" size={150} className="shrink-0" />
         </div>
 
-        {/* R&UoE Parts */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Reading & Use of English
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {ruoeParts.map((part) => (
-              <Link
-                key={part.id}
-                href={`/exams/practice/${part.id}`}
-                className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:shadow-sm transition-all"
-              >
-                <div className="font-medium text-sm">{part.label}</div>
-                <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  {part.description}
-                </div>
-                <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                  <span>{part.questionCount} questions</span>
-                  <span>{part.timeMinutes} min</span>
-                </div>
-              </Link>
-            ))}
+        {/* Modalidad de Práctica */}
+        <section className="mb-12">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-2xl font-extrabold text-amber-950 flex items-center gap-2">
+                <span>🎯</span> Modos de Práctica Individual
+              </h2>
+              <p className="text-sm font-medium text-amber-800/80 mt-0.5">
+                Sin límite de tiempo rígido, con pistas opcionales y pausables.
+              </p>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-emerald-100 border border-emerald-300 px-3.5 py-1 text-xs font-bold text-emerald-800">
+              Paso a paso
+            </span>
           </div>
-        </div>
 
-        {writingParts.length > 0 && (
-          <div className="space-y-3 mt-6">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Writing
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {writingParts.map((part) => (
+          {/* R&UoE Parts */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-[#FF6B35]" />
+              <h3 className="text-sm font-bold text-amber-900 uppercase tracking-wider">
+                Reading & Use of English (Partes 1 - 7)
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ruoeParts.map((part) => (
                 <Link
                   key={part.id}
                   href={`/exams/practice/${part.id}`}
-                  className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:shadow-sm transition-all"
+                  className="group rounded-2xl border-2 border-amber-200/90 bg-white p-5 hover:border-amber-300 shadow-[0_4px_0_0_#FDE68A] hover:shadow-[0_6px_0_0_#FDE68A] transition-all flex flex-col justify-between"
                 >
-                  <div className="font-medium text-sm">{part.label}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{part.description}</div>
-                  <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                    <span>{part.questionCount} tasks</span>
-                    <span>{part.timeMinutes} min</span>
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="font-bold text-base text-amber-950 group-hover:text-[#FF6B35] transition-colors">
+                        {part.label}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-xs font-bold shrink-0">
+                        B2
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-amber-800/70 line-clamp-2 leading-relaxed">
+                      {part.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 mt-2 border-t border-amber-100 text-xs font-semibold text-amber-900">
+                    <span>{part.questionCount} preguntas</span>
+                    <span>{part.timeMinutes} min recomendados</span>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
-        )}
-      </section>
 
-      {/* Mock Mode */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold">Mock Exam</h2>
-            <p className="text-sm text-muted-foreground">
-              Full timed exam with real B2 First timing. One shot — no pauses.
-            </p>
-          </div>
-          <span className="inline-flex items-center rounded-full bg-warning-surface px-3 py-1 text-xs font-medium text-warning">
-            Timed
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Full Mock */}
-          <Link
-            href="/exams/mock/new"
-            className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5 hover:border-primary/40 hover:bg-primary/10 transition-all"
-          >
-            <div className="font-semibold text-base">Full R&UoE Mock</div>
-            <p className="text-sm text-muted-foreground mt-1">
-              All 7 parts, 52 questions, 1 hour 15 minutes.
-            </p>
-            <div className="flex items-center gap-3 mt-4 text-xs text-muted-foreground">
-              <span>52 questions</span>
-              <span>75 min</span>
+          {writingParts.length > 0 && (
+            <div className="space-y-4 mt-8">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-[#FFB703]" />
+                <h3 className="text-sm font-bold text-amber-900 uppercase tracking-wider">
+                  Writing (Redacción)
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {writingParts.map((part) => (
+                  <Link
+                    key={part.id}
+                    href={`/exams/practice/${part.id}`}
+                    className="group rounded-2xl border-2 border-amber-200/90 bg-white p-5 hover:border-amber-300 shadow-[0_4px_0_0_#FDE68A] hover:shadow-[0_6px_0_0_#FDE68A] transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="font-bold text-base text-amber-950 group-hover:text-[#FF6B35] transition-colors">
+                          {part.label}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-xs font-bold">
+                          Writing
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-amber-800/70 line-clamp-2 leading-relaxed">
+                        {part.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 mt-2 border-t border-amber-100 text-xs font-semibold text-amber-900">
+                      <span>{part.questionCount} ejercicios</span>
+                      <span>{part.timeMinutes} min</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </Link>
+          )}
+        </section>
 
-          {/* Part-by-part mocks */}
-          {ruoeParts.map((part) => (
+        {/* Modalidad Simulacro Completo */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-extrabold text-amber-950 flex items-center gap-2">
+                <span>⏱️</span> Simulacro de Examen Oficial
+              </h2>
+              <p className="text-sm font-medium text-amber-800/80 mt-0.5">
+                Experiencia real cronometrada sin pausas con las condiciones del Cambridge B2 First.
+              </p>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-orange-100 border border-orange-300 px-3.5 py-1 text-xs font-bold text-orange-800">
+              Cronometrado
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Full Mock CTA */}
             <Link
-              key={part.id}
-              href={`/exams/mock/new?partId=${part.id}`}
-              className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:shadow-sm transition-all"
+              href="/exams/mock/new"
+              className="rounded-3xl border-2 border-orange-300 bg-gradient-to-br from-orange-500 to-[#FF6B35] p-6 text-white shadow-[0_6px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all flex flex-col justify-between"
             >
-              <div className="font-medium text-sm">{part.label} Mock</div>
-              <div className="text-xs text-muted-foreground mt-1">{part.description}</div>
-              <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                <span>{part.questionCount} questions</span>
-                <span>{part.timeMinutes} min</span>
-                <span className="text-warning font-medium">Timed</span>
+              <div>
+                <div className="inline-block px-2.5 py-1 rounded-lg bg-white/20 text-xs font-extrabold uppercase tracking-wide mb-3">
+                  Examen Completo R&UoE
+                </div>
+                <h3 className="font-extrabold text-xl text-white">
+                  Simulacro Completo B2 (Partes 1 a 7)
+                </h3>
+                <p className="text-sm font-medium text-orange-50 mt-2 leading-relaxed">
+                  52 preguntas oficiales, 1 hora y 15 minutos en tiempo real.
+                </p>
+              </div>
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20 text-xs font-bold text-white">
+                <span>52 Preguntas Totales</span>
+                <span className="bg-white/20 px-3 py-1 rounded-xl">75 Minutos</span>
               </div>
             </Link>
-          ))}
-        </div>
-      </section>
 
-      {/* History link (for authenticated users) */}
-      {session?.user && (
-        <div className="mt-12 pt-6 border-t">
-          <Link
-            href="/dashboard"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Back to Dashboard
-          </Link>
-        </div>
-      )}
+            {/* Individual Mocks */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {ruoeParts.slice(0, 4).map((part) => (
+                <Link
+                  key={part.id}
+                  href={`/exams/mock/new?partId=${part.id}`}
+                  className="rounded-2xl border-2 border-amber-200/90 bg-white p-4 hover:border-amber-300 shadow-[0_4px_0_0_#FDE68A] transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="font-bold text-sm text-amber-950">{part.label}</div>
+                    <div className="text-xs font-medium text-amber-800/70 mt-1 line-clamp-1">{part.description}</div>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 text-xs font-bold text-amber-900">
+                    <span>{part.timeMinutes} min</span>
+                    <span className="text-orange-600">Simulacro</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Back Link */}
+        {session?.user && (
+          <div className="mt-10 pt-6 border-t border-amber-200/60 flex justify-center">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-2xl border-2 border-amber-200 bg-white px-5 py-2.5 text-sm font-bold text-amber-950 shadow-[0_3px_0_0_#FDE68A] hover:bg-amber-50 active:translate-y-0.5 active:shadow-none transition-all"
+            >
+              ← Volver al Panel Principal
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

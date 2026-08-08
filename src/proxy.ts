@@ -1,4 +1,4 @@
-// ExamForge — Next.js Middleware
+// ExamForge — Next.js Proxy (renamed from middleware in Next 16)
 // Session guard + admin role check on /admin/*
 // Uses JWT-only auth (no Prisma dependency — safe for Edge Runtime)
 
@@ -11,7 +11,7 @@ const ADMIN_ROUTES = ["/admin"];
 // Auth routes (always public)
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/api/auth"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow auth routes and static files
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
-    const role = (session.user as any).role;
+    const role = session.user.role;
     if (role !== "ADMIN" && role !== "EDITOR") {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });

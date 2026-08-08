@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       request.headers.get("x-forwarded-for") ??
       request.headers.get("x-real-ip") ??
       "unknown";
-    const rateCheck = checkRateLimit(`register:${ip}`, 10, 15 * 60 * 1000);
+    const rateCheck = await checkRateLimit(`register:${ip}`, 10, 15 * 60 * 1000);
     if (!rateCheck.success) {
       return NextResponse.json(
         { error: "Too many registration attempts. Please try again later." },

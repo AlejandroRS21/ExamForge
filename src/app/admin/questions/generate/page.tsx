@@ -10,7 +10,7 @@ import { getStatusToneClasses } from "@/lib/design-tokens";
 export default async function GenerateQuestionsPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
-  const role = (session.user as any).role;
+  const role = session.user.role;
   if (role !== "ADMIN" && role !== "EDITOR") redirect("/dashboard");
 
   const parts = await prisma.examPart.findMany({

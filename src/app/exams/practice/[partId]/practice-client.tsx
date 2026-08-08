@@ -1,23 +1,16 @@
-// ExamForge — Practice Mode Client Component
-// Renders questions with answer inputs, handles submission via API
-// EE-01: Practice mode — pausable, no timer, hints available
-// Neuroinclusive UI adoption: applies the approved Pencil ExamPractice
-// mockup (id EPS1o) — ExamBar, question-progress track, a single-task-focus
-// 720px column, prompt kicker, passage card, and footer nav with a
-// reduced-motion note. The TimerChip from the mockup is intentionally
-// omitted here: EE-01 requires practice mode to have no timer/time
-// pressure, so showing one (even non-authoritative) would contradict that
-// requirement and the "No timer" copy already advertised on /exams. The
-// redesigned neutral TimerChip itself (see ExamTimer.tsx) still applies to
-// the timed Mock exam flow.
+// ExamForge — Practice Mode Client Component (In-Context UX + Strict Correction + Flow Navigation)
+// Renders questions in context using ContextFrame, evaluates answers with CorrectionCard, allows part switching & completion
 
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnswerInput } from "@/components/exam/AnswerInput";
 import type { QuestionDisplayData } from "@/components/exam/AnswerInput";
-import { getStatusToneClasses } from "@/lib/design-tokens";
+import { ContextFrame } from "@/components/exam/ContextFrame";
+import { CorrectionCard } from "@/components/exam/CorrectionCard";
+import { QuestionRatingWidget } from "@/components/exam/QuestionRatingWidget";
 import { getQuestionTypeLabel } from "@/lib/exam/question-type-labels";
 
 interface PracticeModeClientProps {
@@ -35,202 +28,250 @@ interface PracticeModeClientProps {
   savedAnswers?: Record<string, any>;
 }
 
+/** Helper to evaluate equality of given answer vs expected answer */
+function checkIsCorrect(given: any, expected: any): boolean {
+  if (given === null || given === undefined || expected === null || expected === undefined) {
+    return false;
+  }
+  const normGiven = String(given).trim().toLowerCase();
+  
+  if (typeof expected === "string") {
+    return normGiven === expected.trim().toLowerCase();
+  }
+  if (Array.isArray(expected)) {
+    return expected.some((exp) => String(exp).trim().toLowerCase() === normGiven);
+  }
+  if (typeof expected === "object") {
+    return JSON.stringify(given) === JSON.stringify(expected);
+  }
+  return false;
+}
+
 export function PracticeModeClient({
   part,
   attemptId,
   initialQuestions,
   savedAnswers = {},
 }: PracticeModeClientProps) {
+  const router = useRouter();
   const [questions] = useState(initialQuestions);
   const [answers, setAnswers] = useState<Record<string, any>>(savedAnswers);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const answersRef = useRef(answers);
-
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentQuestion = questions[currentIndex];
-  const progressPercent = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
-
-  const saveAnswer = useCallback(
-    async (questionId: string, answer: any) => {
-      setIsSaving(true);
-      setSaveMessage(null);
-      try {
-        const res = await fetch("/api/exams/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            attemptId,
-            questionId,
-            givenAnswer: answer,
-            timeSpentSeconds: 0,
-          }),
-        });
-
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error ?? "Save failed");
-        }
-
-        setSaveMessage("Saved");
-        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-        saveTimeoutRef.current = setTimeout(() => setSaveMessage(null), 2000);
-      } catch (err) {
-        setSaveMessage("Failed to save");
-        console.error("[PracticeMode] Save error:", err);
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [attemptId],
-  );
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === questions.length - 1;
 
   const handleAnswer = useCallback(
-    (questionId: string, answer: any) => {
-      setAnswers((prev) => ({ ...prev, [questionId]: answer }));
-      saveAnswer(questionId, answer);
+    (questionId: string, value: any) => {
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: value,
+      }));
     },
-    [saveAnswer],
+    []
   );
 
-  const goTo = (index: number) => {
-    if (index >= 0 && index < questions.length) {
-      setCurrentIndex(index);
+  const handleNext = () => {
+    if (!isLast) {
+      setCurrentIndex((prev) => prev + 1);
     }
   };
 
-  if (!currentQuestion && questions.length === 0) {
+  const handlePrev = () => {
+    if (!isFirst) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleFinish = async () => {
+    setIsSubmitting(true);
+    try {
+      // Save current attempt state
+      await fetch(`/api/user/attempts/${attemptId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers, isFinished: true }),
+      });
+      setIsFinished(true);
+    } catch (e) {
+      console.error("Failed to finish practice:", e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (questions.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">
-            No questions available for this part yet.
+      <div className="flex min-h-screen items-center justify-center p-6 bg-background">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-xl font-bold text-foreground">No Questions Found</h2>
+          <p className="text-sm text-muted-foreground">
+            No questions are available for this section yet.
           </p>
           <Link
             href="/exams"
             className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
           >
-            Back to Exams
+            Back to Exams Selection
           </Link>
         </div>
       </div>
     );
   }
 
+  // Calculate score summary if finished
+  const totalCorrect = questions.reduce((acc, q) => {
+    const given = answers[q.id];
+    const expected = (q as any).correctAnswer ?? (q.options ? q.options.correctAnswer : null);
+    return checkIsCorrect(given, expected) ? acc + 1 : acc;
+  }, 0);
+
+  if (isFinished) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6 bg-background">
+        <div className="max-w-md w-full rounded-2xl border-2 border-border bg-card p-8 text-center space-y-6 shadow-md">
+          <div className="text-4xl">🎓</div>
+          <h2 className="text-xl font-bold text-foreground">Practice Session Completed!</h2>
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-1">
+            <span className="text-xs uppercase font-bold text-primary tracking-wider">Your Score</span>
+            <p className="text-3xl font-extrabold text-primary">
+              {totalCorrect} / {questions.length}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% Accuracy)
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsFinished(false)}
+              className="rounded-xl border border-border px-5 py-2.5 text-xs font-semibold hover:bg-muted transition-colors"
+            >
+              Review Answers
+            </button>
+            <Link
+              href="/exams"
+              className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Back to Exams
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const promptText = typeof currentQuestion.prompt === "string"
+    ? currentQuestion.prompt
+    : currentQuestion.prompt?.text ?? "";
+
+  const currentGiven = answers[currentQuestion.id];
+  const currentExpected = (currentQuestion as any).correctAnswer ?? (currentQuestion.options ? currentQuestion.options.correctAnswer : null);
+  const isCurrentCorrect = checkIsCorrect(currentGiven, currentExpected);
+
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* ExamBar */}
-      <header className="flex h-16 items-center justify-between border-b bg-card px-12">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      {/* Top Practice Bar */}
+      <header className="sticky top-0 z-20 bg-card border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <Link
             href="/exams"
-            aria-label="Exit practice"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="rounded-lg border border-border p-2 text-xs font-medium hover:bg-muted transition-colors"
           >
-            ✕
+            ← Leave
           </Link>
-          <h1 className="text-sm font-semibold text-foreground">
-            {part.paper} — {part.label}
-          </h1>
+          <div>
+            <h1 className="text-base font-bold text-foreground leading-tight">
+              {part.label}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {getQuestionTypeLabel(currentQuestion.type)} • Question {currentIndex + 1} of{" "}
+              {questions.length}
+            </p>
+          </div>
         </div>
+
         <div className="flex items-center gap-4">
-          <span className="text-[13px] font-medium text-muted-foreground">
-            Question {currentIndex + 1} of {questions.length}
-          </span>
-          {isSaving && <span className="text-xs text-muted-foreground">Saving...</span>}
-          {saveMessage && (
-            <span className={`text-xs ${saveMessage === "Saved" ? "text-success" : "text-destructive"}`}>
-              {saveMessage}
-            </span>
-          )}
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+            <span>⏱️ Time Limit: {part.timeMinutes}m</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={isSubmitting}
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting..." : "Finish & Evaluate"}
+          </button>
         </div>
       </header>
 
-      {/* Progress track */}
-      <div className="h-1 w-full bg-muted">
-        <div
-          className="h-full bg-primary transition-all duration-500"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
-
-      {/* Main content */}
-      <main className="flex flex-1 flex-col items-center py-12">
-        {currentQuestion && (
-          <div className="flex w-full max-w-[720px] flex-col gap-8">
-            {/* Prompt block */}
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {getQuestionTypeLabel(currentQuestion.type)}
-              </span>
-              {currentQuestion.prompt?.text && (
-                <p className="text-[17px] leading-reading text-foreground">
-                  {currentQuestion.prompt.text}
-                </p>
-              )}
-            </div>
-
-            {/* Passage card */}
-            {currentQuestion.prompt?.readingPassage && (
-              <div className="rounded-xl border bg-card p-8 text-[15px] leading-reading text-foreground">
-                {currentQuestion.prompt.readingPassage}
-              </div>
-            )}
-
-            {/* Hint (practice mode feature) */}
-            {currentQuestion.prompt?.hint && (
-              <details className="text-xs text-muted-foreground">
-                <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
-                  💡 Hint available
-                </summary>
-                <p className={`mt-2 p-3 rounded-lg leading-reading ${getStatusToneClasses("info", "surface")}`}>
-                  {currentQuestion.prompt.hint}
-                </p>
-              </details>
-            )}
-
-            {/* Answer options */}
+      {/* Main Question Display */}
+      <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 space-y-8">
+        <ContextFrame promptText={promptText}>
+          <div className="space-y-6">
             <AnswerInput
               question={currentQuestion}
-              selectedAnswer={answers[currentQuestion.id] ?? null}
+              selectedAnswer={answers[currentQuestion.id]}
               onAnswer={handleAnswer}
             />
 
-            {/* Footer nav */}
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => goTo(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                className="rounded-lg bg-secondary px-[18px] py-2.5 text-[13px] font-medium text-secondary-foreground
-                  hover:bg-secondary/80 transition-colors
-                  disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                ← Previous
-              </button>
-
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span aria-hidden="true">⏸</span>
-                Reduced motion: no timer pulse, no slide transitions
-              </span>
-
-              <button
-                onClick={() => goTo(currentIndex + 1)}
-                disabled={currentIndex >= questions.length - 1}
-                className="rounded-lg bg-primary px-[18px] py-2.5 text-[13px] font-medium text-primary-foreground
-                  hover:bg-primary/90 transition-colors
-                  disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Next question →
-              </button>
-            </div>
+            {/* Answer Feedback overlay once an answer is chosen */}
+            {answers[currentQuestion.id] !== undefined && (
+              <CorrectionCard
+                isCorrect={isCurrentCorrect}
+                givenAnswer={currentGiven}
+                correctAnswer={currentExpected}
+                difficulty={currentQuestion.difficulty}
+              />
+            )}
           </div>
-        )}
+        </ContextFrame>
+
+        {/* Rating widget */}
+        <div className="pt-4 border-t border-border flex justify-end">
+          <QuestionRatingWidget questionId={currentQuestion.id} />
+        </div>
       </main>
+
+      {/* Footer Navigation Bar */}
+      <footer className="sticky bottom-0 bg-card border-t border-border p-4 flex items-center justify-between max-w-4xl w-full mx-auto">
+        <button
+          type="button"
+          onClick={handlePrev}
+          disabled={isFirst}
+          className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+        >
+          ← Previous
+        </button>
+
+        <div className="text-xs text-muted-foreground font-medium">
+          {currentIndex + 1} / {questions.length}
+        </div>
+
+        {isLast ? (
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={isSubmitting}
+            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting..." : "Finish Practice ✓"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            Next →
+          </button>
+        )}
+      </footer>
     </div>
   );
 }

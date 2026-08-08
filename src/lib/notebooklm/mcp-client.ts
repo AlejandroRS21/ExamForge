@@ -97,7 +97,7 @@ export class MCPClient {
       const proc = execFile(nlmPath, args, { maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
         if (error) {
           let errorType: "rateLimited" | "authExpired" | "notFound" | "unknown" = "unknown";
-          let errorCode = error.code || 500;
+          let errorCode = typeof error.code === "number" ? error.code : 500;
           
           if (stderr.includes("rate limit") || error.message.includes("429")) {
             errorType = "rateLimited";

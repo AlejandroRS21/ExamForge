@@ -1,6 +1,6 @@
 // ExamForge — Flashcards Home Page
 // Server component: auth guard + fetch decks, render FlashcardDeckList
-// Wraps content in Suspense boundary and ErrorBoundary for resilience
+// Wraps content in Suspense boundary and ErrorBoundary with Sloth theme
 
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { FlashcardDeckList } from "@/components/flashcards/FlashcardDeckList";
 import { ErrorBoundary } from "@/components/exercises/ErrorBoundary";
+import { SlothMascot } from "@/components/ui/SlothMascot";
 
 async function FlashcardsContent() {
   const session = await auth();
@@ -18,6 +19,7 @@ async function FlashcardsContent() {
   }
 
   const decks = await prisma.flashcardDeck.findMany({
+    where: { createdById: session.user.id },
     orderBy: { createdAt: "desc" },
     include: {
       flashcards: {
@@ -31,87 +33,71 @@ async function FlashcardsContent() {
 
   const now = new Date();
 
-  const decksData = decks.map((deck) => {
+  const formattedDecks = decks.map((deck) => {
     const dueCount = deck.flashcards.filter(
-      (card) => card.nextReviewAt === null || card.nextReviewAt <= now,
+      (card) => card.nextReviewAt && card.nextReviewAt <= now
     ).length;
-
-    const lastReviewed = deck.flashcards
-      .filter((c) => c.nextReviewAt !== null)
-      .sort((a, b) => b.nextReviewAt!.getTime() - a.nextReviewAt!.getTime())
-      .at(0)?.nextReviewAt ?? null;
 
     return {
       id: deck.id,
       title: deck.title,
       description: deck.description,
-      cardCount: deck.cardCount,
+      cardCount: deck.flashcards.length,
       dueCount,
-      lastReviewedAt: lastReviewed?.toISOString() ?? null,
+      lastReviewedAt: null,
       createdAt: deck.createdAt.toISOString(),
     };
   });
 
-  return <FlashcardDeckList decks={decksData} />;
+  return <FlashcardDeckList decks={formattedDecks} />;
 }
 
-export default async function FlashcardsPage() {
+function FlashcardsLoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav bar */}
-      <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          <Link
-            href="/dashboard"
-            className="text-sm font-bold tracking-tight hover:text-primary transition-colors"
-          >
-            ExamForge
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/exams"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Exams
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Dashboard
-            </Link>
-          </nav>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="h-48 rounded-3xl bg-white/70 border-2 border-[#F0E8DD]"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function FlashcardsPage() {
+  return (
+    <div className="min-h-screen bg-[#FAF6F0] text-[#2B1E19] font-sans p-6 md:p-10 space-y-8">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white border-2 border-[#F0E8DD] rounded-3xl p-6 shadow-[0_4px_0_#F0E8DD]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F0E6FF] shadow-[0_3px_0_#D3B3FF]">
+            <SlothMascot size={56} pose="studying" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black text-[#2B1E19]">
+              Flashcards & Phrasal Verbs
+            </h1>
+            <p className="text-sm font-bold text-[#6B5E57]">
+              Repetición espaciada inteligente para dominar el vocabulario de Cambridge B2.
+            </p>
+          </div>
         </div>
+
+        <Link
+          href="/dashboard"
+          className="rounded-2xl border-2 border-[#F0E8DD] bg-[#FAF6F0] px-5 py-3 text-sm font-black text-[#2B1E19] hover:bg-[#FFE8D6] transition-colors"
+        >
+          Volver al Dashboard
+        </Link>
       </header>
 
-      {/* Page content */}
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header */}
-        <div className="mb-8 space-y-2">
-          <div className="flex items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              Back to Dashboard
-            </Link>
-          </div>
-          <h1 className="text-2xl font-bold">Flashcards</h1>
-          <p className="text-sm text-muted-foreground">
-            Review vocabulary flashcards with spaced repetition
-          </p>
-        </div>
-
-        {/* Deck list with ErrorBoundary and Suspense */}
-        <ErrorBoundary>
-          <Suspense fallback={<FlashcardDeckList decks={[]} loading={true} />}>
-            <FlashcardsContent />
-          </Suspense>
-        </ErrorBoundary>
-      </main>
+      {/* Main deck content */}
+      <ErrorBoundary>
+        <Suspense fallback={<FlashcardsLoadingSkeleton />}>
+          <FlashcardsContent />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

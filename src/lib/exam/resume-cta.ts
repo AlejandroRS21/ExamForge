@@ -17,6 +17,10 @@ export interface ResumeCta {
   title: string;
   subtitle: string;
   resumeHref: string;
+  /** Source part id, exposed directly so consumers (e.g. the Dashboard's
+   * papers-journey "current" lookup) don't need to parse it back out of
+   * `resumeHref`. */
+  partId: string;
 }
 
 export function buildResumeCta(input: ResumeCtaInput): ResumeCta {
@@ -29,6 +33,7 @@ export function buildResumeCta(input: ResumeCtaInput): ResumeCta {
       title: "Continue where you left off",
       subtitle: `${input.partLabel}${descriptionSegment}`,
       resumeHref: `/exams/practice/${input.partId}`,
+      partId: input.partId,
     };
   }
 
@@ -38,5 +43,6 @@ export function buildResumeCta(input: ResumeCtaInput): ResumeCta {
     title: "Continue where you left off",
     subtitle: `${input.partLabel}${descriptionSegment}, question ${nextPosition} of ${input.questionCount}`,
     resumeHref: `/exams/practice/${input.partId}`,
+    partId: input.partId,
   };
 }

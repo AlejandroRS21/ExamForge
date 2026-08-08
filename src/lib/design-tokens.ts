@@ -71,29 +71,31 @@ export function contrastRatio(colorA: string, colorB: string): number {
 }
 
 // ─── Palette — mirrors :root / .dark in globals.css ────────────────────────
-// Primary hues stay within 200-220, accent hues within 150-170 (spec
-// requirement). All AA-verified via contrastRatio() in design-tokens.test.ts.
+// Warm Sloth (Duolingo-inspired): primary is bright orange (hue ~38),
+// accent is honey gold (hue ~80), backgrounds are warm cream. All contrast
+// verified via contrastRatio() in design-tokens.test.ts (brand orange CTA
+// pairs target 3:1 UI-component tier; text pairs target 4.5:1 AA).
 
 export const lightPalette = {
-  background: "oklch(0.985 0.006 95)",
-  foreground: "oklch(0.30 0.03 250)",
-  card: "oklch(0.995 0.004 95)",
-  cardForeground: "oklch(0.30 0.03 250)",
-  popover: "oklch(0.995 0.004 95)",
-  popoverForeground: "oklch(0.30 0.03 250)",
-  primary: "oklch(0.52 0.11 210)",
-  primaryForeground: "oklch(0.99 0.005 95)",
-  secondary: "oklch(0.94 0.015 220)",
-  secondaryForeground: "oklch(0.35 0.04 210)",
-  muted: "oklch(0.95 0.012 210)",
-  mutedForeground: "oklch(0.48 0.03 210)",
-  accent: "oklch(0.93 0.03 165)",
-  accentForeground: "oklch(0.38 0.06 165)",
-  destructive: "oklch(0.52 0.16 25)",
-  destructiveForeground: "oklch(0.99 0.005 95)",
-  border: "oklch(0.65 0.02 220)",
-  input: "oklch(0.65 0.02 220)",
-  ring: "oklch(0.52 0.11 210)",
+  background: "oklch(0.97 0.015 75)",
+  foreground: "oklch(0.22 0.035 50)",
+  card: "oklch(0.995 0.005 75)",
+  cardForeground: "oklch(0.22 0.035 50)",
+  popover: "oklch(0.995 0.005 75)",
+  popoverForeground: "oklch(0.22 0.035 50)",
+  primary: "oklch(0.62 0.20 38)",
+  primaryForeground: "oklch(0.99 0.005 75)",
+  secondary: "oklch(0.80 0.16 85)",
+  secondaryForeground: "oklch(0.22 0.035 50)",
+  muted: "oklch(0.94 0.02 75)",
+  mutedForeground: "oklch(0.48 0.03 50)",
+  accent: "oklch(0.90 0.04 80)",
+  accentForeground: "oklch(0.22 0.035 50)",
+  destructive: "oklch(0.54 0.22 25)",
+  destructiveForeground: "oklch(0.99 0.005 75)",
+  border: "oklch(0.88 0.025 75)",
+  input: "oklch(0.88 0.025 75)",
+  ring: "oklch(0.62 0.20 38)",
 } as const;
 
 export const darkPalette = {
@@ -206,6 +208,27 @@ export const statusTokens = {
 // codebase (`bg-x-50/text-x-700/border-x-200` and `bg-x-600 text-white`)
 // with references to the semantic tokens above, wired via `@theme inline`
 // in globals.css (`bg-success`, `text-success-foreground`, etc.).
+
+// ─── Focus warm — single primary-CTA accent (60-30-10 color-psychology rule) ──
+// Reserved ONLY for the one primary call-to-action per section (Dashboard
+// "Readiness Journey" mockup, e.g. the Resume button) — never a general
+// status tone, so it intentionally does not join `statusTokens` above.
+// Base/surface are the approved mockup's ground-truth hex (#E8905A / #FBEAE0),
+// converted to this file's oklch format. `foreground` deliberately reuses
+// `lightPalette.foreground` instead of the mockup's literal #FEFEFB: that
+// pair only reached ~2.4:1 contrast (below the 4.5:1 every `statusTokens`
+// pair passes, and below the 3:1 UI-component minimum) — measured via
+// `contrastRatio()`, not guessed. Reusing the existing dark foreground token
+// brings the CTA label to ~5.55:1, verified in design-tokens.test.ts.
+//
+// No `.dark` override: verified via `contrastRatio()` in design-tokens.test.ts
+// that `base` still clears >=3:1 against `darkPalette.background` (~7.4:1), so
+// the light-mode values are reused as-is in dark mode.
+export const focusWarmTokens = {
+  base: "oklch(0.734 0.128 51.2)",
+  foreground: lightPalette.foreground,
+  surface: "oklch(0.948 0.023 52.7)",
+} as const;
 
 export type StatusToneName = "success" | "warning" | "error" | "info";
 export type StatusToneVariant = "surface" | "solid";

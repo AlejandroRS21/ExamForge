@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       request.headers.get("x-forwarded-for") ??
       request.headers.get("x-real-ip") ??
       "unknown";
-    const rateCheck = checkRateLimit(`forgot-password:${ip}`, 3, 15 * 60 * 1000);
+    const rateCheck = await checkRateLimit(`forgot-password:${ip}`, 3, 15 * 60 * 1000);
     if (!rateCheck.success) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },

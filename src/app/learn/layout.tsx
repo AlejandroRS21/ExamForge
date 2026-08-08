@@ -20,7 +20,7 @@ export default function LearnLayout({
   return (
     <div className="min-h-screen bg-background">
       <LearnHeader />
-      <main className="container mx-auto px-4 py-breathing max-w-content">
+      <main className="container mx-auto px-4 py-breathing max-w-content space-y-generous">
         {children}
       </main>
     </div>

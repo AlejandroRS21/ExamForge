@@ -18,7 +18,7 @@ interface PageProps {
 export default async function AdminUsersPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
-  const role = (session.user as any).role;
+  const role = session.user.role;
   if (role !== "ADMIN") redirect("/dashboard");
 
   const params = await searchParams;
