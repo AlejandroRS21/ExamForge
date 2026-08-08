@@ -140,8 +140,6 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-fredoka: var(--font-fredoka);
-  --font-quicksand: var(--font-quicksand);
 
   /* Semantic status colors — generates bg-success/text-success-foreground/
      bg-success-surface/border-success-border utilities (and warning/error/info). */
