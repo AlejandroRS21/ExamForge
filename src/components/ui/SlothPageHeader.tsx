@@ -7,6 +7,7 @@
 // idle -> calm (timer guard), thinking -> studying (in-flight pose),
 // cheering -> cheering (achievements). Default pose here is "happy".
 
+import Link from "next/link";
 import { SlothMascot, type SlothPose } from "./SlothMascot";
 
 interface SlothPageHeaderProps {
@@ -18,7 +19,7 @@ interface SlothPageHeaderProps {
   pose?: SlothPose;
   /** SlothMascot size, default 150 */
   mascotSize?: number;
-  /** Optional top-left back link (plain anchor — static hero, no client nav) */
+  /** Optional top-left back link (client-side navigation) */
   backHref?: string;
   /** Back link label, default "Volver" */
   backLabel?: string;
@@ -44,12 +45,12 @@ export default function SlothPageHeader({
       }`}
     >
       {backHref && (
-        <a
+        <Link
           href={backHref}
           className="self-start md:self-auto inline-flex items-center gap-1.5 rounded-2xl border-2 border-amber-200 bg-[#FAF6F0] px-3.5 py-1.5 text-xs font-bold text-amber-950 shadow-[0_3px_0_0_#FDE68A] hover:bg-amber-50 active:translate-y-0.5 active:shadow-none transition-all"
         >
           ← {backLabel}
-        </a>
+        </Link>
       )}
       <div className={`space-y-2 ${stacked ? "text-center" : "text-center md:text-left"}`}>
         {badge && (

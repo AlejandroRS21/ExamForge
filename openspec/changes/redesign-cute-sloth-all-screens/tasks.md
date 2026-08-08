@@ -25,7 +25,7 @@ Chain strategy: pending
 ## Task List (dependency-ordered)
 
 - [x] **T1** deps: - | `src/components/ui/SlothPageHeader.tsx` (new)
-  Shared warm page header: mascot pose prop, title, subtitle, optional back-link. Extract common exam/flashcards header markup. `ponestail:` static header, no animation.
+  Shared warm page header: mascot pose prop, title, subtitle, optional back-link. Extract common exam/flashcards header markup. `ponytail:` static header, no animation.
   ~40 lines
 
 - [x] **T2** deps: T1 | `src/components/ui/TactileButton.tsx` (new)
@@ -63,5 +63,5 @@ Chain strategy: pending
 ## Phase & Test Notes
 
 - Test-first where meaningful: T4 timer-guard scenario (spec "Calm timer warning") verified via RSC render smoke + manual dev visit; no unit harness for presentational aside.
-- `ponestail:` comments in T1 (static header) and T4 (guard presentational, no countdown wiring) flag intentional simplifications.
+- `ponytail:` comments in T1 (static header) and T4 (guard presentational, no countdown wiring) flag intentional simplifications.
 - No RED tests required separately: all changes are presentational refactors of existing behavior.

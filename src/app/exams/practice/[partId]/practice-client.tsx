@@ -66,15 +66,17 @@ export function PracticeModeClient({
 
   // Calm Sloth timer guard: presentational only — tracks elapsed time to
   // decide WHEN to show the reassurance, never wires a real countdown.
-  // ponestail: static guard, no pause-aware timer, add when real timing ships.
+  // ponytail: static guard, no pause-aware timer, add when real timing ships.
   const [elapsedSec, setElapsedSec] = useState(0);
+  const timed = part.timeMinutes > 0;
   useEffect(() => {
+    if (!timed || isFinished) return;
     const start = Date.now();
     const id = window.setInterval(() => {
       setElapsedSec(Math.floor((Date.now() - start) / 1000));
     }, 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [timed, isFinished]);
   const showCalmGuard = practiceTimeLow(elapsedSec, part.timeMinutes);
 
   const currentQuestion = questions[currentIndex];

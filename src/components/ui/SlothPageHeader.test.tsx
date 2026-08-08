@@ -41,7 +41,7 @@ describe("SlothPageHeader", () => {
 
   it("renders an optional back link when backHref is set, none otherwise", () => {
     const withBack = render({ title: "X", backHref: "/exams", backLabel: "Volver a exámenes" });
-    expect(withBack).toContain('<a href="/exams"');
+    expect(withBack).toContain('href="/exams"');
     expect(withBack).toContain("Volver a exámenes");
 
     const withoutBack = render({ title: "X" });
