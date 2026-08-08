@@ -5,6 +5,7 @@
 "use client";
 
 import Link from "next/link";
+import { CpuIcon } from "@/components/ui/icons/SlothIcons";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,9 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
   if (decks.length === 0) {
     return (
       <div className="rounded-3xl border-2 border-amber-200/80 bg-white p-12 text-center space-y-4 shadow-[0_6px_0_0_#FDE68A]" role="status">
-        <div className="text-5xl" aria-hidden="true">📚</div>
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100" aria-hidden="true">
+          <CpuIcon className="h-9 w-9" color="#FF6B35" />
+        </div>
         <h3 className="text-xl font-bold text-amber-950">Aún no tienes mazos de tarjetas</h3>
         <p className="text-sm font-medium text-amber-800/80 max-w-sm mx-auto">
           No hay mazos de vocabulario asignados. ¡Pide a tu profesor o genera tus primeros ejercicios en el panel!

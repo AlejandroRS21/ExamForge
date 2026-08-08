@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { createPracticeAttempt } from "@/lib/exam/create";
 import { PracticeModeClient } from "./practice-client";
+import SlothPageHeader from "@/components/ui/SlothPageHeader";
 
 interface PracticePartPageProps {
   params: Promise<{ partId: string }>;
@@ -126,18 +127,15 @@ async function WritingPracticeView({
       <main className="flex-1 p-8 max-w-3xl mx-auto">
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">{part.label}</h1>
-              <p className="text-sm text-muted-foreground">{part.description}</p>
-            </div>
-            <Link
-              href="/exams"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← All exams
-            </Link>
-          </div>
+          <SlothPageHeader
+            badge="Examen B2 First · Redacción"
+            title={part.label}
+            subtitle={part.description ?? "Escribe tu respuesta con calma y repásala antes de terminar."}
+            pose="studying"
+            mascotSize={110}
+            backHref="/exams"
+            backLabel="Todos los exámenes"
+          />
 
           {/* Writing prompts */}
           <div className="space-y-8">

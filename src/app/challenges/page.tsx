@@ -9,8 +9,8 @@ import { getUserAchievements } from "@/lib/challenges/achievements";
 import { getStreakInfo } from "@/lib/challenges/streak";
 import { getAllUserGoals } from "@/lib/challenges/goals";
 import { BadgesDisplay } from "@/components/dashboard/badges-display";
-import { SlothMascot } from "@/components/ui/SlothMascot";
-import { FlameIcon, TargetIcon, AwardIcon } from "@/components/ui/icons/SlothIcons";
+import SlothPageHeader from "@/components/ui/SlothPageHeader";
+import { FlameIcon, TargetIcon, AwardIcon, StarIcon } from "@/components/ui/icons/SlothIcons";
 
 export default async function ChallengesPage() {
   const session = await auth();
@@ -31,20 +31,12 @@ export default async function ChallengesPage() {
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         <div className="space-y-8">
           {/* Header Hero */}
-          <div className="bg-white p-8 rounded-3xl border-2 border-amber-200/80 shadow-[0_6px_0_0_#FDE68A] flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 border border-amber-300/60 text-amber-900 text-xs font-bold uppercase tracking-wide">
-                <span>🏆</span> Desafíos y Logros
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-amber-950">
-                Desafíos y Clasificación
-              </h1>
-              <p className="text-amber-800/80 max-w-xl font-medium text-sm md:text-base">
-                Compite amistosamente con otros estudiantes, supera retos diarios y desbloquea insignias exclusivas.
-              </p>
-            </div>
-            <SlothMascot pose="cheering" size={150} className="shrink-0" />
-          </div>
+          <SlothPageHeader
+            badge="Desafíos y Logros"
+            title="Desafíos y Clasificación"
+            subtitle="Compite amistosamente con otros estudiantes, supera retos diarios y desbloquea insignias exclusivas."
+            pose="cheering"
+          />
 
           {/* Daily Goals / Streak Widget */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -89,7 +81,7 @@ export default async function ChallengesPage() {
           <div className="rounded-3xl border-2 border-amber-200/90 bg-white p-7 space-y-5 shadow-[0_6px_0_0_#FDE68A]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-extrabold text-amber-950 flex items-center gap-2">
-                <span>🏅</span> Mis Insignias y Logros
+                <AwardIcon className="w-6 h-6" color="#FFB703" /> Mis Insignias y Logros
               </h2>
               <span className="text-xs font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-full">
                 {achievements.unlocked.length} de {achievements.all.length} desbloqueadas
@@ -103,7 +95,7 @@ export default async function ChallengesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-extrabold text-amber-950 flex items-center gap-2">
-                  <span>📊</span> Clasificación Semanal
+                  <StarIcon className="w-6 h-6" color="#FFB703" /> Clasificación Semanal
                 </h2>
                 <p className="text-xs font-medium text-amber-800/70 mt-0.5">
                   Semana {leaderboard.weekId} · {leaderboard.totalParticipants} estudiante{leaderboard.totalParticipants !== 1 ? "s" : ""} participando
@@ -114,7 +106,7 @@ export default async function ChallengesPage() {
             {leaderboard.entries.length === 0 ? (
               /* Empty state */
               <div className="py-12 text-center space-y-4">
-                <span className="text-5xl">🏆</span>
+                <AwardIcon className="w-16 h-16 mx-auto" color="#FFB703" />
                 <h3 className="text-xl font-bold text-amber-950">Aún no hay participantes esta semana</h3>
                 <p className="text-sm font-medium text-amber-800/80 max-w-sm mx-auto">
                   ¡Sé el primero en la tabla! Completa un ejercicio de práctica o simulacro para aparecer en el ranking.
@@ -141,7 +133,11 @@ export default async function ChallengesPage() {
                   <tbody className="divide-y divide-amber-100">
                     {leaderboard.entries.map((entry, idx) => {
                       const isCurrentUser = entry.userId === userId;
-                      const medals: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
+                      const medalColors: Record<number, string> = {
+                        1: "#E0A800", // oro
+                        2: "#A8B0BC", // plata
+                        3: "#C47B3F", // bronce
+                      };
                       const showMedal = entry.rank <= 3;
 
                       return (
@@ -158,7 +154,7 @@ export default async function ChallengesPage() {
                           <td className="py-3.5 pr-4">
                             <div className="flex items-center gap-1.5">
                               {showMedal ? (
-                                <span className="text-xl">{medals[entry.rank]}</span>
+                                <AwardIcon className="w-6 h-6" color={medalColors[entry.rank]} aria-hidden="true" />
                               ) : (
                                 <span className="text-sm font-bold text-amber-900/80 w-6 text-center">
                                   {entry.rank}

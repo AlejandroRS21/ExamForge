@@ -3,7 +3,7 @@
 
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
-import { SlothMascot } from "@/components/ui/SlothMascot";
+import SlothPageHeader from "@/components/ui/SlothPageHeader";
 
 export const metadata = {
   title: "Iniciar Sesión — ExamForge",
@@ -13,16 +13,15 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-amber-50/50">
-      <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-3xl border-2 border-amber-200/80 shadow-[0_8px_0_0_#FDE68A]">
-        <div className="text-center space-y-2 flex flex-col items-center">
-          <SlothMascot pose="happy" size={140} className="mb-1" />
-          <h1 className="text-2xl font-bold tracking-tight text-amber-950">
-            Iniciar Sesión en ExamForge
-          </h1>
-          <p className="text-sm text-amber-800/80">
-            ¡Hola de nuevo! Continúa tu camino hacia el certificado B2 First
-          </p>
-        </div>
+      <div className="w-full max-w-md space-y-6">
+        <SlothPageHeader
+          badge="Accede a tu cuenta"
+          title="Iniciar Sesión en ExamForge"
+          subtitle="¡Hola de nuevo! Continúa tu camino hacia el certificado B2 First"
+          pose="happy"
+          mascotSize={140}
+          layout="stacked"
+        />
         <Suspense fallback={<div className="text-center py-8 text-amber-800 font-medium">Cargando...</div>}>
           <LoginForm />
         </Suspense>

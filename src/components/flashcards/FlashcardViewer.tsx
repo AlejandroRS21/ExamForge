@@ -5,6 +5,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { AwardIcon, StarIcon } from "@/components/ui/icons/SlothIcons";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -154,29 +155,29 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
     return (
       <div className="rounded-xl border bg-card p-8 text-center space-y-6" role="status" aria-label="Session complete">
         <div className="space-y-2">
-          <div className="text-4xl" aria-hidden="true">🎉</div>
-          <h2 className="text-2xl font-bold">Session Complete!</h2>
+          <AwardIcon className="w-12 h-12 mx-auto" color="#FFB703" aria-hidden="true" />
+          <h2 className="text-2xl font-bold">¡Sesión completada!</h2>
           <p className="text-sm text-muted-foreground">
-            You reviewed {totalRated} card{totalRated !== 1 ? "s" : ""} this session.
+            Has repasado {totalRated} tarjeta{totalRated !== 1 ? "s" : ""} en esta sesión.
           </p>
         </div>
 
         <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto">
           <div className="rounded-lg bg-error-surface p-3">
             <div className="text-lg font-bold text-error">{againCount}</div>
-            <div className="text-[10px] text-error/70">Again</div>
+            <div className="text-[10px] text-error/70">Otra vez</div>
           </div>
           <div className="rounded-lg bg-warning-surface p-3">
             <div className="text-lg font-bold text-warning">{hardCount}</div>
-            <div className="text-[10px] text-warning/70">Hard</div>
+            <div className="text-[10px] text-warning/70">Difícil</div>
           </div>
           <div className="rounded-lg bg-success-surface p-3">
             <div className="text-lg font-bold text-success">{goodCount}</div>
-            <div className="text-[10px] text-success/70">Good</div>
+            <div className="text-[10px] text-success/70">Normal</div>
           </div>
           <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-3">
             <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{easyCount}</div>
-            <div className="text-[10px] text-blue-600/70 dark:text-blue-400/70">Easy</div>
+            <div className="text-[10px] text-blue-600/70 dark:text-blue-400/70">Fácil</div>
           </div>
         </div>
 
@@ -192,7 +193,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             type="button"
           >
-            Start New Session
+            Nueva sesión
           </button>
         </div>
       </div>
@@ -205,7 +206,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
     return (
       <div className="rounded-xl border bg-card p-12 text-center">
         <p className="text-muted-foreground">
-          No cards to review right now. Come back later!
+          ¡Sin tarjetas pendientes! Vuelve más tarde.
         </p>
       </div>
     );
@@ -218,10 +219,10 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
       {/* Progress indicator */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          Card {currentIndex + 1} of {totalCards}
+          Tarjeta {currentIndex + 1} de {totalCards}
         </span>
         <span className="text-xs">
-          {Object.keys(ratings).length} rated
+          {Object.keys(ratings).length} valoradas
         </span>
       </div>
 
@@ -245,7 +246,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
         ref={cardRef}
         tabIndex={0}
         role="button"
-        aria-label={isFlipped ? "Flashcard showing answer. Press Space to flip back." : "Flashcard showing term. Press Space to reveal answer."}
+        aria-label={isFlipped ? "Tarjeta mostrando la respuesta. Pulsa Espacio para girar." : "Tarjeta mostrando el término. Pulsa Espacio para ver la respuesta."}
         className="relative cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
         onClick={() => !submitting && setIsFlipped((prev) => !prev)}
         onKeyDown={(e) => {
@@ -273,7 +274,7 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             </p>
             {!isFlipped && (
               <p className="mt-6 text-xs text-muted-foreground/60">
-                Click or press Space to reveal answer
+                Haz clic o pulsa Espacio para ver la respuesta
               </p>
             )}
           </div>
@@ -289,7 +290,8 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
             </p>
             {currentCard.hint && (
               <p className="mt-4 text-sm text-muted-foreground italic">
-                💡 {currentCard.hint}
+                <StarIcon className="w-4 h-4 inline mr-1 -mt-0.5" color="#FFB703" aria-hidden="true" />
+                {currentCard.hint}
               </p>
             )}
           </div>
@@ -300,48 +302,48 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
       {isFlipped && (
         <div className="space-y-3">
           <p className="text-center text-xs text-muted-foreground">
-            How well did you know this card? (Press 1-4)
+            ¿Cómo de bien sabías esta tarjeta? (Pulsa 1-4)
           </p>
           <div className="grid grid-cols-4 gap-3">
             <button
               onClick={() => handleRate(0)}
               disabled={submitting}
-              className="rounded-lg bg-error px-3 py-3 text-sm font-medium text-error-foreground hover:bg-error/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
-              aria-label="Rate Again — card will be shown again today"
+              className="rounded-lg bg-error px-3 py-3 text-sm font-medium text-error-foreground shadow-[0_4px_0_0_#B91C1C] active:translate-y-1 active:shadow-none hover:bg-error/90 disabled:opacity-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
+              aria-label="Otra vez — la tarjeta volverá a salir hoy"
               type="button"
             >
               <div className="text-lg font-bold">1</div>
-              <div className="text-[10px] opacity-90">Again</div>
+              <div className="text-[10px] opacity-90">Otra vez</div>
             </button>
             <button
               onClick={() => handleRate(1)}
               disabled={submitting}
-              className="rounded-lg bg-warning px-3 py-3 text-sm font-medium text-warning-foreground hover:bg-warning/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning"
-              aria-label="Rate Hard — card will be shown again tomorrow"
+              className="rounded-lg bg-warning px-3 py-3 text-sm font-medium text-warning-foreground shadow-[0_4px_0_0_#B45309] active:translate-y-1 active:shadow-none hover:bg-warning/90 disabled:opacity-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning"
+              aria-label="Difícil — la tarjeta volverá a salir mañana"
               type="button"
             >
               <div className="text-lg font-bold">2</div>
-              <div className="text-[10px] opacity-90">Hard</div>
+              <div className="text-[10px] opacity-90">Difícil</div>
             </button>
             <button
               onClick={() => handleRate(2)}
               disabled={submitting}
-              className="rounded-lg bg-success px-3 py-3 text-sm font-medium text-success-foreground hover:bg-success/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success"
-              aria-label="Rate Good — card scheduled for review in 1-3 days"
+              className="rounded-lg bg-success px-3 py-3 text-sm font-medium text-success-foreground shadow-[0_4px_0_0_#15803D] active:translate-y-1 active:shadow-none hover:bg-success/90 disabled:opacity-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success"
+              aria-label="Normal — la tarjeta se repasará en 1-3 días"
               type="button"
             >
               <div className="text-lg font-bold">3</div>
-              <div className="text-[10px] opacity-90">Good</div>
+              <div className="text-[10px] opacity-90">Normal</div>
             </button>
             <button
               onClick={() => handleRate(3)}
               disabled={submitting}
-              className="rounded-lg bg-blue-600 px-3 py-3 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              aria-label="Rate Easy — card scheduled for longer review interval"
+              className="rounded-lg bg-blue-600 px-3 py-3 text-sm font-medium text-white shadow-[0_4px_0_0_#1D4ED8] active:translate-y-1 active:shadow-none hover:bg-blue-700 disabled:opacity-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label="Fácil — la tarjeta se repasará en un intervalo más largo"
               type="button"
             >
               <div className="text-lg font-bold">4</div>
-              <div className="text-[10px] opacity-90">Easy</div>
+              <div className="text-[10px] opacity-90">Fácil</div>
             </button>
           </div>
         </div>
@@ -349,8 +351,8 @@ export function FlashcardViewer({ deckId, cards, onSessionComplete }: FlashcardV
 
       {/* Keyboard shortcut hint */}
       <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/50">
-        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Space</kbd> Flip</span>
-        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">1</kbd>–<kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">4</kbd> Rate</span>
+        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Espacio</kbd> Girar</span>
+        <span><kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">1</kbd>–<kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">4</kbd> Valorar</span>
       </div>
     </div>
   );

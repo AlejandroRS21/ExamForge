@@ -12,6 +12,10 @@ import { ContextFrame } from "@/components/exam/ContextFrame";
 import { CorrectionCard } from "@/components/exam/CorrectionCard";
 import { QuestionRatingWidget } from "@/components/exam/QuestionRatingWidget";
 import { getQuestionTypeLabel } from "@/lib/exam/question-type-labels";
+import { practiceTimeLow, formatRemaining } from "@/lib/exam/timer-guard";
+import { TactileButton } from "@/components/ui/TactileButton";
+import { SlothMascot } from "@/components/ui/SlothMascot";
+import { PlayIcon, AwardIcon } from "@/components/ui/icons/SlothIcons";
 
 interface PracticeModeClientProps {
   part: {
@@ -59,6 +63,21 @@ export function PracticeModeClient({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calm Sloth timer guard: presentational only — tracks elapsed time to
+  // decide WHEN to show the reassurance, never wires a real countdown.
+  // ponytail: static guard, no pause-aware timer, add when real timing ships.
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const timed = part.timeMinutes > 0;
+  useEffect(() => {
+    if (!timed || isFinished) return;
+    const start = Date.now();
+    const id = window.setInterval(() => {
+      setElapsedSec(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [timed, isFinished]);
+  const showCalmGuard = practiceTimeLow(elapsedSec, part.timeMinutes);
 
   const currentQuestion = questions[currentIndex];
   const isFirst = currentIndex === 0;
@@ -133,15 +152,15 @@ export function PracticeModeClient({
     return (
       <div className="flex min-h-screen items-center justify-center p-6 bg-background">
         <div className="max-w-md w-full rounded-2xl border-2 border-border bg-card p-8 text-center space-y-6 shadow-md">
-          <div className="text-4xl">🎓</div>
-          <h2 className="text-xl font-bold text-foreground">Practice Session Completed!</h2>
+          <AwardIcon className="w-14 h-14 mx-auto" color="#FFB703" aria-hidden="true" />
+          <h2 className="text-xl font-bold text-foreground">¡Sesión de práctica completada!</h2>
           <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-1">
-            <span className="text-xs uppercase font-bold text-primary tracking-wider">Your Score</span>
+            <span className="text-xs uppercase font-bold text-primary tracking-wider">Tu puntuación</span>
             <p className="text-3xl font-extrabold text-primary">
               {totalCorrect} / {questions.length}
             </p>
             <p className="text-xs text-muted-foreground">
-              ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% Accuracy)
+              ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% precisión)
             </p>
           </div>
           <div className="flex flex-col gap-3 pt-2">
@@ -150,13 +169,13 @@ export function PracticeModeClient({
               onClick={() => setIsFinished(false)}
               className="rounded-xl border border-border px-5 py-2.5 text-xs font-semibold hover:bg-muted transition-colors"
             >
-              Review Answers
+              Revisar respuestas
             </button>
             <Link
               href="/exams"
               className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              Back to Exams
+              Volver a exámenes
             </Link>
           </div>
         </div>
@@ -195,23 +214,40 @@ export function PracticeModeClient({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
-            <span>⏱️ Time Limit: {part.timeMinutes}m</span>
+          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+            <PlayIcon className="w-4 h-4" color="#6B5E57" aria-hidden="true" />
+            <span>Límite: {part.timeMinutes} min</span>
           </div>
 
-          <button
-            type="button"
+          <TactileButton
+            variant="primary"
             onClick={handleFinish}
             disabled={isSubmitting}
-            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs"
           >
-            {isSubmitting ? "Submitting..." : "Finish & Evaluate"}
-          </button>
+            {isSubmitting ? "Enviando..." : "Terminar y evaluar"}
+          </TactileButton>
         </div>
       </header>
 
       {/* Main Question Display */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 space-y-8">
+        {showCalmGuard && (
+          <aside
+            aria-live="polite"
+            className="flex items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 shadow-[0_3px_0_0_#FDE68A]"
+          >
+            <SlothMascot pose="calm" size={64} className="shrink-0" />
+            <div>
+              <p className="font-bold text-amber-950">¡Sin prisas! Vas bien.</p>
+              <p className="text-xs font-semibold text-amber-800/80">
+                Quedan {formatRemaining(Math.max(0, part.timeMinutes * 60 - elapsedSec))} para
+                terminar la parte.
+              </p>
+            </div>
+          </aside>
+        )}
+
         <ContextFrame promptText={promptText}>
           <div className="space-y-6">
             <AnswerInput
@@ -240,36 +276,30 @@ export function PracticeModeClient({
 
       {/* Footer Navigation Bar */}
       <footer className="sticky bottom-0 bg-card border-t border-border p-4 flex items-center justify-between max-w-4xl w-full mx-auto">
-        <button
-          type="button"
+        <TactileButton
+          variant="soft"
           onClick={handlePrev}
           disabled={isFirst}
-          className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
         >
-          ← Previous
-        </button>
+          ← Anterior
+        </TactileButton>
 
         <div className="text-xs text-muted-foreground font-medium">
           {currentIndex + 1} / {questions.length}
         </div>
 
         {isLast ? (
-          <button
-            type="button"
+          <TactileButton
+            variant="primary"
             onClick={handleFinish}
             disabled={isSubmitting}
-            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50"
           >
-            {isSubmitting ? "Submitting..." : "Finish Practice ✓"}
-          </button>
+            {isSubmitting ? "Enviando..." : "Terminar práctica ✓"}
+          </TactileButton>
         ) : (
-          <button
-            type="button"
-            onClick={handleNext}
-            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
-          >
-            Next →
-          </button>
+          <TactileButton variant="primary" onClick={handleNext}>
+            Siguiente →
+          </TactileButton>
         )}
       </footer>
     </div>

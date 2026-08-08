@@ -4,7 +4,8 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { SlothMascot } from "@/components/ui/SlothMascot";
+import SlothPageHeader from "@/components/ui/SlothPageHeader";
+import { TargetIcon, PlayIcon } from "@/components/ui/icons/SlothIcons";
 
 export default async function ExamsPage() {
   const session = await auth();
@@ -29,27 +30,19 @@ export default async function ExamsPage() {
     <div className="min-h-screen bg-[#FAF6F0]">
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         {/* Header Hero */}
-        <div className="mb-10 bg-white p-8 rounded-3xl border-2 border-amber-200/80 shadow-[0_6px_0_0_#FDE68A] flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 border border-amber-300/60 text-amber-900 text-xs font-bold uppercase tracking-wide">
-              <span>🎓</span> Examen Cambridge B2 First
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-amber-950">
-              Centro de Exámenes
-            </h1>
-            <p className="text-amber-800/80 max-w-xl font-medium text-sm md:text-base">
-              Elige tu modalidad de estudio: practica partes individuales sin prisa o pon a prueba tu nivel en un simulacro completo cronometrado.
-            </p>
-          </div>
-          <SlothMascot pose="studying" size={150} className="shrink-0" />
-        </div>
+        <SlothPageHeader
+          badge="Examen Cambridge B2 First"
+          title="Centro de Exámenes"
+          subtitle="Elige tu modalidad de estudio: practica partes individuales sin prisa o pon a prueba tu nivel en un simulacro completo cronometrado."
+          pose="studying"
+        />
 
         {/* Modalidad de Práctica */}
         <section className="mb-12">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-2xl font-extrabold text-amber-950 flex items-center gap-2">
-                <span>🎯</span> Modos de Práctica Individual
+                <TargetIcon className="w-6 h-6" color="#FF6B35" /> Modos de Práctica Individual
               </h2>
               <p className="text-sm font-medium text-amber-800/80 mt-0.5">
                 Sin límite de tiempo rígido, con pistas opcionales y pausables.
@@ -141,7 +134,7 @@ export default async function ExamsPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-extrabold text-amber-950 flex items-center gap-2">
-                <span>⏱️</span> Simulacro de Examen Oficial
+                <PlayIcon className="w-6 h-6" color="#FF6B35" /> Simulacro de Examen Oficial
               </h2>
               <p className="text-sm font-medium text-amber-800/80 mt-0.5">
                 Experiencia real cronometrada sin pausas con las condiciones del Cambridge B2 First.
