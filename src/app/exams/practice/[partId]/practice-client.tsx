@@ -57,95 +57,59 @@ export function PracticeModeClient({
   const [questions] = useState(initialQuestions);
   const [answers, setAnswers] = useState<Record<string, any>>(savedAnswers);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const answersRef = useRef(answers);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
-
-  const currentQuestion = questions[currentIndex] as (QuestionDisplayData & {
-    correctAnswer?: any;
-    explanation?: string;
-    skillsTested?: string[];
-  }) | undefined;
-
-  const progressPercent = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
-
-  const saveAnswer = useCallback(
-    async (questionId: string, answer: any) => {
-      setIsSaving(true);
-      setSaveMessage(null);
-      try {
-        const res = await fetch("/api/exams/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            attemptId,
-            questionId,
-            givenAnswer: answer,
-            timeSpentSeconds: 0,
-          }),
-        });
-
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error ?? "Save failed");
-        }
-
-        setSaveMessage("Saved");
-        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-        saveTimeoutRef.current = setTimeout(() => setSaveMessage(null), 2000);
-      } catch (err) {
-        setSaveMessage("Failed to save");
-        console.error("[PracticeMode] Save error:", err);
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [attemptId],
-  );
+  const currentQuestion = questions[currentIndex];
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === questions.length - 1;
 
   const handleAnswer = useCallback(
-    (questionId: string, answer: any) => {
-      setAnswers((prev) => ({ ...prev, [questionId]: answer }));
-      saveAnswer(questionId, answer);
+    (questionId: string, value: any) => {
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: value,
+      }));
     },
-    [saveAnswer],
+    []
   );
 
-  const handleCompletePractice = async () => {
-    setIsCompleting(true);
+  const handleNext = () => {
+    if (!isLast) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (!isFirst) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleFinish = async () => {
+    setIsSubmitting(true);
     try {
-      await fetch("/api/exams/complete", {
-        method: "POST",
+      // Save current attempt state
+      await fetch(`/api/user/attempts/${attemptId}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId }),
+        body: JSON.stringify({ answers, isFinished: true }),
       });
       setIsFinished(true);
-    } catch (err) {
-      console.error("[PracticeMode] Complete error:", err);
+    } catch (e) {
+      console.error("Failed to finish practice:", e);
     } finally {
-      setIsCompleting(false);
+      setIsSubmitting(false);
     }
   };
 
-  const goTo = (index: number) => {
-    if (index >= 0 && index < questions.length) {
-      setCurrentIndex(index);
-    }
-  };
-
-  if (!currentQuestion && questions.length === 0) {
+  if (questions.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">
-            No questions available for this part yet.
+      <div className="flex min-h-screen items-center justify-center p-6 bg-background">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-xl font-bold text-foreground">No Questions Found</h2>
+          <p className="text-sm text-muted-foreground">
+            No questions are available for this section yet.
           </p>
           <Link
             href="/exams"
@@ -161,7 +125,7 @@ export function PracticeModeClient({
   // Calculate score summary if finished
   const totalCorrect = questions.reduce((acc, q) => {
     const given = answers[q.id];
-    const expected = (q as any).correctAnswer;
+    const expected = (q as any).correctAnswer ?? (q.options ? q.options.correctAnswer : null);
     return checkIsCorrect(given, expected) ? acc + 1 : acc;
   }, 0);
 
@@ -192,7 +156,7 @@ export function PracticeModeClient({
               href="/exams"
               className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              ← Select Another Exam Part
+              Back to Exams
             </Link>
           </div>
         </div>
@@ -200,127 +164,114 @@ export function PracticeModeClient({
     );
   }
 
-  const currentGivenAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
-  const hasSubmittedAnswer = currentGivenAnswer !== undefined && currentGivenAnswer !== null && currentGivenAnswer !== "";
-  const isCorrect = currentQuestion && hasSubmittedAnswer
-    ? checkIsCorrect(currentGivenAnswer, currentQuestion.correctAnswer)
-    : false;
+  const promptText = typeof currentQuestion.prompt === "string"
+    ? currentQuestion.prompt
+    : currentQuestion.prompt?.text ?? "";
+
+  const currentGiven = answers[currentQuestion.id];
+  const currentExpected = (currentQuestion as any).correctAnswer ?? (currentQuestion.options ? currentQuestion.options.correctAnswer : null);
+  const isCurrentCorrect = checkIsCorrect(currentGiven, currentExpected);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header bar with clear exit and part switching */}
-      <header className="flex h-16 items-center justify-between border-b bg-card px-6 md:px-12">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      {/* Top Practice Bar */}
+      <header className="sticky top-0 z-20 bg-card border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
           <Link
             href="/exams"
-            aria-label="Exit to Exams Selection"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="rounded-lg border border-border p-2 text-xs font-medium hover:bg-muted transition-colors"
           >
-            ← Change Part / Exit
+            ← Leave
           </Link>
-          <h1 className="text-sm font-semibold text-foreground">
-            {part.paper} — {part.label}
-          </h1>
+          <div>
+            <h1 className="text-base font-bold text-foreground leading-tight">
+              {part.label}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {getQuestionTypeLabel(currentQuestion.type)} • Question {currentIndex + 1} of{" "}
+              {questions.length}
+            </p>
+          </div>
         </div>
+
         <div className="flex items-center gap-4">
-          <span className="text-[13px] font-medium text-muted-foreground">
-            Question {currentIndex + 1} of {questions.length}
-          </span>
-          {isSaving && <span className="text-xs text-muted-foreground">Saving...</span>}
-          {saveMessage && (
-            <span className={`text-xs ${saveMessage === "Saved" ? "text-success" : "text-destructive"}`}>
-              {saveMessage}
-            </span>
-          )}
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+            <span>⏱️ Time Limit: {part.timeMinutes}m</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={isSubmitting}
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting..." : "Finish & Evaluate"}
+          </button>
         </div>
       </header>
 
-      {/* Progress track */}
-      <div className="h-1.5 w-full bg-muted">
-        <div
-          className="h-full bg-primary transition-all duration-500"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
+      {/* Main Question Display */}
+      <main className="flex-1 max-w-4xl w-full mx-auto p-6 md:p-10 space-y-8">
+        <ContextFrame promptText={promptText}>
+          <div className="space-y-6">
+            <AnswerInput
+              question={currentQuestion}
+              selectedAnswer={answers[currentQuestion.id]}
+              onAnswer={handleAnswer}
+            />
 
-      {/* Main content */}
-      <main className="flex flex-1 flex-col items-center py-8 px-4">
-        {currentQuestion && (
-          <div className="flex w-full max-w-[760px] flex-col gap-6">
-            {/* Header badge */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-md">
-                {getQuestionTypeLabel(currentQuestion.type)}
-              </span>
-              <span className="text-xs text-muted-foreground font-medium">
-                Difficulty {currentQuestion.difficulty}
-              </span>
-            </div>
-
-            {/* In-Context Frame wrapping prompt text & answer input */}
-            <ContextFrame
-              promptText={currentQuestion.prompt?.text}
-              hint={currentQuestion.prompt?.hint}
-              readingPassage={currentQuestion.prompt?.readingPassage}
-            >
-              <AnswerInput
-                question={currentQuestion}
-                selectedAnswer={answers[currentQuestion.id] ?? null}
-                onAnswer={handleAnswer}
-              />
-            </ContextFrame>
-
-            {/* Strict Pedagogical Correction Card */}
-            {hasSubmittedAnswer && currentQuestion.correctAnswer && (
+            {/* Answer Feedback overlay once an answer is chosen */}
+            {answers[currentQuestion.id] !== undefined && (
               <CorrectionCard
-                isCorrect={isCorrect}
-                givenAnswer={currentGivenAnswer}
-                correctAnswer={currentQuestion.correctAnswer}
-                explanation={currentQuestion.explanation}
-                skillsTested={currentQuestion.skillsTested}
+                isCorrect={isCurrentCorrect}
+                givenAnswer={currentGiven}
+                correctAnswer={currentExpected}
                 difficulty={currentQuestion.difficulty}
               />
             )}
-
-            {/* Quality Rating Widget remounted per question via key */}
-            <QuestionRatingWidget key={currentQuestion.id} questionId={currentQuestion.id} />
-
-            {/* Footer nav */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={() => goTo(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                className="rounded-xl bg-secondary px-5 py-2.5 text-xs font-semibold text-secondary-foreground
-                  hover:bg-secondary/80 transition-colors
-                  disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                ← Previous
-              </button>
-
-              {currentIndex === questions.length - 1 ? (
-                <button
-                  type="button"
-                  onClick={handleCompletePractice}
-                  disabled={isCompleting}
-                  className="rounded-xl bg-success px-6 py-2.5 text-xs font-bold text-success-foreground hover:bg-success/90 transition-colors"
-                >
-                  {isCompleting ? "Evaluating..." : "Finish & Evaluate Practice ✓"}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => goTo(currentIndex + 1)}
-                  className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground
-                    hover:bg-primary/90 transition-colors"
-                >
-                  Next question →
-                </button>
-              )}
-            </div>
           </div>
-        )}
+        </ContextFrame>
+
+        {/* Rating widget */}
+        <div className="pt-4 border-t border-border flex justify-end">
+          <QuestionRatingWidget questionId={currentQuestion.id} />
+        </div>
       </main>
+
+      {/* Footer Navigation Bar */}
+      <footer className="sticky bottom-0 bg-card border-t border-border p-4 flex items-center justify-between max-w-4xl w-full mx-auto">
+        <button
+          type="button"
+          onClick={handlePrev}
+          disabled={isFirst}
+          className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+        >
+          ← Previous
+        </button>
+
+        <div className="text-xs text-muted-foreground font-medium">
+          {currentIndex + 1} / {questions.length}
+        </div>
+
+        {isLast ? (
+          <button
+            type="button"
+            onClick={handleFinish}
+            disabled={isSubmitting}
+            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting..." : "Finish Practice ✓"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            Next →
+          </button>
+        )}
+      </footer>
     </div>
   );
 }
