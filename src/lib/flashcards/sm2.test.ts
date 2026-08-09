@@ -5,9 +5,11 @@
 //                       newRepetitions, nextReviewAt }
 // Rules pinned here:
 //   AGAIN(1) → repetitions 0, interval 0 (same day), ease −0.20, floor 1.3
-//   HARD(2)  → repetitions +1, interval max(1, round(prev × 1.2)), ease −0.15
+//   HARD(2)  → repetitions 0, interval 1 (tomorrow), ease −0.15
 //   GOOD(3)  → repetitions +1, interval 1 → 3 → round(prev × easeFactor), ease ±0
-//   EASY(5)  → repetitions +1, interval max(1, round(prev × 3.0)), ease +0.15
+//   EASY(5)  → repetitions +1, interval 1 → 3 → round(prev × easeFactor), ease +0.15
+//   NOTE: contract mirrors src/lib/flashcards/service.ts calculateSM2 so the UI
+//   preview equals the server-persisted schedule.
 
 import { describe, it, expect } from "vitest";
 import {
@@ -81,18 +83,17 @@ describe("reviewCardSM2 — HARD (2)", () => {
   it("schedules first review tomorrow (interval 1)", () => {
     const result = reviewCardSM2(defaultState, "HARD");
     expect(result.newInterval).toBe(1);
-    expect(result.newRepetitions).toBe(1);
+    expect(result.newRepetitions).toBe(0);
     expect(daysUntil(result.nextReviewAt)).toBe(1);
   });
 
-  it("multiplies an existing interval by 1.2 and rounds", () => {
+  it("resets repetitions and schedules tomorrow on an established card (server contract)", () => {
     const result = reviewCardSM2(
       { ...defaultState, interval: 10, repetitions: 5 },
       "HARD",
     );
-    // Math.round(10 * 1.2) = 12
-    expect(result.newInterval).toBe(12);
-    expect(result.newRepetitions).toBe(6);
+    expect(result.newInterval).toBe(1);
+    expect(result.newRepetitions).toBe(0);
   });
 
   it("never schedules below 1 day", () => {
@@ -100,7 +101,6 @@ describe("reviewCardSM2 — HARD (2)", () => {
       { ...defaultState, interval: 1, repetitions: 2 },
       "HARD",
     );
-    // Math.round(1 * 1.2) = 1
     expect(result.newInterval).toBe(1);
   });
 
@@ -160,15 +160,23 @@ describe("reviewCardSM2 — EASY (5)", () => {
     expect(daysUntil(result.nextReviewAt)).toBe(1);
   });
 
-  it("multiplies an existing interval by 3.0", () => {
+  it("uses the server progression 1 → 3 → round(prev × easeFactor)", () => {
     const result = reviewCardSM2(
       { ...defaultState, interval: 5, repetitions: 2 },
       "EASY",
     );
-    // Math.round(5 * 3.0) = 15
-    expect(result.newInterval).toBe(15);
+    // round(5 * 2.5) = 13
+    expect(result.newInterval).toBe(13);
     expect(result.newRepetitions).toBe(3);
     expect(result.newEaseFactor).toBe(2.65);
+  });
+
+  it("schedules 3 days on second review", () => {
+    const result = reviewCardSM2(
+      { ...defaultState, interval: 1, repetitions: 1 },
+      "EASY",
+    );
+    expect(result.newInterval).toBe(3);
   });
 });
 
@@ -187,7 +195,7 @@ describe("reviewCardSM2 — scheduling invariants", () => {
     expect(result.nextReviewAt.getTime()).toBe(expected.getTime());
   });
 
-  it("only ever increases interval across pass ratings", () => {
+  it("progresses interval through GOOD/EASY after a HARD reset", () => {
     let state = { ...defaultState };
     const intervals: number[] = [];
     for (const rating of ["HARD", "GOOD", "GOOD", "EASY"] as const) {
@@ -200,10 +208,11 @@ describe("reviewCardSM2 — scheduling invariants", () => {
       };
       intervals.push(state.interval);
     }
-    expect(intervals[0]).toBeGreaterThanOrEqual(1);
-    for (let i = 1; i < intervals.length; i++) {
-      expect(intervals[i]).toBeGreaterThanOrEqual(intervals[i - 1]);
-    }
+    // HARD resets to 1 (tomorrow), then GOOD 1→3, EASY grows via ease factor.
+    expect(intervals[0]).toBe(1);
+    expect(intervals[1]).toBe(1);
+    expect(intervals[2]).toBe(3);
+    expect(intervals[3]).toBeGreaterThanOrEqual(intervals[2]);
   });
 });
 

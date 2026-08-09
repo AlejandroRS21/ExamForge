@@ -91,8 +91,9 @@ export function reviewCardSM2(
       break;
     }
     case "HARD": {
-      repetitions += 1;
-      interval = Math.max(1, Math.round(interval * 1.2));
+      // Align with server calculateSM2: Hard resets repetitions, next review tomorrow.
+      repetitions = 0;
+      interval = 1;
       easeFactor -= 0.15;
       break;
     }
@@ -110,7 +111,13 @@ export function reviewCardSM2(
     }
     case "EASY": {
       repetitions += 1;
-      interval = Math.max(1, Math.round(interval * 3.0));
+      if (repetitions === 1) {
+        interval = 1;
+      } else if (repetitions === 2) {
+        interval = 3;
+      } else {
+        interval = Math.round(interval * easeFactor);
+      }
       easeFactor += 0.15;
       break;
     }

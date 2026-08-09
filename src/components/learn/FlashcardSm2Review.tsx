@@ -159,8 +159,11 @@ export function FlashcardSm2Review({
         setSubmitting(false);
       }
 
+      // The server is authoritative about completion: an AGAIN rating on the
+      // last card keeps it due today, so the session must continue with it.
       if (isLastCard) {
-        setSessionComplete(true);
+        setCurrentIndex(0);
+        setIsFlipped(false);
       } else {
         setCurrentIndex((prev) => prev + 1);
         setIsFlipped(false);
