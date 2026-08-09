@@ -14,9 +14,9 @@ The system MUST define CSS variables and TypeScript constants for warm color tok
 
 #### Scenario: Tactile 3D button utility classes
 - GIVEN a user views interactive elements
-- WHEN applying tactile 3D button styling (inline arbitrary shadow classes such as `shadow-[0_4px_0_0_...]` or the `.btn-tactile-*` utilities)
+- WHEN applying `.btn-tactile-primary` or `.btn-tactile-secondary`
 - THEN elements MUST render a 3D bottom border/shadow offset
-- AND the active/pressed state MUST translate the element downward to mimic a physical press.
+- AND active state MUST translate element downward to mimic physical press.
 
 ### Requirement: Sloth Mascot Component (`Perezoso`)
 
@@ -35,7 +35,7 @@ The system MUST provide a dedicated set of custom SVG icons replacing generic ic
 #### Scenario: Icon replacement with zero emojis
 - GIVEN any UI view in the application
 - WHEN displaying operational indicators (Target, Flame, Cpu, Award, Star, Play, Check)
-- THEN custom SVG icon components MUST be rendered
+- THEN custom SVG icon components from `src/components/ui/icons/` MUST be rendered
 - AND no raw emoji unicode characters SHALL be present in component output.
 
 ### Requirement: Sloth Theme Exams Index & Filters
@@ -82,3 +82,32 @@ The system MUST display `/auth/login` and `/auth/register` with Perezoso welcome
 - GIVEN a user on login or register routes
 - WHEN interacting with input fields and clicking the submit button
 - THEN the form MUST render warm input field highlights and tactile 3D button feedback, with Castellano validation/welcome copy.
+
+---
+
+## Capability: `landing-page` (MODIFIED)
+
+### Requirement: Landing Page Copy and Hero Sloth
+
+The system MUST render the landing page in Castellano (ES) with hero sloth mascot and warm feature cards.
+
+#### Scenario: Landing page presentation in Castellano ES
+- GIVEN an unauthenticated visitor accessing `src/app/page.tsx`
+- WHEN the page loads
+- THEN the main hero heading MUST display "Consigue tus certificados a tu ritmo y sin estrés"
+- AND hero section MUST display the Perezoso mascot in `cheering` state
+- AND feature cards MUST use warm background tokens and custom SVG icons.
+
+---
+
+## Capability: `dashboard-ui` (MODIFIED)
+
+### Requirement: Gamified Dashboard and Sloth Streak Tracker
+
+The system MUST display student study metrics, progress bars, and streak counter with sloth-themed styling.
+
+#### Scenario: Gamified dashboard streak and metrics display
+- GIVEN an authenticated user viewing `src/app/dashboard/`
+- WHEN the dashboard loads
+- THEN the streak widget MUST display active consecutive study days alongside a custom Flame SVG icon and sloth indicator
+- AND practice cards MUST display progress bars using Deep Teal (`#2A9D8F`) and Warm Gold (`#FFB703`) tokens.

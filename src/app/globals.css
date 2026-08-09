@@ -268,3 +268,55 @@
 .animate-indeterminate {
   animation: indeterminate-slide 1.1s ease-in-out infinite;
 }
+
+/* ─── Tactile 3D Button Utilities ─────────────────────────────────────────── */
+/* Mimics a physical button with a 3D bottom shadow; :active presses the
+   button down by collapsing the shadow and translating downward.
+   Colors reference the warm Sloth design tokens in :root above.
+   Pattern mirrors the inline arbitrary shadows already used across
+   page.tsx / dashboard/page.tsx (e.g. shadow-[0_4px_0_#C74D23]). */
+
+.btn-tactile-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 900;
+  box-shadow: 0 4px 0 var(--btn-shadow-primary);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.btn-tactile-primary:hover {
+  box-shadow: 0 2px 0 var(--btn-shadow-primary);
+  transform: translateY(-2px);
+}
+
+.btn-tactile-primary:active {
+  box-shadow: none;
+  transform: translateY(6px);
+}
+
+.btn-tactile-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  border: 2px solid var(--secondary);
+  background-color: var(--card);
+  color: var(--foreground);
+  font-weight: 900;
+  box-shadow: 0 4px 0 var(--btn-shadow-secondary);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.btn-tactile-secondary:hover {
+  box-shadow: 0 2px 0 var(--btn-shadow-secondary);
+  transform: translateY(-2px);
+}
+
+.btn-tactile-secondary:active {
+  box-shadow: none;
+  transform: translateY(6px);
+}
