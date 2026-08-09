@@ -1,11 +1,14 @@
-// ExamForge — Quiz Student Page
-// Server component: fetches GeneratedContent with contentType=QUIZ, renders QuizRenderer
+// ExamForge — /learn/quiz/[id] (RSC)
+// Interactive quiz view (spec: student-content-pages — quiz scenario): chunked
+// one-question cards, instant correction feedback via QuizRenderer, warm
+// focus-optimized layout, zero raw emojis.
 
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import SlothPageHeader from "@/components/ui/SlothPageHeader";
+import { SlothMascot } from "@/components/ui/SlothMascot";
 import { QuizRenderer } from "@/components/learn/QuizRenderer";
 
 interface QuizPageProps {
@@ -24,7 +27,6 @@ interface QuizData {
 
 async function QuizContent({ id }: { id: string }) {
   const session = await auth();
-
   if (!session?.user) {
     redirect(`/auth/login?callbackUrl=/learn/quiz/${id}`);
   }
@@ -39,22 +41,15 @@ async function QuizContent({ id }: { id: string }) {
     },
   });
 
-  if (!content || content.contentType !== "QUIZ") {
-    notFound();
-  }
+  if (!content || content.contentType !== "QUIZ") notFound();
 
   if (content.status !== "COMPLETED") {
     return (
-      <div className="rounded-xl border bg-card p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          This quiz is not currently available.
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-10 text-center shadow-[0_6px_0_0_#FDE68A]">
+        <SlothMascot pose="calm" size={110} className="mx-auto" />
+        <p className="mt-4 text-sm font-medium text-amber-800/80">
+          Este cuestionario todavía no está disponible.
         </p>
-        <Link
-          href="/dashboard"
-          className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          Back to Dashboard
-        </Link>
       </div>
     );
   }
@@ -63,28 +58,26 @@ async function QuizContent({ id }: { id: string }) {
 
   if (!quizData?.questions || quizData.questions.length === 0) {
     return (
-      <div className="rounded-xl border bg-card p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          No questions available for this quiz.
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-10 text-center shadow-[0_6px_0_0_#FDE68A]">
+        <SlothMascot pose="calm" size={110} className="mx-auto" />
+        <p className="mt-4 text-sm font-medium text-amber-800/80">
+          No hay preguntas disponibles para este cuestionario.
         </p>
-        <Link
-          href="/dashboard"
-          className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          Back to Dashboard
-        </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{quizData.title ?? "Quiz"}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {quizData.questions.length} question{quizData.questions.length !== 1 ? "s" : ""}
-        </p>
-      </div>
+    <div className="space-y-8 pb-16">
+      <SlothPageHeader
+        badge="Quiz"
+        title={quizData.title ?? "Quiz"}
+        subtitle="Una pregunta por tarjeta, con corrección inmediata: tu cerebro consolida mejor lo que comprueba al instante."
+        pose="studying"
+        mascotSize={140}
+        backHref="/dashboard"
+        backLabel="Volver al Panel"
+      />
 
       <QuizRenderer questions={quizData.questions} />
     </div>
@@ -93,49 +86,29 @@ async function QuizContent({ id }: { id: string }) {
 
 function QuizSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse" role="status" aria-label="Loading quiz">
-      <div className="space-y-2">
-        <div className="h-8 w-3/4 rounded-lg bg-muted" />
-        <div className="h-4 w-1/3 rounded bg-muted/60" />
+    <div className="space-y-6 animate-pulse" role="status" aria-label="Cargando cuestionario">
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-white p-8">
+        <div className="h-8 w-2/3 rounded-lg bg-amber-100" />
+        <div className="mt-3 h-4 w-1/2 rounded bg-amber-50" />
       </div>
-      <div className="flex items-center justify-between">
-        <div className="h-4 w-24 rounded bg-muted" />
-        <div className="h-3 w-16 rounded bg-muted/60" />
-      </div>
-      <div className="h-1.5 w-full rounded-full bg-muted" />
-      <div className="rounded-xl border bg-card p-6 space-y-4">
-        <div className="h-5 w-full rounded bg-muted" />
+      <div className="min-h-[240px] rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-6 space-y-4">
+        <div className="h-5 w-full rounded bg-amber-100" />
         <div className="space-y-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-12 rounded-lg border bg-muted/20" />
+            <div key={i} className="h-12 rounded-2xl border-2 border-amber-200/70 bg-white" />
           ))}
         </div>
       </div>
-      <span className="sr-only">Loading quiz...</span>
+      <span className="sr-only">Cargando cuestionario...</span>
     </div>
   );
 }
 
 export default async function QuizPage({ params }: QuizPageProps) {
   const { id } = await params;
-
   return (
-    <>
-      <div className="mb-6">
-        <Link
-          href="/dashboard"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Back to Dashboard
-        </Link>
-      </div>
-
-      <Suspense fallback={<QuizSkeleton />}>
-        <QuizContent id={id} />
-      </Suspense>
-    </>
+    <Suspense fallback={<QuizSkeleton />}>
+      <QuizContent id={id} />
+    </Suspense>
   );
 }
