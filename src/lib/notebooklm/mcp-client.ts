@@ -136,21 +136,25 @@ export interface MCPClientConfig {
   notebookId: string;
   pollIntervalMs: number; // 5000ms
   pollTimeoutMs: number;  // 300000ms (5 min)
+  execTimeoutMs: number;  // 60000ms per subprocess call
 }
 
 const DEFAULT_POLL_INTERVAL_MS = 5_000;
 const DEFAULT_POLL_TIMEOUT_MS = 300_000;
+const DEFAULT_EXEC_TIMEOUT_MS = 60_000; // kill a single hung nlm subprocess after 60s
 
 export class MCPClient {
   private useMock: boolean;
   private pollIntervalMs: number;
   private pollTimeoutMs: number;
+  private execTimeoutMs: number;
   private mock: MockMCPClient;
 
   constructor(config?: Partial<Omit<MCPClientConfig, "notebookId">>) {
     this.useMock = config?.useMock ?? process.env.NOTEBOOKLM_USE_MOCK === "true";
     this.pollIntervalMs = config?.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     this.pollTimeoutMs = config?.pollTimeoutMs ?? DEFAULT_POLL_TIMEOUT_MS;
+    this.execTimeoutMs = config?.execTimeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS;
     this.mock = new MockMCPClient();
   }
 
@@ -221,7 +225,7 @@ export class MCPClient {
       execFile(
         nlmPath,
         safeArgs,
-        { shell: false, maxBuffer: 1024 * 1024 },
+        { shell: false, maxBuffer: 1024 * 1024, timeout: this.execTimeoutMs, killSignal: "SIGKILL" },
         (error, stdout, stderr) => {
           if (error) {
             let errorType: "rateLimited" | "authExpired" | "notFound" | "unknown" = "unknown";
@@ -367,6 +371,14 @@ export class MCPClient {
       );
     }
 
+    if (isFailedStatus(output)) {
+      throw new MCPClientError(
+        `Artifact ${artifactId} generation failed`,
+        "unknown",
+        500,
+      );
+    }
+
     return output;
   }
 
@@ -393,4 +405,8 @@ export class MCPClient {
 function isTerminalStatus(output: any): boolean {
   const state = String(output?.status ?? "").toLowerCase();
   return state === "completed" || state === "failed";
+}
+
+function isFailedStatus(output: any): boolean {
+  return String(output?.status ?? "").toLowerCase() === "failed";
 }

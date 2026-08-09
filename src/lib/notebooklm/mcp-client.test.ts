@@ -288,6 +288,34 @@ describe("MCPClient — Studio Operations", () => {
         expect.any(Function),
       );
     });
+
+    it("should throw MCPClientError when the artifact terminal status is failed", async () => {
+      execFileMock.mockImplementation(
+        mockNlmResponse({
+          id: mockArtifactId,
+          notebookId: mockNotebookId,
+          type: "audio",
+          status: "failed",
+        }),
+      );
+
+      await expect(
+        client.pollArtifactStatus(mockNotebookId, mockArtifactId),
+      ).rejects.toThrow(MCPClientError);
+    });
+
+    it("should pass a subprocess timeout to execFile so a hung nlm call is killed", async () => {
+      execFileMock.mockImplementation(
+        mockNlmResponse({ id: mockArtifactId, status: "completed" }),
+      );
+
+      await client.pollArtifactStatus(mockNotebookId, mockArtifactId);
+
+      const optionsArg = execFileMock.mock.calls[0][2];
+      expect(optionsArg).toMatchObject({ shell: false });
+      expect(typeof optionsArg.timeout).toBe("number");
+      expect(optionsArg.timeout).toBeGreaterThan(0);
+    });
   });
 });
 
@@ -474,16 +502,17 @@ describe("MCPClient — pollArtifactStatus polling", () => {
     expect(execFileMock).toHaveBeenCalledTimes(2);
   });
 
-  it("stops polling once the artifact reaches failed status", async () => {
+  it("stops polling and throws MCPClientError once the artifact reaches failed status", async () => {
     execFileMock.mockImplementation(mockNlmResponseSequence([
       { id: mockArtifactId, notebookId: mockNotebookId, status: "processing" },
       { id: mockArtifactId, notebookId: mockNotebookId, status: "failed" },
     ]));
 
     const fast = new MCPClient({ pollIntervalMs: 5, pollTimeoutMs: 2_000 });
-    const result = await fast.pollArtifactStatus(mockNotebookId, mockArtifactId);
+    await expect(
+      fast.pollArtifactStatus(mockNotebookId, mockArtifactId),
+    ).rejects.toThrow(MCPClientError);
 
-    expect(result.status).toBe("failed");
     expect(execFileMock).toHaveBeenCalledTimes(2);
   });
 
