@@ -37,7 +37,7 @@ export default async function AdminLayout({
       <aside className="w-64 border-r bg-muted/30 flex flex-col">
         <div className="p-6 border-b">
           <Link href="/admin" className="text-lg font-bold tracking-tight">
-            ExamForge
+            OpenSloth
           </Link>
           <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
         </div>

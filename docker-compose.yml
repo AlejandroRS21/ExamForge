@@ -1,14 +1,14 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: examforge-postgres
+    container_name: opensloth-postgres
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: examforge
+      POSTGRES_DB: opensloth
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -17,7 +17,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/examforge
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/opensloth
       - AUTH_SECRET=${AUTH_SECRET}
     depends_on:
       - postgres

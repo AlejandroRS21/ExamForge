@@ -27,7 +27,7 @@ describe("playChime", () => {
   });
 
   it("is a noop when muted", async () => {
-    localStorageMock.setItem("examforge.moments.muted", "1");
+    localStorageMock.setItem("opensloth.moments.muted", "1");
     const AudioContextSpy = vi.fn();
     (globalThis as any).window.AudioContext = AudioContextSpy;
 

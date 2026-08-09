@@ -48,3 +48,4 @@ sdd/
 
 # CodeGraph local index
 .codegraph/
+backups/

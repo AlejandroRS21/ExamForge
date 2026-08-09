@@ -7,7 +7,7 @@ import { getAllUserGoals } from "@/lib/challenges/goals";
 import { GoalsClient } from "./goals-client";
 
 export const metadata = {
-  title: "Goals — ExamForge",
+  title: "Goals — OpenSloth",
   description: "Set and track your personal practice goals",
 };
 
