@@ -418,6 +418,9 @@ model GeneratedContent {
   createdById  String
   notebookId   String?
   artifactId   String?
+  audioUrl     String?
+  downloadUrl  String?
+  topics       String[]      @default([])
   elapsed      Int?
 
   createdBy    User             @relation(fields: [createdById], references: [id])
@@ -447,6 +450,8 @@ model AudioExercise {
   status             ContentStatus @default(DRAFT)
   examPartId         String?
   downloadUrl        String?
+  audioUrl           String?
+  notebookId         String?
   createdAt          DateTime      @default(now())
 
   generatedContent   GeneratedContent @relation(fields: [generatedContentId], references: [id], onDelete: Cascade)

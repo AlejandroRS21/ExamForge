@@ -42,37 +42,13 @@ export interface StatusResponse {
 
 // ─── NotebookLM MCP Integration ──────────────────────────────────────────────
 
-const mcpClient = new MCPClient();
+// Exported for testability — the generation pipeline drives this instance.
+export const mcpClient = new MCPClient();
 
 const DEFAULT_NOTEBOOK = "fa8414d0-a476-4fad-a6a7-be1167880228";
-const POLL_INTERVAL_MS = 5_000;
-const POLL_TIMEOUT_MS = 300_000; // 5 minutes
 
-/** Poll artifact status until completion or timeout. */
-async function pollUntilComplete(
-  notebookId: string,
-  artifactId: string,
-  label: string,
-): Promise<{ result: any; elapsed: number }> {
-  const start = Date.now();
-  let pollResult = await mcpClient.pollArtifactStatus(notebookId, artifactId);
-  let elapsed = Date.now() - start;
-
-  while (pollResult.status === "PROCESSING" && elapsed < POLL_TIMEOUT_MS) {
-    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-    pollResult = await mcpClient.pollArtifactStatus(notebookId, artifactId);
-    elapsed = Date.now() - start;
-  }
-
-  if (pollResult.status !== "COMPLETED") {
-    throw new MCPClientError(`${label} failed or timed out`, "unknown", 500);
-  }
-
-  return { result: pollResult, elapsed };
-}
-
-// Fire-and-forget wrapper for async generation
-async function runGeneration(contentId: string, request: GenerateRequest) {
+// Fire-and-forget wrapper for async generation. Exported for integration tests.
+export async function runGeneration(contentId: string, request: GenerateRequest) {
   const content = await prisma.generatedContent.findUnique({
     where: { id: contentId },
   });
@@ -89,7 +65,8 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
     switch (request.contentType) {
       case "AUDIO": {
         const artifact = await mcpClient.createStudioArtifact(nbId, "audio");
-        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Audio generation");
+        // pollArtifactStatus polls internally until completed/failed (5-min cap)
+        const pollResult = await mcpClient.pollArtifactStatus(nbId, artifact.id);
 
         result = {
           type: "audio",
@@ -98,14 +75,16 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
           duration: pollResult.duration || null,
           questions: pollResult.questions || [],
           artifactId: artifact.id,
-          elapsed,
+          topics: pollResult.topics || [],
+          audioUrl: pollResult.audioUrl || pollResult.downloadUrl || null,
+          downloadUrl: pollResult.downloadUrl || null,
         };
         break;
       }
 
       case "FLASHCARDS": {
         const artifact = await mcpClient.createStudioArtifact(nbId, "flashcards");
-        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Flashcards generation");
+        await mcpClient.pollArtifactStatus(nbId, artifact.id);
 
         const queryResult = await mcpClient.queryNotebook(
           nbId,
@@ -117,14 +96,14 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
           title: queryResult.title || "Flashcard Deck",
           cards: queryResult.cards || [],
           artifactId: artifact.id,
-          elapsed,
+          topics: queryResult.topics || [],
         };
         break;
       }
 
       case "QUIZ": {
         const artifact = await mcpClient.createStudioArtifact(nbId, "quiz");
-        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Quiz generation");
+        await mcpClient.pollArtifactStatus(nbId, artifact.id);
 
         const queryResult = await mcpClient.queryNotebook(
           nbId,
@@ -136,14 +115,14 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
           title: queryResult.title || "Generated Quiz",
           questions: queryResult.questions || [],
           artifactId: artifact.id,
-          elapsed,
+          topics: queryResult.topics || [],
         };
         break;
       }
 
       case "MINDMAP": {
         const artifact = await mcpClient.createStudioArtifact(nbId, "mindmap");
-        const { result: pollResult, elapsed } = await pollUntilComplete(nbId, artifact.id, "Mindmap generation");
+        await mcpClient.pollArtifactStatus(nbId, artifact.id);
 
         const queryResult = await mcpClient.queryNotebook(
           nbId,
@@ -155,7 +134,7 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
           title: queryResult.title || "Generated Mind Map",
           structure: queryResult.structure || [],
           artifactId: artifact.id,
-          elapsed,
+          topics: queryResult.topics || [],
         };
         break;
       }
@@ -169,8 +148,12 @@ async function runGeneration(contentId: string, request: GenerateRequest) {
       data: {
         status: "COMPLETED",
         rawResponse: result,
+        notebookId: nbId,
         artifactId: result.artifactId || null,
-        elapsed: result.elapsed || null,
+        audioUrl: result.audioUrl ?? null,
+        downloadUrl: result.downloadUrl ?? null,
+        topics: Array.isArray(result.topics) ? result.topics : [],
+        elapsed: result.elapsed ?? null,
       },
     });
 
@@ -309,6 +292,8 @@ export async function reviewContent(
             questions: rawData.questions ?? null,
             duration: rawData.duration ?? null,
             mimeType: "audio/mpeg",
+            audioUrl: rawData.audioUrl ?? rawData.downloadUrl ?? null,
+            notebookId: content.notebookId ?? null,
             status: "PUBLISHED",
           },
         });

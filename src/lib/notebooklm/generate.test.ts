@@ -80,7 +80,7 @@ vi.mock("./mcp-client", () => ({
 
 // ─── Import after mock ───────────────────────────────────────────────────────
 
-import { generateContent, getGenerationStatus, reviewContent } from "./generate";
+import { generateContent, getGenerationStatus, reviewContent, runGeneration, mcpClient } from "./generate";
 
 // ─── Setup ───────────────────────────────────────────────────────────────────
 
@@ -396,6 +396,119 @@ describe("reviewContent", () => {
     expect(result).toEqual({
       success: false,
       error: "No raw response data to process",
+    });
+  });
+});
+
+// ─── runGeneration — async pipeline (TASK 3.1) ───────────────────────────────
+
+describe("runGeneration — full async pipeline", () => {
+  it("persists notebookId, artifactId, downloadUrl and topics on COMPLETED", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "gen-123",
+      status: "PROCESSING",
+      notebookId: null,
+    });
+    mockUpdate.mockResolvedValue({});
+
+    (mcpClient.createStudioArtifact as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "artifact-123",
+    });
+    (mcpClient.pollArtifactStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      status: "COMPLETED",
+      title: "Generated Audio",
+      transcript: "Transcript",
+      questions: [],
+      duration: 180,
+      downloadUrl: "https://cdn.example.com/audio.mp4",
+      topics: ["Newton's Laws", "Motion"],
+    });
+
+    const result = await runGeneration("gen-123", {
+      sourceType: "URL",
+      sourceData: "https://example.com/physics",
+      contentType: "AUDIO",
+      createdById: "user-123",
+    });
+
+    expect(result).toEqual({ id: "gen-123", status: "COMPLETED" });
+
+    const finalUpdate = mockUpdate.mock.calls.find(
+      ([call]) => (call as any)?.data?.status === "COMPLETED",
+    );
+    expect(finalUpdate).toBeDefined();
+    expect((finalUpdate![0] as any).where).toEqual({ id: "gen-123" });
+    expect((finalUpdate![0] as any).data).toEqual(
+      expect.objectContaining({
+        status: "COMPLETED",
+        artifactId: "artifact-123",
+        notebookId: "fa8414d0-a476-4fad-a6a7-be1167880228", // DEFAULT_NOTEBOOK fallback
+        downloadUrl: "https://cdn.example.com/audio.mp4",
+        topics: ["Newton's Laws", "Motion"],
+      }),
+    );
+  });
+
+  it("marks record FAILED with errorMessage when MCP creation throws", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "gen-123",
+      status: "PROCESSING",
+      notebookId: "nb-1",
+    });
+    mockUpdate.mockResolvedValue({});
+
+    (mcpClient.createStudioArtifact as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("nlm auth expired"),
+    );
+
+    const result = await runGeneration("gen-123", {
+      ...validRequest,
+      contentType: "AUDIO",
+      notebookId: "nb-1",
+    });
+
+    expect(result).toEqual({ id: "gen-123", status: "FAILED" });
+    expect(mockUpdate).toHaveBeenCalledWith({
+      where: { id: "gen-123" },
+      data: expect.objectContaining({ status: "FAILED", errorMessage: "nlm auth expired" }),
+    });
+  });
+});
+
+// ─── reviewContent — AudioExercise metadata (audioUrl + notebookId) ──────────
+
+describe("reviewContent — AudioExercise metadata", () => {
+  it("persists audioUrl and notebookId on approved AUDIO content", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "gen-123",
+      status: "COMPLETED",
+      contentType: "AUDIO",
+      notebookId: "nb-live-42",
+      rawResponse: {
+        type: "audio",
+        title: "Wave Basics",
+        transcript: "Transcript",
+        questions: [{ id: "q1", question: "What is a wave?" }],
+        duration: 240,
+        audioUrl: "https://cdn.example.com/audio.mp3",
+        downloadUrl: "https://cdn.example.com/waves.mp3",
+      },
+    });
+    mockUpdate.mockResolvedValue({});
+
+    const prismaMock = await import("@/lib/prisma");
+    const audioCreate = prismaMock.default.audioExercise.create as ReturnType<typeof vi.fn>;
+    audioCreate.mockResolvedValue({ id: "ae-1" });
+
+    const result = await reviewContent("gen-123", "APPROVE", "reviewer-1");
+
+    expect(result).toEqual({ success: true });
+    expect(audioCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        audioUrl: "https://cdn.example.com/audio.mp3",
+        notebookId: "nb-live-42",
+        generatedContentId: "gen-123",
+      }),
     });
   });
 });
