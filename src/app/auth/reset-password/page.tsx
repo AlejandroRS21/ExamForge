@@ -5,8 +5,8 @@ import { Suspense } from "react";
 import { ResetForm } from "./reset-form";
 
 export const metadata = {
-  title: "Reset Password — ExamForge",
-  description: "Reset your ExamForge account password",
+  title: "Reset Password — OpenSloth",
+  description: "Reset your OpenSloth account password",
 };
 
 export default function ResetPasswordPage() {

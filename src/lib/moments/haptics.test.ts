@@ -37,7 +37,7 @@ describe("vibrate", () => {
   });
 
   it("does not vibrate when muted", async () => {
-    localStorageMock.setItem("examforge.moments.muted", "1");
+    localStorageMock.setItem("opensloth.moments.muted", "1");
     const vibrateSpy = vi.fn();
     Object.defineProperty(globalThis, "navigator", {
       value: { vibrate: vibrateSpy },

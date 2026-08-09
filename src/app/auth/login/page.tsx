@@ -6,8 +6,8 @@ import { LoginForm } from "./login-form";
 import SlothPageHeader from "@/components/ui/SlothPageHeader";
 
 export const metadata = {
-  title: "Iniciar Sesión — ExamForge",
-  description: "Accede a tu cuenta de ExamForge para continuar tu preparación B2 First",
+  title: "Iniciar Sesión — OpenSloth",
+  description: "Accede a tu cuenta de OpenSloth para continuar tu preparación B2 First",
 };
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         <SlothPageHeader
           badge="Accede a tu cuenta"
-          title="Iniciar Sesión en ExamForge"
+          title="Iniciar Sesión en OpenSloth"
           subtitle="¡Hola de nuevo! Continúa tu camino hacia el certificado B2 First"
           pose="happy"
           mascotSize={140}

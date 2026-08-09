@@ -6,8 +6,8 @@ import { RegisterForm } from "./register-form";
 import SlothPageHeader from "@/components/ui/SlothPageHeader";
 
 export const metadata = {
-  title: "Crear Cuenta — ExamForge",
-  description: "Crea tu cuenta gratuita en ExamForge y sigue tu progreso en B2 First",
+  title: "Crear Cuenta — OpenSloth",
+  description: "Crea tu cuenta gratuita en OpenSloth y sigue tu progreso en B2 First",
 };
 
 export default function RegisterPage() {
@@ -17,7 +17,7 @@ export default function RegisterPage() {
         <SlothPageHeader
           badge="Nueva cuenta gratis"
           title="Crear tu cuenta gratuita"
-          subtitle="Únete a ExamForge y domina el examen Cambridge B2 First"
+          subtitle="Únete a OpenSloth y domina el examen Cambridge B2 First"
           pose="cheering"
           mascotSize={140}
           layout="stacked"

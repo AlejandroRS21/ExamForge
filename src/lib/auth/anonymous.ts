@@ -11,7 +11,8 @@ import { z } from "zod/v4";
 // Re-export a simple ID generator
 export { v4 as generateId } from "uuid";
 
-const ANON_COOKIE_NAME = "examforge_anon";
+const ANON_COOKIE_NAME = "opensloth_anon";
+const LEGACY_ANON_COOKIE_NAME = "examforge_anon";
 const ANON_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
 
 // Secret key for encrypting anonymous session cookies
@@ -44,7 +45,7 @@ export async function getOrCreateAnonymousSession(): Promise<{
   isNew: boolean;
 }> {
   const cookieStore = await cookies();
-  const existing = cookieStore.get(ANON_COOKIE_NAME);
+  const existing = cookieStore.get(ANON_COOKIE_NAME) ?? cookieStore.get(LEGACY_ANON_COOKIE_NAME);
 
   if (existing?.value) {
     try {
@@ -90,7 +91,7 @@ export async function getOrCreateAnonymousSession(): Promise<{
  */
 export async function getAnonymousSession(): Promise<string | null> {
   const cookieStore = await cookies();
-  const existing = cookieStore.get(ANON_COOKIE_NAME);
+  const existing = cookieStore.get(ANON_COOKIE_NAME) ?? cookieStore.get(LEGACY_ANON_COOKIE_NAME);
 
   if (!existing?.value) return null;
 

@@ -87,7 +87,7 @@ export default async function FlashcardDeckPage({ params }: DeckPageProps) {
             href="/dashboard"
             className="text-sm font-bold tracking-tight hover:text-primary transition-colors"
           >
-            ExamForge
+            OpenSloth
           </Link>
           <nav className="flex items-center gap-4">
             <Link

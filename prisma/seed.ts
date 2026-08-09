@@ -3,7 +3,7 @@ import pg from "pg";
 import bcrypt from "bcryptjs";
 
 // Strip query params — pg has issues with ?schema=public from Prisma connection strings
-const dbUrl = process.env.DATABASE_URL?.split("?")[0] ?? "postgresql://postgres:postgres@localhost:5432/examforge";
+const dbUrl = process.env.DATABASE_URL?.split("?")[0] ?? "postgresql://postgres:postgres@localhost:5432/opensloth";
 const pool = new pg.Pool({ connectionString: dbUrl });
 
 async function query(sql: string, params?: any[]) {
@@ -20,30 +20,30 @@ async function main() {
 
   // ── Admin user ──────────────────────────────────────────────────────
   const adminPassword = await bcrypt.hash("Admin123!", 10);
-  const existingAdmin = await query(`SELECT id FROM "User" WHERE email = $1`, ["admin@examforge.com"]);
+  const existingAdmin = await query(`SELECT id FROM "User" WHERE email = $1`, ["admin@opensloth.com"]);
   if (existingAdmin.rows.length === 0) {
     const now = new Date();
     await query(
       `INSERT INTO "User" (id, name, email, "passwordHash", "emailVerified", role, "createdAt", "updatedAt")
        VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $6)`,
-      ["Admin", "admin@examforge.com", adminPassword, now, "ADMIN", now]
+      ["Admin", "admin@opensloth.com", adminPassword, now, "ADMIN", now]
     );
-    console.log(`  ✓ Admin user: admin@examforge.com (password: Admin123!)`);
+    console.log(`  ✓ Admin user: admin@opensloth.com (password: Admin123!)`);
   } else {
     console.log(`  ✓ Admin user already exists`);
   }
 
   // ── Tester user (plain USER role, for manual QA of student-facing flows) ──
   const testerPassword = await bcrypt.hash("Tester123!", 10);
-  const existingTester = await query(`SELECT id FROM "User" WHERE email = $1`, ["tester@examforge.com"]);
+  const existingTester = await query(`SELECT id FROM "User" WHERE email = $1`, ["tester@opensloth.com"]);
   if (existingTester.rows.length === 0) {
     const now = new Date();
     await query(
       `INSERT INTO "User" (id, name, email, "passwordHash", "emailVerified", role, "createdAt", "updatedAt")
        VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $6)`,
-      ["Tester", "tester@examforge.com", testerPassword, now, "USER", now]
+      ["Tester", "tester@opensloth.com", testerPassword, now, "USER", now]
     );
-    console.log(`  ✓ Tester user: tester@examforge.com (password: Tester123!)`);
+    console.log(`  ✓ Tester user: tester@opensloth.com (password: Tester123!)`);
   } else {
     console.log(`  ✓ Tester user already exists`);
   }

@@ -29,7 +29,7 @@ export default async function LandingPage() {
               <SlothMascot size={40} pose="happy" />
             </div>
             <span className="text-2xl font-black tracking-tight font-serif text-[#2B1E19]">
-              ExamForge
+              OpenSloth
             </span>
           </div>
 
@@ -141,7 +141,7 @@ export default async function LandingPage() {
           <div className="container mx-auto px-6 max-w-7xl space-y-16">
             <div className="text-center space-y-4 max-w-3xl mx-auto">
               <span className="text-sm font-black uppercase tracking-widest text-[#E85D04]">
-                ¿POR QUÉ EXAMFORGE ES ADICTIVO?
+                ¿POR QUÉ OPENSLOTH ES ADICTIVO?
               </span>
               <h2 className="text-4xl sm:text-5xl font-black text-[#2B1E19]">
                 Diseñado para aprender con una sonrisa y sin estrés
@@ -195,7 +195,7 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t-2 border-[#F0E8DD] bg-[#FAF6F0] py-10 text-center text-sm font-bold text-[#8C7A70]">
         <div className="container mx-auto px-6">
-          <p>© ExamForge — Tu título de inglés B2 en España a tu propio ritmo.</p>
+          <p>© OpenSloth — Tu título de inglés B2 en España a tu propio ritmo.</p>
         </div>
       </footer>
     </div>

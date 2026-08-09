@@ -45,8 +45,13 @@ describe("mute", () => {
 
   it("removing mute key clears it", async () => {
     const { setMuted } = await import("./mute");
-    localStorageMock.setItem("examforge.moments.muted", "1");
+    localStorageMock.setItem("opensloth.moments.muted", "1");
     setMuted(false);
-    expect(localStorageMock.getItem("examforge.moments.muted")).toBeNull();
+    expect(localStorageMock.getItem("opensloth.moments.muted")).toBeNull();
+  });
+  it("reads legacy key if new key not set", async () => {
+    const { isMuted } = await import("./mute");
+    localStorageMock.setItem("examforge.moments.muted", "1");
+    expect(isMuted()).toBe(true);
   });
 });

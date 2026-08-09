@@ -11,7 +11,7 @@
 5. Add environment variables in Vercel dashboard:
 
 ```
-DATABASE_URL=postgresql://user:pass@host:5432/examforge
+DATABASE_URL=postgresql://user:pass@host:5432/opensloth
 AUTH_SECRET=generate-with-openssl-rand-base64-32
 AUTH_GOOGLE_ID=...
 AUTH_GOOGLE_SECRET=...
