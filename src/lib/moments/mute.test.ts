@@ -54,4 +54,21 @@ describe("mute", () => {
     localStorageMock.setItem("examforge.moments.muted", "1");
     expect(isMuted()).toBe(true);
   });
+
+  it("unmute clears the legacy key so a pre-rebrand muted user can unmute", async () => {
+    const { isMuted, setMuted } = await import("./mute");
+    localStorageMock.setItem("examforge.moments.muted", "1");
+    expect(isMuted()).toBe(true);
+    setMuted(false);
+    expect(isMuted()).toBe(false);
+    expect(localStorageMock.getItem("examforge.moments.muted")).toBeNull();
+  });
+
+  it("muting migrates and drops the legacy key", async () => {
+    const { setMuted } = await import("./mute");
+    localStorageMock.setItem("examforge.moments.muted", "1");
+    setMuted(true);
+    expect(localStorageMock.getItem("opensloth.moments.muted")).toBe("1");
+    expect(localStorageMock.getItem("examforge.moments.muted")).toBeNull();
+  });
 });

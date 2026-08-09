@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Mute Persistence
+// OpenSloth — Moment Engine Mute Persistence
 // SSR-safe localStorage wrapper for mute preference.
 
 const KEY = "opensloth.moments.muted";
@@ -13,7 +13,11 @@ export function setMuted(value: boolean): void {
   if (typeof window === "undefined") return;
   if (value) {
     localStorage.setItem(KEY, "1");
+    // Migrate: drop the legacy key so both paths agree going forward.
+    localStorage.removeItem(LEGACY_KEY);
   } else {
     localStorage.removeItem(KEY);
+    // A pre-rebrand muted user must be able to unmute: clear the legacy key too.
+    localStorage.removeItem(LEGACY_KEY);
   }
 }
