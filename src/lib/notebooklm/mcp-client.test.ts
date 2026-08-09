@@ -20,7 +20,7 @@ vi.mock("util", () => ({
 
 // ─── Import after mocks ─────────────────────────────────────────────────────
 
-import { MCPClient, MCPClientError, resetDailyUsage } from "./mcp-client";
+import { MCPClient, MCPClientError, resetDailyUsage, sanitizeArgs } from "./mcp-client";
 
 // ─── Fixtures ───────────────────────────────────────────────────────────────
 
@@ -363,5 +363,137 @@ describe("MCPClient — Error Handling", () => {
       const error = await client["execNlm"](["notebook", "list", "--json"]).catch((e) => e);
       expect(error.type).toBe("unknown");
     });
+  });
+});
+
+// execFile mock returning a queued sequence of responses, one per invocation
+const mockNlmResponseSequence = (responses: any[]) => {
+  let index = 0;
+  return (_cmd: string, _args: any[], _opts: any, callback: Function) => {
+    const payload = responses[index % responses.length];
+    index += 1;
+    callback(null, JSON.stringify(payload), "");
+  };
+};
+
+// ─── Shell Injection Safety (threat-matrix: process integration) ─────────────
+
+describe("MCPClient — Shell Injection Safety", () => {
+  it("passes `; rm -rf /` as a literal CLI argument with shell:false", async () => {
+    execFileMock.mockImplementation(mockNlmResponse({ answer: "ok" }));
+    const payload = "; rm -rf /";
+
+    await client.queryNotebook(mockNotebookId, payload);
+
+    const [, args, options]: [string, string[], any, Function] = execFileMock.mock.calls[0];
+    expect(options.shell).toBe(false);
+    // Literal arg — never split, concatenated with `&&`, or run through a shell
+    expect(args).toContain(payload);
+    expect(args.filter((a) => a === payload)).toHaveLength(1);
+  });
+
+  it("passes `$(whoami)` verbatim as a single argument, never shell-substituted", async () => {
+    execFileMock.mockImplementation(mockNlmResponse({ answer: "ok" }));
+    const payload = "$(whoami)";
+
+    await client.queryNotebook(mockNotebookId, payload);
+
+    const [, args, options]: [string, string[], any, Function] = execFileMock.mock.calls[0];
+    expect(options.shell).toBe(false);
+    expect(args).toContain(payload);
+    // No `-c` flag means no shell string invocation
+    expect(args).not.toContain("-c");
+  });
+
+  it("rejects argument strings containing NUL bytes", () => {
+    expect(() => sanitizeArgs(["--query", "; rm -rf /\u0000"])).toThrow();
+  });
+});
+
+// ─── Transparent Mock Fallback (NOTEBOOKLM_USE_MOCK + auth/429/500) ─────────
+
+describe("MCPClient — Transparent Mock Fallback", () => {
+  afterEach(() => {
+    delete process.env.NOTEBOOKLM_USE_MOCK;
+  });
+
+  it("uses mock when NOTEBOOKLM_USE_MOCK=true without invoking execFile", async () => {
+    process.env.NOTEBOOKLM_USE_MOCK = "true";
+    const mockClient = new MCPClient();
+
+    const result = await mockClient.createStudioArtifact(mockNotebookId, "audio");
+
+    expect(result.fallback).toBe(true);
+    expect(result.id).toBeTruthy();
+    expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("falls back to mock with fallback flag on 401 auth expired", async () => {
+    execFileMock.mockImplementation(mockNlmError("auth expired", 401));
+
+    const result = await client.addSource(mockNotebookId, "URL", "https://example.com");
+
+    expect(result.fallback).toBe(true);
+  });
+
+  it("falls back to mock with fallback flag on 429 rate limited and 500 errors", async () => {
+    execFileMock.mockImplementation(mockNlmError("rate limit exceeded", 429));
+    const notebooks = await client.listNotebooks();
+    expect(notebooks.fallback).toBe(true);
+
+    execFileMock.mockImplementation(mockNlmError("Internal server error", 500));
+    const sources = await client.listSources(mockNotebookId);
+    expect(sources.fallback).toBe(true);
+  });
+
+  it("does NOT fall back to mock on 404 not found — propagates MCPClientError", async () => {
+    execFileMock.mockImplementation(mockNlmError("notebook not found", 404));
+
+    await expect(client.listNotebooks()).rejects.toThrow(MCPClientError);
+  });
+});
+
+// ─── pollArtifactStatus — polling transitions (5-min timeout) ───────────────
+
+describe("MCPClient — pollArtifactStatus polling", () => {
+  it("polls until completed then returns the final status", async () => {
+    execFileMock.mockImplementation(mockNlmResponseSequence([
+      { id: mockArtifactId, notebookId: mockNotebookId, status: "processing" },
+      {
+        id: mockArtifactId,
+        notebookId: mockNotebookId,
+        status: "completed",
+        downloadUrl: "https://cdn.example.com/audio.mp4",
+      },
+    ]));
+
+    const fast = new MCPClient({ pollIntervalMs: 5, pollTimeoutMs: 2_000 });
+    const result = await fast.pollArtifactStatus(mockNotebookId, mockArtifactId);
+
+    expect(result.status).toBe("completed");
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops polling once the artifact reaches failed status", async () => {
+    execFileMock.mockImplementation(mockNlmResponseSequence([
+      { id: mockArtifactId, notebookId: mockNotebookId, status: "processing" },
+      { id: mockArtifactId, notebookId: mockNotebookId, status: "failed" },
+    ]));
+
+    const fast = new MCPClient({ pollIntervalMs: 5, pollTimeoutMs: 2_000 });
+    const result = await fast.pollArtifactStatus(mockNotebookId, mockArtifactId);
+
+    expect(result.status).toBe("failed");
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws MCPClientError after pollTimeoutMs while still processing", async () => {
+    execFileMock.mockImplementation(mockNlmResponse({ status: "processing" }));
+
+    const fast = new MCPClient({ pollIntervalMs: 5, pollTimeoutMs: 40 });
+
+    await expect(fast.pollArtifactStatus(mockNotebookId, mockArtifactId))
+      .rejects
+      .toThrow(/timed out/i);
   });
 });
