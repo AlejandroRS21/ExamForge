@@ -17,14 +17,6 @@
 
 export type SM2Rating = "AGAIN" | "HARD" | "GOOD" | "EASY";
 
-/** Numeric rating values per the design contract (1, 2, 3, 5). */
-export const SM2_RATING_VALUE: Record<SM2Rating, number> = {
-  AGAIN: 1,
-  HARD: 2,
-  GOOD: 3,
-  EASY: 5,
-};
-
 /**
  * Map the string contract to the legacy numeric rating API (0-3) used by the
  * existing persistence route (`POST /api/flashcards/decks/[deckId]`,
