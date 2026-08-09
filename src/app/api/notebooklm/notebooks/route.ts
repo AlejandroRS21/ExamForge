@@ -1,5 +1,7 @@
 // ExamForge — NotebookLM Notebooks List API
-// GET /api/notebooklm/notebooks → List all notebooks from the user's NotebookLM account
+// GET /api/notebooklm/notebooks → List all notebooks from the user's
+// NotebookLM account plus current auth health status (spec: admin-content-manager
+// "View notebook list and status").
 
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
@@ -19,7 +21,20 @@ export async function GET() {
     }
 
     const notebooks = await mcpClient.listNotebooks();
-    return NextResponse.json({ notebooks });
+
+    // Auth health is advisory — a missing/broken `nlm` login must not take the
+    // whole notebooks list down (mock fallback keeps the admin UI usable).
+    let authHealth = { configured: false, fallback: mcpClient.usingMock };
+    try {
+      authHealth = {
+        configured: await mcpClient.checkAuth(),
+        fallback: mcpClient.usingMock,
+      };
+    } catch (error) {
+      console.warn("[notebooklm/notebooks] auth health check failed:", error);
+    }
+
+    return NextResponse.json({ notebooks, authHealth });
   } catch (error) {
     console.error("[notebooklm/notebooks] GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

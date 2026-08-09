@@ -164,14 +164,14 @@ export function ReviewQueue() {
                       <button
                         onClick={() => handleReview(item.id, "APPROVE")}
                         disabled={actionLoading === item.id}
-                        className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-success/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("success", "solid")}`}
+                        className="btn-tactile-primary px-3 py-1.5 text-xs disabled:opacity-50"
                       >
                         {actionLoading === item.id ? "..." : "Approve"}
                       </button>
                       <button
                         onClick={() => handleReview(item.id, "REJECT")}
                         disabled={actionLoading === item.id}
-                        className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-error/90 disabled:opacity-50 transition-colors ${getStatusToneClasses("error", "solid")}`}
+                        className="btn-tactile-secondary px-3 py-1.5 text-xs disabled:opacity-50"
                       >
                         {actionLoading === item.id ? "..." : "Reject"}
                       </button>
