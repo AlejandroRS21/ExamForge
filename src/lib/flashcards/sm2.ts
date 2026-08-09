@@ -8,7 +8,7 @@
 //
 // Rating rules (pinned by sm2.test.ts):
 //   AGAIN(1) → repetitions 0, interval 0 (same day), ease −0.20  [floor 1.3]
-//   HARD(2)  → repetitions +1, interval max(1, round(prev × 1.2)), ease −0.15
+//   HARD(2)  → repetitions 0, interval 1 (tomorrow), ease −0.15
 //   GOOD(3)  → repetitions +1, interval 1 → 3 → round(prev × easeFactor), ease ±0
 //   EASY(5)  → repetitions +1, interval max(1, round(prev × 3.0)), ease +0.15
 //
