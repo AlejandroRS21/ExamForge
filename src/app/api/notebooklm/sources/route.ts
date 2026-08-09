@@ -1,5 +1,7 @@
 // ExamForge — NotebookLM Sources List API
-// GET /api/notebooklm/sources?notebookId=X → List sources for a notebook
+// GET /api/notebooklm/sources?notebookId=X → Sources + count for a notebook.
+// notebookId is OPTIONAL: without it the route returns an empty list with
+// count 0 so the admin UI can mount before a notebook is selected.
 
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
@@ -22,11 +24,11 @@ export async function GET(request: Request) {
     const notebookId = searchParams.get("notebookId");
 
     if (!notebookId) {
-      return NextResponse.json({ error: "notebookId query param is required" }, { status: 400 });
+      return NextResponse.json({ sources: [], count: 0 });
     }
 
     const sources = await mcpClient.listSources(notebookId);
-    return NextResponse.json({ sources });
+    return NextResponse.json({ sources, count: sources.length });
   } catch (error) {
     console.error("[notebooklm/sources] GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

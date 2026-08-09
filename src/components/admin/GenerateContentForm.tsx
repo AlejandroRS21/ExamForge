@@ -211,7 +211,7 @@ export function GenerateContentForm() {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+          className="btn-tactile-primary px-8 py-2.5 text-sm"
         >
           {loading ? "Starting Generation..." : `Generate ${contentTypeLabel(contentType)}`}
         </button>

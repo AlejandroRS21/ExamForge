@@ -43,10 +43,10 @@ Chain strategy: pending
 
 ## Phase 4: Admin API + UI (T4–T5)
 
-- [ ] 4.1 `src/app/api/notebooklm/notebooks/route.ts`: notebook list + auth health
-- [ ] 4.2 `src/app/api/notebooklm/sources/route.ts`: source count/list for selected notebook
-- [ ] 4.3 `src/app/api/notebooklm/pending/route.ts`: drafts awaiting admin approval
-- [ ] 4.4 `/admin/notebooklm/page.tsx`: notebook browser, source manager, generation trigger + progress indicator, review queue approve/reject
+- [x] 4.1 `src/app/api/notebooklm/notebooks/route.ts`: notebook list + auth health
+- [x] 4.2 `src/app/api/notebooklm/sources/route.ts`: source count/list for selected notebook
+- [x] 4.3 `src/app/api/notebooklm/pending/route.ts`: drafts awaiting admin approval
+- [x] 4.4 `/admin/notebooklm/page.tsx`: notebook browser, source manager, generation trigger + progress indicator, review queue approve/reject
 
 ## Phase 5: Student Pages (T6–T9)
 
