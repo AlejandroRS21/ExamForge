@@ -1,9 +1,13 @@
 // ExamForge — QuizRenderer Component
-// Multiple-choice quiz with one question at a time, correct/incorrect feedback, final score
+// Multiple-choice quiz with one question at a time (chunked cards), correct/
+// incorrect feedback with SVG icons, final score with SlothMascot. Zero emojis.
 
 "use client";
 
 import { useState, useCallback } from "react";
+import { SlothMascot } from "@/components/ui/SlothMascot";
+import { TactileButton } from "@/components/ui/TactileButton";
+import { CheckIcon, CrossIcon } from "@/components/ui/icons/SlothIcons";
 
 interface QuizQuestion {
   id: string;
@@ -61,9 +65,10 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
           : "text-error";
 
     return (
-      <div className="rounded-xl border bg-card p-8 text-center space-y-6" role="status" aria-label="Quiz results">
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-8 text-center space-y-6 shadow-[0_6px_0_0_#FDE68A]" role="status" aria-label="Quiz results">
+        <SlothMascot pose="cheering" size={120} className="mx-auto" />
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold">Quiz Complete!</h2>
+          <h2 className="text-2xl font-bold text-amber-950">Quiz Complete!</h2>
           <div className={`text-5xl font-bold ${scoreColor}`}>{score}%</div>
           <p className="text-sm text-muted-foreground">
             {correctCount} of {totalQuestions} correct
@@ -107,7 +112,8 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
         </div>
 
         <div className="pt-4">
-          <button
+          <TactileButton
+            variant="amber"
             onClick={() => {
               setCurrentIndex(0);
               setSelectedAnswer(null);
@@ -115,11 +121,9 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
               setAnswers({});
               setQuizComplete(false);
             }}
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            type="button"
           >
             Try Again
-          </button>
+          </TactileButton>
         </div>
       </div>
     );
@@ -155,8 +159,8 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
         />
       </div>
 
-      <div className="rounded-xl border bg-card p-6 space-y-4">
-        <p className="text-base font-medium">{currentQuestion.prompt}</p>
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-6 space-y-4 shadow-[0_6px_0_0_#FDE68A]">
+        <p className="text-base font-bold text-amber-950">{currentQuestion.prompt}</p>
 
         <div className="space-y-2" role="radiogroup" aria-label="Answer options">
           {currentQuestion.options.map((option, index) => {
@@ -190,15 +194,10 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
                 </span>
                 <span>{option}</span>
                 {showFeedback && isOptionCorrect && (
-                  <svg className="ml-auto h-4 w-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <CheckIcon className="ml-auto h-4 w-4 text-success" color="#46A872" />
                 )}
                 {showFeedback && isSelected && !isOptionCorrect && (
-                  <svg className="ml-auto h-4 w-4 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <CrossIcon className="ml-auto h-4 w-4 text-error" color="#D9534F" />
                 )}
               </button>
             );
@@ -221,13 +220,9 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
           </div>
 
           <div className="flex justify-end">
-            <button
-              onClick={handleNext}
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              type="button"
-            >
+            <TactileButton variant="primary" onClick={handleNext}>
               {isLastQuestion ? "See Results" : "Next Question"}
-            </button>
+            </TactileButton>
           </div>
         </div>
       )}

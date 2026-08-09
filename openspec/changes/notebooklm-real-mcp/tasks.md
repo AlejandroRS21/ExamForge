@@ -50,14 +50,14 @@ Chain strategy: pending
 
 ## Phase 5: Student Pages (T6–T9)
 
-- [ ] 5.1 `/learn/audio/[id]/page.tsx`: audio player, transcript toggle, SlothMascot feedback, zero raw emojis
-- [ ] 5.2 RED SM-2 unit: ease/interval/repetitions/nextReviewAt for AGAIN(1)/HARD(2)/GOOD(3)/EASY(5)
-- [ ] 5.3 `/learn/flashcards/[deckId]/page.tsx`: SM-2 review, 3D tactile buttons, progress display
-- [ ] 5.4 `/learn/quiz/[id]/page.tsx`: interactive quiz, instant correction feedback, chunked cards
-- [ ] 5.5 `/learn/mindmap/[id]/page.tsx`: collapsible mind map tree
-- [ ] 5.6 `src/components/ui/icons/SlothIcons.tsx`: complete SVG icon set enforcing zero-emoji policy
+- [x] 5.1 `/learn/audio/[id]/page.tsx`: audio player, transcript toggle, SlothMascot feedback, zero raw emojis
+- [x] 5.2 RED SM-2 unit: ease/interval/repetitions/nextReviewAt for AGAIN(1)/HARD(2)/GOOD(3)/EASY(5)
+- [x] 5.3 `/learn/flashcards/[deckId]/page.tsx`: SM-2 review, 3D tactile buttons, progress display
+- [x] 5.4 `/learn/quiz/[id]/page.tsx`: interactive quiz, instant correction feedback, chunked cards
+- [x] 5.5 `/learn/mindmap/[id]/page.tsx`: collapsible mind map tree
+- [x] 5.6 `src/components/ui/icons/SlothIcons.tsx`: complete SVG icon set enforcing zero-emoji policy
 
 ## Phase 6: Verification (T10)
 
-- [ ] 6.1 `npm run build && npm test` — all green
-- [ ] 6.2 Smoke-test admin + all four `/learn/*` routes with `NOTEBOOKLM_USE_MOCK=true`
+- [x] 6.1 `npm run build && npm test` — all green
+- [x] 6.2 Smoke-test admin + all four `/learn/*` routes with `NOTEBOOKLM_USE_MOCK=true`

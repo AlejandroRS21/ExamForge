@@ -1,10 +1,11 @@
 // ExamForge — MindMapViewer Component
-// Renders a mind map as an expandable/collapsible tree using HTML/CSS
-// Parses JSON mind map data with nodes and children
+// Renders a mind map as an expandable/collapsible tree using HTML/CSS.
+// Neuroinclusive: warm #FAF6F0 card, tactile controls, SVG chevron — zero emojis.
 
 "use client";
 
 import { useState, useCallback } from "react";
+import { ChevronRightIcon } from "@/components/ui/icons/SlothIcons";
 
 interface MindMapNode {
   id: string;
@@ -56,16 +57,10 @@ function TreeNode({
             aria-label={isExpanded ? `Collapse ${node.label}` : `Expand ${node.label}`}
             type="button"
           >
-            <svg
+            <ChevronRightIcon
               className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
+              color="#FF6B35"
+            />
           </button>
         ) : (
           <span className="h-5 w-5 shrink-0" />
@@ -145,23 +140,22 @@ export function MindMapViewer({ data }: MindMapViewerProps) {
   }
 
   return (
-    <div className="rounded-xl border bg-card">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <span className="text-xs text-muted-foreground">
+    <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] shadow-[0_6px_0_0_#FDE68A]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-amber-200/80">
+        <span className="text-xs font-bold text-amber-800/70">
           {data.nodes.length} node{data.nodes.length !== 1 ? "s" : ""}
         </span>
         <div className="flex gap-2">
           <button
             onClick={expandAll}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="rounded-xl border-2 border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-amber-900 shadow-[0_3px_0_0_#FDE68A] hover:bg-amber-50 active:translate-y-0.5 active:shadow-none transition-all"
             type="button"
           >
             Expand all
           </button>
-          <span className="text-muted-foreground">|</span>
           <button
             onClick={collapseAll}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="rounded-xl border-2 border-[#E5D9CC] bg-white px-3 py-1.5 text-xs font-bold text-amber-900 shadow-[0_3px_0_0_#E5D9CC] hover:bg-[#FFE8D6] active:translate-y-0.5 active:shadow-none transition-all"
             type="button"
           >
             Collapse all
