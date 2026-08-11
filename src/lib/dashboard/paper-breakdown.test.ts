@@ -1,4 +1,4 @@
-// ExamForge — Paper-Level Breakdown Tests
+// OpenSloth — Paper-Level Breakdown Tests
 // Neuroinclusive UI adoption: Dashboard "Progress by paper" bar chart groups
 // the existing per-part breakdown by `paper` (not by individual part).
 

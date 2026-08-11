@@ -1,6 +1,6 @@
 import React from "react";
 
-// ExamForge — SlothIcon set (zero-emoji policy)
+// OpenSloth — SlothIcon set (zero-emoji policy)
 // Every student learning view uses ONLY these SVG icons — raw emojis are
 // banned across /learn/* (neuroinclusive design constraint). All icons share
 // the same stroke/fill prop contract.

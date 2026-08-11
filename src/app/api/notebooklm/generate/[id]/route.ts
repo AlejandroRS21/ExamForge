@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Generation Status API
+// OpenSloth — NotebookLM Generation Status API
 // GET /api/notebooklm/generate/[id] → Get generation status and results
 
 import { NextResponse } from "next/server";

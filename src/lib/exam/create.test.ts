@@ -1,4 +1,4 @@
-// ExamForge — Exam Creation Tests
+// OpenSloth — Exam Creation Tests
 // T-806: Vitest smoke tests — verify module structure
 
 import { describe, it, expect } from "vitest";

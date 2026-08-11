@@ -1,4 +1,4 @@
-// ExamForge — Achievement System
+// OpenSloth — Achievement System
 // Auto-unlock 6 badges based on attempt completion criteria.
 // T-703: Auto-unlock 6 badges on criteria
 

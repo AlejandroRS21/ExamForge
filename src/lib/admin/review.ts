@@ -1,4 +1,4 @@
-// ExamForge — Question Review Flow
+// OpenSloth — Question Review Flow
 // Approve/reject individual questions, bulk operations, and status management
 
 import prisma from "@/lib/prisma";

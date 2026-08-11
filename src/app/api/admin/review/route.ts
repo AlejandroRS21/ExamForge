@@ -1,4 +1,4 @@
-// ExamForge — Question Review API
+// OpenSloth — Question Review API
 // POST /api/admin/review → Approve/reject individual or bulk questions
 
 import { NextResponse } from "next/server";

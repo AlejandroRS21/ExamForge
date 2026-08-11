@@ -1,4 +1,4 @@
-// ExamForge — Word Formation Input Component (Duolingo Style)
+// OpenSloth — Word Formation Input Component (Duolingo Style)
 // Modern "blank-as-box" input for Word Formation questions (Part 3) with stem guidance
 
 "use client";

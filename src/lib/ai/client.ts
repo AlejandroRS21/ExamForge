@@ -1,4 +1,4 @@
-// ExamForge — Shared 9router AI Client (OpenAI-compatible)
+// OpenSloth — Shared 9router AI Client (OpenAI-compatible)
 //
 // Unifies all AI content pipelines onto ONE lazily-instantiated client.
 // Base URL points to a LOCAL opencode proxy — DEV/SEEDING ONLY, never production.

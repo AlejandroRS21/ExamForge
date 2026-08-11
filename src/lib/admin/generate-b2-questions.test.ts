@@ -1,4 +1,4 @@
-// ExamForge — B2 Question Generation Tests (AI path + null-on-failure)
+// OpenSloth — B2 Question Generation Tests (AI path + null-on-failure)
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 

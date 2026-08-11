@@ -1,4 +1,4 @@
-// ExamForge — Exam Completion API
+// OpenSloth — Exam Completion API
 // Manually complete an attempt (user clicks "Finish" or timer expires)
 // POST /api/exams/complete
 

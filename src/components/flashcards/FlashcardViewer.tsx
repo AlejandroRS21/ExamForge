@@ -1,4 +1,4 @@
-// ExamForge — FlashcardViewer Component
+// OpenSloth — FlashcardViewer Component
 // Flip animation, rating buttons (Again/Hard/Good/Easy), keyboard shortcuts
 // Tracks current card index, session progress, and handles rating submission
 

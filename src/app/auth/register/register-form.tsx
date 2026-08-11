@@ -1,6 +1,6 @@
 "use client";
 
-// ExamForge — Register Form Client Component
+// OpenSloth — Register Form Client Component
 // Creates account via credentials with optional anonymous session merge
 
 import { useState } from "react";
@@ -239,7 +239,7 @@ export function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-2xl bg-gradient-to-b from-[#FF7A45] to-[#FF6B35] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 mt-2"
+          className="w-full rounded-2xl bg-gradient-to-b from-[#FF7A45] to-primary px-4 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 mt-2"
         >
           {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
         </button>
@@ -249,7 +249,7 @@ export function RegisterForm() {
         ¿Ya tienes una cuenta?{" "}
         <Link
           href="/auth/login"
-          className="font-bold text-[#FF6B35] hover:underline"
+          className="font-bold text-primary hover:underline"
         >
           Iniciar sesión
         </Link>

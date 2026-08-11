@@ -1,4 +1,4 @@
-// ExamForge — Objective Question Scorer
+// OpenSloth — Objective Question Scorer
 // SE-01: Objective questions SHALL be auto-scored against stored answer keys
 // Per-type comparison: MC exact, Cloze/WF case-insensitive, KT keyword-spotting,
 // GT ordered sequence, MM unordered set
@@ -84,6 +84,30 @@ function scoreGT(givenAnswer: unknown, correctAnswer: unknown): boolean {
     givenOrder.length === correctOrder.length &&
     givenOrder.every((g: unknown, i: number) => String(g).trim() === String(correctOrder[i]).trim())
   );
+}
+
+/**
+ * Generic correctness check used by interactive/practice flows where the
+ * expected shape is not known up-front (string, array of acceptable answers,
+ * or object). Case-insensitive and trimmed; objects compare by JSON equality.
+ * Null/undefined either side is never correct.
+ */
+export function checkIsCorrect(given: unknown, expected: unknown): boolean {
+  if (given === null || given === undefined || expected === null || expected === undefined) {
+    return false;
+  }
+  const normGiven = String(given).trim().toLowerCase();
+
+  if (typeof expected === "string") {
+    return normGiven === expected.trim().toLowerCase();
+  }
+  if (Array.isArray(expected)) {
+    return expected.some((exp) => String(exp).trim().toLowerCase() === normGiven);
+  }
+  if (typeof expected === "object") {
+    return JSON.stringify(given) === JSON.stringify(expected);
+  }
+  return false;
 }
 
 /**

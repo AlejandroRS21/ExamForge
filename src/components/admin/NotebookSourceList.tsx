@@ -1,4 +1,4 @@
-// ExamForge — Notebook Source List (Client Component)
+// OpenSloth — Notebook Source List (Client Component)
 // Lists sources for a selected notebook with checkbox selection and generation trigger
 
 "use client";
@@ -37,13 +37,13 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
       const res = await fetch(`/api/notebooklm/sources?notebookId=${encodeURIComponent(notebookId)}`);
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error ?? "Failed to fetch sources");
+        setError(data.error ?? "Error al obtener las fuentes");
         return;
       }
       const data: { sources: Source[] } = await res.json();
       setSources(data.sources);
     } catch {
-      setError("Network error");
+      setError("Error de red");
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,7 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-sm text-muted-foreground">
-          Select a notebook to view its sources.
+          Selecciona una libreta para ver sus fuentes.
         </CardContent>
       </Card>
     );
@@ -116,11 +116,11 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sources</CardTitle>
+        <CardTitle>Fuentes</CardTitle>
         <CardDescription>
           {loading
-            ? "Loading sources..."
-            : `${sources.length} source${sources.length !== 1 ? "s" : ""} in notebook`}
+            ? "Cargando fuentes..."
+            : `${sources.length} fuente${sources.length !== 1 ? "s" : ""} en la libreta`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -132,20 +132,20 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
 
         {generateResult && (
           <div className={`rounded-lg px-4 py-3 text-sm mb-4 ${getStatusToneClasses("success", "surface")}`}>
-            {generateResult.type} generation started (ID: {generateResult.id}). Check the review
-            queue for results.
+            {generateResult.type} iniciada (ID: {generateResult.id}). Revisa la cola de revisión
+            para ver los resultados.
           </div>
         )}
 
         {loading && (
           <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-            Loading sources...
+            Cargando fuentes...
           </div>
         )}
 
         {!loading && sources.length === 0 && !error && (
           <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No sources found in this notebook. Add sources in NotebookLM first.
+            No se encontraron fuentes en esta libreta. Añade fuentes en NotebookLM primero.
           </div>
         )}
 
@@ -154,14 +154,14 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
             {/* Bulk actions */}
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-2.5 mb-4">
-                <span className="text-sm font-medium">{selectedIds.size} selected</span>
+                <span className="text-sm font-medium">{selectedIds.size} seleccionada(s)</span>
                 <Button
                   size="sm"
                   variant="default"
                   onClick={() => handleGenerate("QUIZ")}
                   disabled={generating}
                 >
-                  {generating ? "Generating..." : "Generate Quiz"}
+                  {generating ? "Generando..." : "Generar Quiz"}
                 </Button>
                 <Button
                   size="sm"
@@ -169,7 +169,7 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
                   onClick={() => handleGenerate("FLASHCARDS")}
                   disabled={generating}
                 >
-                  {generating ? "Generating..." : "Generate Flashcards"}
+                  {generating ? "Generando..." : "Generar Flashcards"}
                 </Button>
                 <Button
                   size="sm"
@@ -177,13 +177,13 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
                   onClick={() => handleGenerate("AUDIO")}
                   disabled={generating}
                 >
-                  {generating ? "Generating..." : "Generate Audio"}
+                  {generating ? "Generando..." : "Generar Audio"}
                 </Button>
                 <button
                   onClick={() => setSelectedIds(new Set())}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Clear selection
+                  Borrar selección
                 </button>
               </div>
             )}
@@ -202,10 +202,10 @@ export function NotebookSourceList({ notebookId }: NotebookSourceListProps) {
                       />
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Type
+                      Tipo
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Title / URL
+                      Título / URL
                     </th>
                   </tr>
                 </thead>

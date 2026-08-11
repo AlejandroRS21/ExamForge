@@ -1,4 +1,4 @@
-// ExamForge — Edit History API
+// OpenSloth — Edit History API
 // GET /api/admin/history → Recent edits across all questions
 // GET /api/admin/history?questionId=xxx → Edits for a specific question
 

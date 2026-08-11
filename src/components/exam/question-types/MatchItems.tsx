@@ -1,4 +1,4 @@
-// ExamForge — Multiple Matching Component (Duolingo Style)
+// OpenSloth — Multiple Matching Component (Duolingo Style)
 // Unordered set selection for MM questions (Parts 6 & 7)
 // Uses AnswerTile primitives, pure answer-logic helpers, and useFlip animations
 

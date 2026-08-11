@@ -1,4 +1,4 @@
-// ExamForge — Neuroinclusive Design Tokens
+// OpenSloth — Neuroinclusive Design Tokens
 // Single source of truth for the soft blue/green palette + semantic status
 // tokens declared in `src/app/globals.css`. Kept as plain data + pure
 // functions (no DOM) so contrast can be verified in a Node test environment
@@ -105,7 +105,9 @@ export const darkPalette = {
   cardForeground: "oklch(0.92 0.01 250)",
   popover: "oklch(0.24 0.02 250)",
   popoverForeground: "oklch(0.92 0.01 250)",
-  primary: "oklch(0.70 0.10 210)",
+  // P-T-2: same warm-orange identity as light (hue 38), brightened for the
+  // dark background; foreground = near-black espresso for >=4.5:1 text AA.
+  primary: "oklch(0.70 0.19 38)",
   primaryForeground: "oklch(0.16 0.02 250)",
   secondary: "oklch(0.28 0.02 220)",
   secondaryForeground: "oklch(0.92 0.01 250)",
@@ -117,13 +119,13 @@ export const darkPalette = {
   destructiveForeground: "oklch(0.16 0.02 250)",
   border: "oklch(0.50 0.02 220)",
   input: "oklch(0.50 0.02 220)",
-  ring: "oklch(0.70 0.10 210)",
+  ring: "oklch(0.70 0.19 38)",
 } as const;
 
 // ─── Focus ring — mirrors the :root / .dark override in globals.css ────────
-// Hue 265 (violet) is intentionally distinct from --ring/--primary's hue 210
-// so the focus indicator reads as a separate signal. Verified >=3:1
-// UI-component AA against each mode's --background in design-tokens.test.ts.
+// Hue 265 (violet) is intentionally distinct from --ring/--primary's hue 38
+// (warm orange) so the focus indicator reads as a separate signal. Verified
+// >=3:1 UI-component AA against each mode's --background in design-tokens.test.ts.
 
 export const focusRingColor = {
   light: "oklch(0.45 0.18 265)",

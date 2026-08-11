@@ -1,4 +1,4 @@
-// ExamForge — Strict Pedagogical Correction Card Component
+// OpenSloth — Strict Pedagogical Correction Card Component
 // Provides rigorous educational feedback, expected vs given comparison, and B2 grammar/vocab explanations
 
 "use client";

@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Content Generation API
+// OpenSloth — NotebookLM Content Generation API
 // POST /api/notebooklm/generate → Start content generation via NotebookLM
 
 import { NextResponse } from "next/server";

@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Pending Content API
+// OpenSloth — NotebookLM Pending Content API
 // GET /api/notebooklm/pending → List completed content awaiting review
 
 import { NextResponse } from "next/server";

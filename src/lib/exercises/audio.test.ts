@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise Scoring Tests
+// OpenSloth — Audio Exercise Scoring Tests
 // Tests for scoreAnswers() and related pure logic in the audio exercise service
 
 import { describe, it, expect } from "vitest";

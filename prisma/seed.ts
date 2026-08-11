@@ -1,6 +1,7 @@
-// ExamForge — Database Seed (direct pg pool for local dev)
+// OpenSloth — Database Seed (direct pg pool for local dev)
 import pg from "pg";
 import bcrypt from "bcryptjs";
+import { examParts, writingPrompts } from "./seed-data";
 
 // Strip query params — pg has issues with ?schema=public from Prisma connection strings
 const dbUrl = process.env.DATABASE_URL?.split("?")[0] ?? "postgresql://postgres:postgres@localhost:5432/opensloth";
@@ -48,16 +49,8 @@ async function main() {
     console.log(`  ✓ Tester user already exists`);
   }
 
-  // ── Exam Parts (B2 First 7 parts) ──────────────────────────────────
-  const parts = [
-    { id: "ruoe-part-1", label: "Multiple Choice Cloze", paper: "R&UoE", n: 1, desc: "Vocabulary & phrasal verbs in context", time: 10, qc: 8 },
-    { id: "ruoe-part-2", label: "Open Cloze", paper: "R&UoE", n: 2, desc: "Grammar & prepositions in passage", time: 10, qc: 8 },
-    { id: "ruoe-part-3", label: "Word Formation", paper: "R&UoE", n: 3, desc: "Affixes & root word derivation", time: 10, qc: 8 },
-    { id: "ruoe-part-4", label: "Key Word Transformation", paper: "R&UoE", n: 4, desc: "Sentence re-writing using key word", time: 12, qc: 6 },
-    { id: "ruoe-part-5", label: "Gapped Text", paper: "R&UoE", n: 5, desc: "Paragraph & discourse cohesion", time: 15, qc: 6 },
-    { id: "ruoe-part-6", label: "Multiple Matching", paper: "R&UoE", n: 6, desc: "Detail reading & paragraph matching", time: 13, qc: 10 },
-    { id: "ruoe-part-7", label: "Short Texts Matching", paper: "R&UoE", n: 7, desc: "Scanning & opinion identification", time: 15, qc: 10 },
-  ];
+  // ── Exam Parts (B2 First 7 parts + Writing, seeded from seed-data.ts) ──────
+  const parts = examParts;
 
   for (let i = 0; i < parts.length; i++) {
     const p = parts[i];
@@ -67,9 +60,23 @@ async function main() {
       await query(
         `INSERT INTO "ExamPart" (id, label, paper, "partNumber", description, "timeMinutes", "questionCount", "sortOrder")
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [p.id, p.label, p.paper, p.n, p.desc, p.time, p.qc, sortOrder]
+        [p.id, p.label, p.paper, p.partNumber, p.description, p.timeMinutes, p.questionCount, sortOrder]
       );
-      console.log(`  ✓ ${p.paper} Part ${p.n}: ${p.desc}`);
+      console.log(`  ✓ ${p.paper} Part ${p.partNumber}: ${p.description}`);
+    }
+  }
+
+  // ── Writing prompts (E-C-1: Writing paper renders from seeded data) ────────
+  for (const w of writingPrompts) {
+    const existingPrompt = await query(`SELECT id FROM "WritingPrompt" WHERE id = $1`, [w.id]);
+    if (existingPrompt.rows.length === 0) {
+      const rubric = JSON.stringify(w.rubric);
+      await query(
+        `INSERT INTO "WritingPrompt" (id, "examPartId", prompt, "wordCountMin", "wordCountMax", rubric)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [w.id, w.examPartId, w.prompt, w.wordCountMin, w.wordCountMax, rubric]
+      );
+      console.log(`  ✓ Writing prompt: ${w.id}`);
     }
   }
 
@@ -137,7 +144,7 @@ async function main() {
       examPartId: "ruoe-part-4", type: "KT",
       prompt: { text: "Rewrite the sentence keeping the same meaning.", leadIn: `"I'm sorry I arrived late for the meeting," she said.`, keyword: "APOLOGISED" },
       options: null,
-      correctAnswer: "apologised for being",
+      correctAnswer: { keyword: "APOLOGISED", acceptable: ["apologised for being", "apologized for being"] },
       explanation: "'Apologise' requires the structure 'apologised for + [verb]-ing' (apologised for being late).",
       difficulty: "B", skillsTested: ["reported speech", "verb patterns"],
     },

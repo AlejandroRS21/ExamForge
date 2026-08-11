@@ -1,4 +1,4 @@
-// ExamForge — Calm Sloth Timer Guard: pure logic tests
+// OpenSloth — Calm Sloth Timer Guard: pure logic tests
 // Spec: "Calm timer warning" — when remaining time drops below 5 minutes,
 // the guard must trigger (presentational aside is rendered by the client).
 

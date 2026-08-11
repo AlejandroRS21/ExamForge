@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM pending review queue route tests
+// OpenSloth — NotebookLM pending review queue route tests
 // GET /api/notebooklm/pending → completed drafts awaiting admin approval
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -26,7 +26,7 @@ describe("API /api/notebooklm/pending", () => {
         contentType: "QUIZ",
         status: "COMPLETED",
         createdAt: new Date("2026-08-01T10:00:00Z"),
-        createdBy: { id: "u1", name: "Admin", email: "admin@examforge.dev" },
+        createdBy: { id: "u1", name: "Admin", email: "admin@opensloth.dev" },
       },
     ] as any);
   });

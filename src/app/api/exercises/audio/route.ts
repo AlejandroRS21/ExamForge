@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise List API
+// OpenSloth — Audio Exercise List API
 // GET /api/exercises/audio → List all published audio exercises (metadata only)
 
 import { NextResponse } from "next/server";

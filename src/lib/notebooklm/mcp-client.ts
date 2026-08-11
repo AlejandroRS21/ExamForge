@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM MCP Client
+// OpenSloth — NotebookLM MCP Client
 // Real MCP client for calling NotebookLM CLI tools (`nlm`) with:
 //  - shell-injection-safe argument dispatch (`execFile`, `shell: false`)
 //  - transparent mock fallback (`NOTEBOOKLM_USE_MOCK=true` or auth/429/500 errors)

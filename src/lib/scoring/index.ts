@@ -1,4 +1,4 @@
-// ExamForge — Scoring Library Barrel Export
+// OpenSloth — Scoring Library Barrel Export
 
 export { scoreAnswer } from "./objective";
 

@@ -1,4 +1,4 @@
-// ExamForge — Admin Parts API Route
+// OpenSloth — Admin Parts API Route
 // PATCH /api/admin/parts/[id] — Update exam part configuration
 
 import { NextResponse } from "next/server";

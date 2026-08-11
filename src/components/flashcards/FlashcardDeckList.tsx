@@ -1,4 +1,4 @@
-// ExamForge — FlashcardDeckList Component
+// OpenSloth — FlashcardDeckList Component
 // Grid of deck cards showing title, description, card count, due count, last reviewed
 // Skeleton loading state and empty state included
 
@@ -65,7 +65,7 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
         {Array.from({ length: 6 }).map((_, i) => (
           <DeckCardSkeleton key={i} />
         ))}
-        <span className="sr-only">Loading flashcard decks...</span>
+        <span className="sr-only">Cargando mazos de vocabulario...</span>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
     return (
       <div className="rounded-3xl border-2 border-amber-200/80 bg-white p-12 text-center space-y-4 shadow-[0_6px_0_0_#FDE68A]" role="status">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100" aria-hidden="true">
-          <CpuIcon className="h-9 w-9" color="#FF6B35" />
+          <CpuIcon className="h-9 w-9" color="var(--primary)" />
         </div>
         <h3 className="text-xl font-bold text-amber-950">Aún no tienes mazos de tarjetas</h3>
         <p className="text-sm font-medium text-amber-800/80 max-w-sm mx-auto">
@@ -98,7 +98,7 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
         >
           <div className="space-y-3">
             {/* Title */}
-            <h3 className="font-extrabold text-lg text-amber-950 leading-snug group-hover:text-[#FF6B35] transition-colors line-clamp-2">
+            <h3 className="font-extrabold text-lg text-amber-950 leading-snug group-hover:text-primary transition-colors line-clamp-2">
               {deck.title}
             </h3>
 
@@ -120,7 +120,7 @@ export function FlashcardDeckList({ decks, loading = false }: FlashcardDeckListP
                 {deck.cardCount} tarjeta{deck.cardCount !== 1 ? "s" : ""}
               </span>
               {deck.dueCount > 0 && (
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-100 border border-orange-300 text-[#FF6B35] font-extrabold">
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-100 border border-orange-300 text-primary font-extrabold">
                   {deck.dueCount} pendientes
                 </span>
               )}

@@ -1,4 +1,4 @@
-// ExamForge — Question Type Kicker Labels Tests
+// OpenSloth — Question Type Kicker Labels Tests
 // Neuroinclusive UI adoption: ExamPractice's "PromptKicker" (e.g. "WORD
 // FORMATION") is derived from the real `question.type` code, not fabricated.
 

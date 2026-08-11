@@ -1,6 +1,6 @@
-// ExamForge — MindMapViewer Component
+// OpenSloth — MindMapViewer Component
 // Renders a mind map as an expandable/collapsible tree using HTML/CSS.
-// Neuroinclusive: warm #FAF6F0 card, tactile controls, SVG chevron — zero emojis.
+// Neuroinclusive: warm cream card, tactile controls, SVG chevron — zero emojis.
 
 "use client";
 
@@ -59,7 +59,7 @@ function TreeNode({
           >
             <ChevronRightIcon
               className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
-              color="#FF6B35"
+              color="var(--primary)"
             />
           </button>
         ) : (
@@ -140,7 +140,7 @@ export function MindMapViewer({ data }: MindMapViewerProps) {
   }
 
   return (
-    <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] shadow-[0_6px_0_0_#FDE68A]">
+    <div className="rounded-3xl border-2 border-amber-200/80 bg-background shadow-[0_6px_0_0_#FDE68A]">
       <div className="flex items-center justify-between px-5 py-4 border-b border-amber-200/80">
         <span className="text-xs font-bold text-amber-800/70">
           {data.nodes.length} node{data.nodes.length !== 1 ? "s" : ""}

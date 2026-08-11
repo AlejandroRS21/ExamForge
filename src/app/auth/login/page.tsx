@@ -1,4 +1,4 @@
-// ExamForge — Login Page
+// OpenSloth — Login Page
 // Credentials + OAuth login with warm Sloth mascot card & 3D tactile theme
 
 import { Suspense } from "react";

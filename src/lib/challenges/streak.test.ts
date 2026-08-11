@@ -1,4 +1,4 @@
-// ExamForge — Streak Management Tests
+// OpenSloth — Streak Management Tests
 // T-806: Vitest tests for streak logic
 
 import { describe, it, expect } from "vitest";

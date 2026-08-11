@@ -1,4 +1,4 @@
-// ExamForge — Auth.js type augmentation
+// OpenSloth — Auth.js type augmentation
 
 import "next-auth";
 import "next-auth/jwt";

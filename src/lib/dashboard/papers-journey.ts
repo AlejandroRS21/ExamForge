@@ -1,4 +1,4 @@
-// ExamForge — Papers Journey
+// OpenSloth — Papers Journey
 // Neuroinclusive UI adoption: pure builder for the Dashboard "Readiness
 // Journey" mockup's paper-node row. This app's schema (prisma/schema.prisma
 // ExamPart.paper) only ever has "R&UoE" or "Writing" — there is no

@@ -1,4 +1,4 @@
-// ExamForge — Pure Answer Logic Helpers
+// OpenSloth — Pure Answer Logic Helpers
 // Decoupled logic for answer state transformations & keyboard index calculations
 
 export interface MatchOption {

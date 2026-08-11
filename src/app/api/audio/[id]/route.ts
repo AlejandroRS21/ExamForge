@@ -1,4 +1,4 @@
-// ExamForge — Audio API Route
+// OpenSloth — Audio API Route
 // Serves audio bytes from AudioExercise as a proper audio response
 
 import { NextResponse, type NextRequest } from "next/server";

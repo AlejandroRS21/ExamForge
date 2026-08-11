@@ -1,4 +1,4 @@
-// ExamForge — Question Rating API Route
+// OpenSloth — Question Rating API Route
 // Receives in-app user ratings (👍 / 👎) for quality evaluation
 
 import { NextResponse } from "next/server";

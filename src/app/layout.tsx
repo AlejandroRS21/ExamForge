@@ -1,4 +1,4 @@
-// ExamForge — Root Layout
+// OpenSloth — Root Layout
 // T-805: Legal disclaimer in footer
 
 import type { Metadata } from "next";
@@ -33,10 +33,11 @@ export const metadata: Metadata = {
     default: "OpenSloth — Cambridge B2 First Practice",
     template: "%s | OpenSloth",
   },
-  description: "Practice Cambridge B2 First with AI-powered exercises, flashcards, and mock exams.",
+  description:
+    "Practica el Cambridge B2 First con ejercicios con IA, tarjetas de vocabulario y exámenes simulacro.",
   openGraph: {
     title: "OpenSloth",
-    description: "Cambridge B2 First Practice Platform",
+    description: "Plataforma de práctica del Cambridge B2 First",
     type: "website",
   },
 };
@@ -48,7 +49,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${fredoka.variable} ${quicksand.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
@@ -59,12 +60,13 @@ export default function RootLayout({
             <footer className="border-t py-6 mt-auto">
               <div className="container mx-auto px-4 text-center">
                 <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                  OpenSloth is an independent practice platform and is not affiliated with,
-                  endorsed by, or connected to Cambridge Assessment English or the University
-                  of Cambridge. &quot;B2 First&quot; and &quot;Cambridge English&quot; are
-                  registered trademarks of Cambridge Assessment English. All exam content
-                  is original and created for practice purposes only. Estimated scores are
-                  indicative and do not represent official Cambridge Assessment results.
+                  OpenSloth es una plataforma de práctica independiente y no está afiliada a, ni
+                  respaldada por, ni conectada con Cambridge Assessment English o la Universidad de
+                  Cambridge. &quot;B2 First&quot; y &quot;Cambridge English&quot; son marcas
+                  registradas de Cambridge Assessment English. Todo el contenido de los exámenes
+                  es original y se ha creado únicamente con fines de práctica. Las puntuaciones
+                  estimadas son orientativas y no representan resultados oficiales de Cambridge
+                  Assessment.
                 </p>
               </div>
             </footer>

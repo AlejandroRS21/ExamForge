@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Content Generation Form (Client Component)
+// OpenSloth — NotebookLM Content Generation Form (Client Component)
 // Allows admins to generate interactive learning content via NotebookLM
 
 "use client";
@@ -121,15 +121,15 @@ export function GenerateContentForm() {
   const sourceTypeLabel = (st: SourceType): string => {
     switch (st) {
       case "URL": return "URL";
-      case "TEXT": return "Paste Text";
-      case "YOUTUBE": return "YouTube URL";
+      case "TEXT": return "Pegar texto";
+      case "YOUTUBE": return "URL de YouTube";
     }
   };
 
   const contentTypeLabel = (ct: ContentType): string => {
     switch (ct) {
       case "QUIZ": return "Quiz";
-      case "AUDIO": return "Audio Exercise";
+      case "AUDIO": return "Ejercicio de audio";
       case "FLASHCARDS": return "Flashcards";
     }
   };
@@ -153,7 +153,7 @@ export function GenerateContentForm() {
       <form onSubmit={handleSubmit} className="rounded-xl border p-6 space-y-4">
         {/* Content Type */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Content Type</label>
+          <label className="text-sm font-medium">Tipo de contenido</label>
           <select
             value={contentType}
             onChange={(e) => setContentType(e.target.value as ContentType)}
@@ -161,14 +161,14 @@ export function GenerateContentForm() {
             required
           >
             <option value="QUIZ">Quiz</option>
-            <option value="AUDIO">Audio Exercise</option>
+            <option value="AUDIO">Ejercicio de audio</option>
             <option value="FLASHCARDS">Flashcards</option>
           </select>
         </div>
 
         {/* Source Type */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Source Type</label>
+          <label className="text-sm font-medium">Tipo de fuente</label>
           <select
             value={sourceType}
             onChange={(e) => setSourceType(e.target.value as SourceType)}
@@ -176,8 +176,8 @@ export function GenerateContentForm() {
             required
           >
             <option value="URL">URL</option>
-            <option value="TEXT">Paste Text</option>
-            <option value="YOUTUBE">YouTube URL</option>
+            <option value="TEXT">Pegar texto</option>
+            <option value="YOUTUBE">URL de YouTube</option>
           </select>
         </div>
 
@@ -189,7 +189,7 @@ export function GenerateContentForm() {
               value={sourceData}
               onChange={(e) => setSourceData(e.target.value)}
               className="flex min-h-[120px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground"
-              placeholder="Paste the text content you want to generate learning materials from..."
+              placeholder="Pega el contenido de texto del que quieres generar materiales de aprendizaje..."
               required
             />
           ) : (
@@ -213,7 +213,7 @@ export function GenerateContentForm() {
           disabled={loading}
           className="btn-tactile-primary px-8 py-2.5 text-sm"
         >
-          {loading ? "Starting Generation..." : `Generate ${contentTypeLabel(contentType)}`}
+          {loading ? "Iniciando generación..." : `Generar ${contentTypeLabel(contentType)}`}
         </button>
       </form>
 
@@ -228,7 +228,7 @@ export function GenerateContentForm() {
       {status && (
         <div className="rounded-xl border p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Generation Progress</h2>
+            <h2 className="text-lg font-semibold">Progreso de la generación</h2>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 {contentTypeLabel(status.contentType)}
@@ -240,13 +240,13 @@ export function GenerateContentForm() {
           {status.status === "PROCESSING" && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="inline-block w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-              Generating content... This may take a moment.
+              Generando contenido... Esto puede llevar un momento.
             </div>
           )}
 
           {status.status === "FAILED" && (
             <div className={`rounded-lg px-4 py-3 text-sm ${getStatusToneClasses("error", "surface")}`}>
-              {status.errorMessage ?? "Generation failed with no error message."}
+              {status.errorMessage ?? "La generación falló sin mensaje de error."}
             </div>
           )}
 
@@ -260,7 +260,7 @@ export function GenerateContentForm() {
                 <div className="flex items-center justify-between rounded-lg border px-4 py-3">
                   <div>
                     <p className="text-sm font-medium">{status.audioExercise.title}</p>
-                    <p className="text-xs text-muted-foreground">Audio Exercise</p>
+                    <p className="text-xs text-muted-foreground">Ejercicio de audio</p>
                   </div>
                   <span className="text-xs text-muted-foreground capitalize">
                     {status.audioExercise.status}

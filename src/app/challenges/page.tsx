@@ -1,4 +1,4 @@
-// ExamForge — Challenges / Leaderboard Page
+// OpenSloth — Challenges / Leaderboard Page
 // Warm Sloth theme with achievements badges, streak tracker, and weekly leaderboard
 
 import Link from "next/link";
@@ -27,7 +27,7 @@ export default async function ChallengesPage() {
   const activeGoal = goals[0];
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0]">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         <div className="space-y-8">
           {/* Header Hero */}
@@ -42,7 +42,7 @@ export default async function ChallengesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-3xl border-2 border-amber-200/90 bg-white p-6 shadow-[0_4px_0_0_#FDE68A] flex items-center gap-4">
               <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0">
-                <FlameIcon className="w-7 h-7" color="#FF6B35" />
+                <FlameIcon className="w-7 h-7" color="var(--primary)" />
               </div>
               <div>
                 <div className="text-xs font-bold text-amber-800/70 uppercase">Racha de Estudio</div>
@@ -113,7 +113,7 @@ export default async function ChallengesPage() {
                 </p>
                 <Link
                   href="/exams"
-                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-b from-[#FF7A45] to-[#FF6B35] px-6 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all mt-2"
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-b from-[#FF7A45] to-primary px-6 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all mt-2"
                 >
                   Empezar un Examen
                 </Link>
@@ -177,7 +177,7 @@ export default async function ChallengesPage() {
                               )}
                               <span className="text-sm font-semibold text-amber-950">{entry.name}</span>
                               {isCurrentUser && (
-                                <span className="text-xs font-bold text-[#FF6B35] bg-orange-100 px-2 py-0.5 rounded-md">(Tú)</span>
+                                <span className="text-xs font-bold text-primary bg-orange-100 px-2 py-0.5 rounded-md">(Tú)</span>
                               )}
                             </div>
                           </td>

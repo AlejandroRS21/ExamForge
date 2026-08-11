@@ -1,4 +1,4 @@
-// ExamForge — Question CRUD operations
+// OpenSloth — Question CRUD operations
 // Supports all B2 First question types with pagination, filtering, and search
 
 import prisma from "@/lib/prisma";

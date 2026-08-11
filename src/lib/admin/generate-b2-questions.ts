@@ -1,4 +1,4 @@
-// ExamForge — AI-Powered B2 Question Generation
+// OpenSloth — AI-Powered B2 Question Generation
 // Generate realistic Cambridge B2 First questions using Claude
 
 import { generateJSON } from "@/lib/ai/client";
@@ -10,7 +10,7 @@ interface GeneratedQuestion {
   type: QuestionType;
   prompt: string;
   options?: string[];
-  correctAnswer: string;
+  correctAnswer: string | { keyword: string; acceptable: string[] };
   difficulty: QuestionDifficulty;
   skillsTested: string[];
   explanation: string;
@@ -84,13 +84,13 @@ IMPORTANT: Respond with ONLY valid JSON matching this exact schema:
   "type": "${partSpec.types[0]}",
   "prompt": "Question text (for MC/CLOZE/WF/KT) OR essay topic (for Writing)",
   "options": ["A", "B", "C", "D"] OR null,
-  "correctAnswer": "A" OR "the exact word/phrase",
+  "correctAnswer": ${partSpec.types[0] === "KT" ? '{"keyword": "KEYWORD (UPPERCASE)", "acceptable": ["full acceptable sentence 1", "full acceptable sentence 2"]}' : '"A" OR "the exact word/phrase"'},
   "difficulty": "${difficulty}",
   "skillsTested": ["vocab", "grammar", ...],
   "explanation": "Why this is correct"
 }
 
-Make the question realistic, contextual, and aligned with Cambridge B2 standards. For MC, all options must be plausible. For Writing topics, provide clear, engaging prompts.`;
+Make the question realistic, contextual, and aligned with Cambridge B2 standards. For MC, all options must be plausible. For KT (Key Word Transformation), the "prompt" must contain the "leadIn" sentence and the sentence to transform, and "correctAnswer" must be an object {"keyword": "...", "acceptable": ["..."]} where the keyword is the transformed key word and acceptable are the full correct rewritten sentences. For Writing topics, provide clear, engaging prompts.`;
 
   const result = await generateJSON<GeneratedQuestion>({
     systemPrompt,
@@ -103,8 +103,14 @@ Make the question realistic, contextual, and aligned with Cambridge B2 standards
     return null;
   }
 
-  // Validate structure
-  if (!result.type || !result.prompt || typeof result.correctAnswer !== "string" || !result.difficulty) {
+  // Validate structure (correctAnswer is string for MC/CLOZE/WF, object for KT)
+  const validAnswer =
+    typeof result.correctAnswer === "string" ||
+    (typeof result.correctAnswer === "object" &&
+      result.correctAnswer !== null &&
+      typeof (result.correctAnswer as { keyword?: unknown }).keyword === "string" &&
+      Array.isArray((result.correctAnswer as { acceptable?: unknown }).acceptable));
+  if (!result.type || !result.prompt || !validAnswer || !result.difficulty) {
     console.warn(`[Gen ${attemptNum}] Invalid structure for ${partId}`);
     return null;
   }
@@ -188,7 +194,7 @@ export async function generateAllB2Questions(): Promise<{ created: number; faile
           examPartId: config.partId,
           type: q.type,
           prompt: q.prompt,
-          options: q.options ? JSON.stringify(q.options) : Prisma.DbNull,
+          options: q.options ? (q.options as Prisma.InputJsonValue) : Prisma.DbNull,
           correctAnswer: q.correctAnswer,
           difficulty: q.difficulty,
           skillsTested: q.skillsTested,
@@ -232,7 +238,7 @@ export async function generateQuestionsForPartAndSave(
       examPartId: partId,
       type: q.type,
       prompt: q.prompt,
-      options: q.options ? JSON.stringify(q.options) : Prisma.DbNull,
+      options: q.options ? (q.options as Prisma.InputJsonValue) : Prisma.DbNull,
       correctAnswer: q.correctAnswer,
       difficulty: q.difficulty,
       skillsTested: q.skillsTested,

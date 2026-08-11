@@ -1,4 +1,4 @@
-// ExamForge — Achievements/Badges Display
+// OpenSloth — Achievements/Badges Display
 // Shows badges grid with locked/unlocked state
 
 "use client";

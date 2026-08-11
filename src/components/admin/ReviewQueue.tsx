@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Review Queue (Client Component)
+// OpenSloth — NotebookLM Review Queue (Client Component)
 // Lists pending generated content with approve/reject buttons
 
 "use client";
@@ -94,7 +94,7 @@ export function ReviewQueue() {
   if (loading) {
     return (
       <div className="rounded-xl border p-8 text-center text-sm text-muted-foreground">
-        Loading review queue...
+        Cargando cola de revisión...
       </div>
     );
   }

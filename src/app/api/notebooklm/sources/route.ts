@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Sources List API
+// OpenSloth — NotebookLM Sources List API
 // GET /api/notebooklm/sources?notebookId=X → Sources + count for a notebook.
 // notebookId is OPTIONAL: without it the route returns an empty list with
 // count 0 so the admin UI can mount before a notebook is selected.

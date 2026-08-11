@@ -1,4 +1,4 @@
-// ExamForge — Flashcard Service Tests
+// OpenSloth — Flashcard Service Tests
 // SM-2 spaced repetition algorithm unit tests + getDueCards filtering
 
 import { describe, it, expect, vi, beforeEach } from "vitest";

@@ -1,4 +1,4 @@
-// ExamForge — Notebook Browser (Client Component)
+// OpenSloth — Notebook Browser (Client Component)
 // Fetches and displays notebooks from the user's NotebookLM account
 
 "use client";
@@ -49,8 +49,8 @@ export function NotebookBrowser({ onSelect, selectedNotebookId }: NotebookBrowse
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notebooks</CardTitle>
-        <CardDescription>Select a NotebookLM notebook to browse sources</CardDescription>
+        <CardTitle>Libretas</CardTitle>
+        <CardDescription>Selecciona una libreta de NotebookLM para ver sus fuentes</CardDescription>
       </CardHeader>
       <CardContent>
         {error && (
@@ -61,14 +61,14 @@ export function NotebookBrowser({ onSelect, selectedNotebookId }: NotebookBrowse
 
         {loading && (
           <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-            Loading notebooks...
+            Cargando libretas...
           </div>
         )}
 
         {!loading && notebooks.length === 0 && !error && (
           <div className="rounded-xl border border-dashed p-8 text-center space-y-3">
             <p className="text-sm text-muted-foreground">
-              No notebooks found. Create a notebook in NotebookLM first.
+              No se encontraron libretas. Crea una libreta en NotebookLM primero.
             </p>
           </div>
         )}
@@ -101,8 +101,7 @@ export function NotebookBrowser({ onSelect, selectedNotebookId }: NotebookBrowse
             onClick={fetchNotebooks}
             className="mt-4"
           >
-            Refresh
-          </Button>
+            Actualizar          </Button>
         )}
       </CardContent>
     </Card>

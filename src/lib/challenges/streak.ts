@@ -1,4 +1,4 @@
-// ExamForge — DailyStreak Management
+// OpenSloth — DailyStreak Management
 // Updates consecutive day streaks based on UTC dates.
 // T-705: DailyStreak update on exam complete
 

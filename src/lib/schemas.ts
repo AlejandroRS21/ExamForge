@@ -1,4 +1,4 @@
-// ExamForge — Zod schemas for all API inputs
+// OpenSloth — Zod schemas for all API inputs
 // Uses Zod v4 API
 
 import { z } from "zod/v4";
@@ -77,14 +77,6 @@ export const writingEvaluateSchema = z.object({
 
 // ─── Admin Schemas ──────────────────────────────────────────────────────────
 
-export const generateQuestionsSchema = z.object({
-  // ExamPart ids are stable business identifiers seeded as readable slugs
-  // (e.g. "ruoe-part-2"), not Prisma cuids — so cuid() would wrongly reject them.
-  examPartId: z.string().min(1),
-  count: z.number().int().min(1).max(25).default(10),
-  difficulty: z.enum(["A", "B", "C"]).optional(),
-});
-
 export const approveQuestionsSchema = z.object({
   questionIds: z.array(z.string().min(1)).min(1),
   status: z.enum(["ACTIVE", "REJECTED"]),
@@ -149,7 +141,6 @@ export type HeartbeatInput = z.infer<typeof heartbeatSchema>;
 export type CompleteAttemptInput = z.infer<typeof completeAttemptSchema>;
 export type CreateAttemptInput = z.infer<typeof createAttemptSchema>;
 export type WritingEvaluateInput = z.infer<typeof writingEvaluateSchema>;
-export type GenerateQuestionsInput = z.infer<typeof generateQuestionsSchema>;
 export type ApproveQuestionsInput = z.infer<typeof approveQuestionsSchema>;
 export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
 export type UpsertPartInput = z.infer<typeof upsertPartSchema>;

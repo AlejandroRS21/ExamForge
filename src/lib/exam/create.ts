@@ -1,4 +1,4 @@
-// ExamForge — Practice & Mock Attempt Creation
+// OpenSloth — Practice & Mock Attempt Creation
 // EE-01: Two modes — Practice (pausable, no timer, hints) and Mock (timed, strict)
 // EE-02: Part-based navigation
 

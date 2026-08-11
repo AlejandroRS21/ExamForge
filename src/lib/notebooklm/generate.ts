@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Generation Service
+// OpenSloth — NotebookLM Generation Service
 // Wraps NotebookLM MCP calls to generate interactive learning content.
 
 import prisma from "@/lib/prisma";

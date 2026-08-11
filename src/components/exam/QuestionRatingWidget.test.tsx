@@ -18,13 +18,13 @@ describe("QuestionRatingWidget component", () => {
 
     render(<QuestionRatingWidget questionId="q123" />);
 
-    expect(screen.getByText("Was this exercise helpful and accurate?")).toBeInTheDocument();
+    expect(screen.getByText("¿Te ha resultado útil y precisa esta actividad?")).toBeInTheDocument();
 
-    const helpfulBtn = screen.getByText("👍 Helpful");
+    const helpfulBtn = screen.getByText("👍 Útil");
     fireEvent.click(helpfulBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("✓ Thanks for your feedback!")).toBeInTheDocument();
+      expect(screen.getByText("✓ ¡Gracias por tu valoración!")).toBeInTheDocument();
     });
 
     expect(global.fetch).toHaveBeenCalledWith("/api/questions/rate", {

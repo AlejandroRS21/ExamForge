@@ -1,4 +1,4 @@
-// ExamForge — B2 Question Generation API
+// OpenSloth — B2 Question Generation API
 // POST /api/admin/questions/generate-b2
 // Generate realistic Cambridge B2 First questions with Claude
 

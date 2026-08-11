@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Generation Integration Tests
+// OpenSloth — NotebookLM Generation Integration Tests
 // Tests the generation service with mocked Prisma and MCP calls
 // generateContent() now returns immediately (fire-and-forget) — full pipeline tested via runGeneration()
 

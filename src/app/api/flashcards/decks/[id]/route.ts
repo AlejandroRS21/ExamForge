@@ -1,4 +1,4 @@
-// ExamForge — Flashcard Deck Detail API
+// OpenSloth — Flashcard Deck Detail API
 // GET /api/flashcards/decks/[id] → Deck detail with due cards and session limit
 // POST /api/flashcards/decks/[id] → Rate a card (internal endpoint)
 

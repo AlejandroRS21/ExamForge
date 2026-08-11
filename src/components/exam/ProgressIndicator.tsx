@@ -1,4 +1,4 @@
-// ExamForge — Progress Indicator Component
+// OpenSloth — Progress Indicator Component
 // Shows questions completed / total + time remaining visual bar
 
 "use client";

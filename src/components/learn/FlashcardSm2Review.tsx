@@ -1,6 +1,6 @@
-// ExamForge — FlashcardSm2Review (client)
+// OpenSloth — FlashcardSm2Review (client)
 // SM-2 spaced repetition review session for /learn/flashcards/[deckId].
-// Neuroinclusive: warm #FAF6F0 cards, 3D tactile rating buttons
+// Neuroinclusive: warm cream cards, 3D tactile rating buttons
 // (Otra vez / Difícil / Normal / Fácil), SVG icons only — zero raw emojis.
 //
 // SM-2 source of truth: `reviewCardSM2` from @/lib/flashcards/sm2 renders the
@@ -211,7 +211,7 @@ export function FlashcardSm2Review({
 
     return (
       <div
-        className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-8 text-center space-y-6 shadow-[0_6px_0_0_#FDE68A]"
+        className="rounded-3xl border-2 border-amber-200/80 bg-background p-8 text-center space-y-6 shadow-[0_6px_0_0_#FDE68A]"
         role="status"
         aria-label="Sesión de repaso completada"
       >
@@ -244,7 +244,7 @@ export function FlashcardSm2Review({
 
         {earliestNext && (
           <p className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-4 py-1.5 text-xs font-bold text-amber-900">
-            <ClockIcon className="h-4 w-4" color="#FF6B35" />
+            <ClockIcon className="h-4 w-4" color="var(--primary)" />
             Próxima tarjeta pendiente: {formatInterval(
               Math.max(0, Math.round((earliestNext.getTime() - Date.now()) / 86400000)),
             )}
@@ -261,7 +261,7 @@ export function FlashcardSm2Review({
               setSessionComplete(false);
               setError(null);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#FF6B35] px-8 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_0_var(--btn-shadow-primary)] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B35]"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-2.5 text-sm font-bold text-white shadow-[0_4px_0_0_var(--btn-shadow-primary)] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             type="button"
           >
             <BookIcon className="h-4 w-4" color="#FFFFFF" />
@@ -274,7 +274,7 @@ export function FlashcardSm2Review({
 
   if (!currentCard) {
     return (
-      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-8 text-center space-y-4 shadow-[0_6px_0_0_#FDE68A]">
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-background p-8 text-center space-y-4 shadow-[0_6px_0_0_#FDE68A]">
         <SlothMascot pose="calm" size={120} className="mx-auto" />
         <p className="text-sm font-medium text-amber-800/80">
           No hay tarjetas pendientes de repaso. Vuelve más tarde.
@@ -305,7 +305,7 @@ export function FlashcardSm2Review({
         aria-valuemax={totalCards}
       >
         <div
-          className="h-full rounded-full bg-[#FF6B35] transition-all duration-300"
+          className="h-full rounded-full bg-primary transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
         />
       </div>
@@ -326,11 +326,11 @@ export function FlashcardSm2Review({
             ? "Tarjeta mostrando la respuesta. Pulsa Espacio para girar de nuevo."
             : "Tarjeta mostrando el término. Pulsa Espacio para ver la respuesta."
         }
-        className="relative cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B35]"
+        className="relative cursor-pointer rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         onClick={() => !submitting && setIsFlipped((prev) => !prev)}
       >
         <div
-          className={`relative min-h-[280px] w-full rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-8 shadow-[0_6px_0_0_#FDE68A] transition-transform duration-300 preserve-3d ${
+          className={`relative min-h-[280px] w-full rounded-3xl border-2 border-amber-200/80 bg-background p-8 shadow-[0_6px_0_0_#FDE68A] transition-transform duration-300 preserve-3d ${
             isFlipped ? "rotate-y-180" : ""
           }`}
         >
@@ -380,7 +380,7 @@ export function FlashcardSm2Review({
                   key={rating}
                   onClick={() => void handleRate(rating)}
                   disabled={submitting}
-                  className={`rounded-2xl px-3 py-3 text-sm font-bold transition-all active:translate-y-1 active:shadow-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B35] ${cfg.klass}`}
+                  className={`rounded-2xl px-3 py-3 text-sm font-bold transition-all active:translate-y-1 active:shadow-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${cfg.klass}`}
                   aria-label={`${cfg.aria}. Volverá ${formatInterval(preview.newInterval)}.`}
                   type="button"
                 >

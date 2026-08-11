@@ -1,4 +1,4 @@
-// ExamForge — Personal Goals System
+// OpenSloth — Personal Goals System
 // C2 (CH-04/CH-05): Users set goals, evaluated on attempt completion
 // Goal types: ACCURACY (target %), STREAK (target consecutive days)
 

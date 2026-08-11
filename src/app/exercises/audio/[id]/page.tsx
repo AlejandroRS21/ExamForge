@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise Student Page
+// OpenSloth — Audio Exercise Student Page
 // Server component: fetches exercise data, renders AudioExerciseView client component
 // Wraps content in Suspense boundary and ErrorBoundary for resilience
 

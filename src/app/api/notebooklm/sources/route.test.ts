@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM sources route tests
+// OpenSloth — NotebookLM sources route tests
 // GET /api/notebooklm/sources?notebookId=X → sources + count (notebookId optional)
 
 import { describe, it, expect, vi, beforeEach } from "vitest";

@@ -1,4 +1,4 @@
-// ExamForge — Time-of-day Greeting Tests
+// OpenSloth — Time-of-day Greeting Tests
 // Neuroinclusive UI adoption: Dashboard greeting is time-of-day aware
 // ("Good morning/afternoon/evening, {name}").
 

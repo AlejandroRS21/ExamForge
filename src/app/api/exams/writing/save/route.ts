@@ -1,4 +1,4 @@
-// ExamForge — Writing Submission Save API
+// OpenSloth — Writing Submission Save API
 // Saves/updates a writing submission with content and word count
 // POST /api/exams/writing/save
 

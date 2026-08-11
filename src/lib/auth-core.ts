@@ -1,4 +1,4 @@
-// ExamForge — Auth.js Core (Middleware-safe, no Prisma dependency)
+// OpenSloth — Auth.js Core (Middleware-safe, no Prisma dependency)
 // JWT-only auth for proxy (middleware) — does NOT import Prisma
 
 import NextAuth from "next-auth";

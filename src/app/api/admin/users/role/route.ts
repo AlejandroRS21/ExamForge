@@ -1,4 +1,4 @@
-// ExamForge — Admin User Role API Route
+// OpenSloth — Admin User Role API Route
 // PATCH /api/admin/users/role — Update user role
 
 import { NextResponse } from "next/server";

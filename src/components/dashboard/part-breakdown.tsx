@@ -1,4 +1,4 @@
-// ExamForge — Per-Part Skill Breakdown Table
+// OpenSloth — Per-Part Skill Breakdown Table
 // T-702: Skill breakdown with color-coded accuracy bars and weak-area highlight
 
 "use client";

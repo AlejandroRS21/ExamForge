@@ -1,4 +1,4 @@
-// ExamForge — Tab Guard Component
+// OpenSloth — Tab Guard Component
 // EE-05: Multiple tabs → warn user on second tab open
 // Detects if the same exam attempt is open in another tab via BroadcastChannel API
 

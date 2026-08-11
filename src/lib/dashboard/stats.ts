@@ -1,4 +1,4 @@
-// ExamForge — Dashboard Statistics
+// OpenSloth — Dashboard Statistics
 // Fetches and computes dashboard data for the authenticated user.
 // T-701: Dashboard — accuracy%, total attempts, streak count, avg time per question
 // T-702: Analytics — accuracy over time, per-part breakdown, weak-area highlight

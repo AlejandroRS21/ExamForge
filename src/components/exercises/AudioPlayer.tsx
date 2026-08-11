@@ -1,4 +1,4 @@
-// ExamForge — AudioPlayer Component
+// OpenSloth — AudioPlayer Component
 // Custom audio player with play/pause, seek progress bar, and speed control
 // HTML5 Audio API — accessible keyboard controls (Space, arrows, Shift+arrows)
 

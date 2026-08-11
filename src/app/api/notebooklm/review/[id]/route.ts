@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Content Review API
+// OpenSloth — NotebookLM Content Review API
 // POST /api/notebooklm/review/[id] → Approve or reject generated content
 
 import { NextResponse } from "next/server";

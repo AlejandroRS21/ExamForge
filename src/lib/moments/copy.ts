@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Copy
+// OpenSloth — Moment Engine Copy
 // Static fallback copy + fetchCopy with 900ms abort and /api/moments/copy.
 
 import type { MomentEventType } from "./types";

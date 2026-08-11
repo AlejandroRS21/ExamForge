@@ -1,4 +1,4 @@
-// ExamForge — Calm Sloth Timer Guard (pure logic)
+// OpenSloth — Calm Sloth Timer Guard (pure logic)
 // Presentational helper for the practice-mode calm guard: it only decides
 // WHEN the non-alarm reassurance should show. No timers, no side effects.
 

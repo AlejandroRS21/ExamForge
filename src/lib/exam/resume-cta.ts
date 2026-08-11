@@ -1,4 +1,4 @@
-// ExamForge — "Continue where you left off" CTA formatter
+// OpenSloth — "Continue where you left off" CTA formatter
 // Neuroinclusive UI adoption: pure logic extracted from the Dashboard's
 // in-progress-attempt lookup (see resume.ts `getLatestInProgressAttempt`)
 // so the display text can be unit tested without a database.
@@ -30,18 +30,18 @@ export function buildResumeCta(input: ResumeCtaInput): ResumeCta {
   // not the Answer relation) — there is no "question X of Y" to report.
   if (input.questionCount <= 0) {
     return {
-      title: "Continue where you left off",
-      subtitle: `${input.partLabel}${descriptionSegment}`,
-      resumeHref: `/exams/practice/${input.partId}`,
-      partId: input.partId,
-    };
+       title: "Continúa donde lo dejaste",
+       subtitle: `${input.partLabel}${descriptionSegment}`,
+       resumeHref: `/exams/practice/${input.partId}`,
+       partId: input.partId,
+     };
   }
 
   const nextPosition = Math.min(input.answeredCount + 1, input.questionCount);
 
   return {
-    title: "Continue where you left off",
-    subtitle: `${input.partLabel}${descriptionSegment}, question ${nextPosition} of ${input.questionCount}`,
+    title: "Continúa donde lo dejaste",
+    subtitle: `${input.partLabel}${descriptionSegment}, pregunta ${nextPosition} de ${input.questionCount}`,
     resumeHref: `/exams/practice/${input.partId}`,
     partId: input.partId,
   };

@@ -1,4 +1,4 @@
-// ExamForge — Anonymous-to-Authenticated Progress Migration
+// OpenSloth — Anonymous-to-Authenticated Progress Migration
 // When a user registers after trying the platform anonymously,
 // all their progress (answers, attempts, streaks, achievements, skill profiles)
 // is migrated from anonymousSessionId to their new userId.

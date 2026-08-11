@@ -1,4 +1,4 @@
-// ExamForge — Shared AI Client Tests
+// OpenSloth — Shared AI Client Tests
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 

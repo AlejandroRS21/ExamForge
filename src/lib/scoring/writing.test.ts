@@ -1,4 +1,4 @@
-// ExamForge — Writing Evaluation Tests (AI path + heuristic fallback)
+// OpenSloth — Writing Evaluation Tests (AI path + heuristic fallback)
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 

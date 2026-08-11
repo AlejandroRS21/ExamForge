@@ -1,4 +1,4 @@
-// ExamForge — QuizRenderer Component
+// OpenSloth — QuizRenderer Component
 // Multiple-choice quiz with one question at a time (chunked cards), correct/
 // incorrect feedback with SVG icons, final score with SlothMascot. Zero emojis.
 
@@ -65,7 +65,7 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
           : "text-error";
 
     return (
-      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-8 text-center space-y-6 shadow-[0_6px_0_0_#FDE68A]" role="status" aria-label="Quiz results">
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-background p-8 text-center space-y-6 shadow-[0_6px_0_0_#FDE68A]" role="status" aria-label="Quiz results">
         <SlothMascot pose="cheering" size={120} className="mx-auto" />
         <div className="space-y-2">
           <h2 className="text-2xl font-bold text-amber-950">Quiz Complete!</h2>
@@ -159,7 +159,7 @@ export function QuizRenderer({ questions }: QuizRendererProps) {
         />
       </div>
 
-      <div className="rounded-3xl border-2 border-amber-200/80 bg-[#FAF6F0] p-6 space-y-4 shadow-[0_6px_0_0_#FDE68A]">
+      <div className="rounded-3xl border-2 border-amber-200/80 bg-background p-6 space-y-4 shadow-[0_6px_0_0_#FDE68A]">
         <p className="text-base font-bold text-amber-950">{currentQuestion.prompt}</p>
 
         <div className="space-y-2" role="radiogroup" aria-label="Answer options">

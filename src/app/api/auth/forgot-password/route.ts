@@ -1,4 +1,4 @@
-// ExamForge — Forgot Password API Route
+// OpenSloth — Forgot Password API Route
 // C1: POST /api/auth/forgot-password — creates reset token, logs URL (MVP simulates email)
 
 import { NextResponse } from "next/server";

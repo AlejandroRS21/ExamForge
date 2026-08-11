@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Haptic Cue
+// OpenSloth — Moment Engine Haptic Cue
 // Feature-detected navigator.vibrate. No deps.
 
 import { isMuted } from "./mute";

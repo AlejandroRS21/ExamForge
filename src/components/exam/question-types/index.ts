@@ -1,4 +1,4 @@
-// ExamForge — Question Type Component Registry
+// OpenSloth — Question Type Component Registry
 // Maps question types to their renderers
 
 export { MultipleChoice } from "./MultipleChoice";

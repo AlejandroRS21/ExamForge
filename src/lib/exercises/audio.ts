@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise Service
+// OpenSloth — Audio Exercise Service
 // Queries, scoring, and progress tracking for audio-based listening exercises
 
 import prisma from "@/lib/prisma";
