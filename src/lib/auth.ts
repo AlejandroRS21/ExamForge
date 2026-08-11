@@ -1,4 +1,4 @@
-// ExamForge — Auth.js singleton with credentials support
+// OpenSloth — Auth.js singleton with credentials support
 // Re-exports from config, adding password verification for credentials provider
 
 import NextAuth from "next-auth";

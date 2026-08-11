@@ -1,4 +1,4 @@
-// ExamForge — Achievement System Tests
+// OpenSloth — Achievement System Tests
 // T-806: Vitest tests for achievement definitions
 
 import { describe, it, expect } from "vitest";

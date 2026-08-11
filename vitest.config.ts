@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}", "prisma/**/*.test.ts"],
     exclude: ["node_modules", ".next"],
     setupFiles: ["./src/test-setup.ts"],
   },

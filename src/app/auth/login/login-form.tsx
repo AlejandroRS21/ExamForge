@@ -1,6 +1,6 @@
 "use client";
 
-// ExamForge — Login Form Client Component
+// OpenSloth — Login Form Client Component
 // Handles credentials login + OAuth redirects + error display
 
 import { useState } from "react";
@@ -200,7 +200,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-2xl bg-gradient-to-b from-[#FF7A45] to-[#FF6B35] px-4 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 mt-2"
+          className="w-full rounded-2xl bg-gradient-to-b from-[#FF7A45] to-primary px-4 py-3 text-sm font-bold text-white shadow-[0_4px_0_0_#C84B1B] hover:brightness-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 mt-2"
         >
           {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
         </button>
@@ -210,7 +210,7 @@ export function LoginForm() {
         ¿No tienes una cuenta?{" "}
         <Link
           href="/auth/register"
-          className="font-bold text-[#FF6B35] hover:underline"
+          className="font-bold text-primary hover:underline"
         >
           Crear una gratis
         </Link>

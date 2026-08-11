@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise Submit API
+// OpenSloth — Audio Exercise Submit API
 // POST /api/exercises/audio/[id]/submit → Score comprehension answers
 
 import { NextResponse } from "next/server";

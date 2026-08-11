@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Types
+// OpenSloth — Moment Engine Types
 // Client-side event layer for dopamine-reward moments.
 
 export type MomentEventType =

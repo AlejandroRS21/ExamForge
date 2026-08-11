@@ -74,7 +74,11 @@
   --card-foreground: oklch(0.92 0.01 250);
   --popover: oklch(0.24 0.02 250);
   --popover-foreground: oklch(0.92 0.01 250);
-  --primary: oklch(0.70 0.10 210);
+  /* P-T-2: one primary identity across modes — same warm-orange family as
+     light (hue 38), brightened to clear UI-component AA on the dark
+     background. Foreground is the near-black espresso reused from light so
+     the CTA label keeps >=4.5:1 text AA. Verified in design-tokens.test.ts. */
+  --primary: oklch(0.70 0.19 38);
   --primary-foreground: oklch(0.16 0.02 250);
   --secondary: oklch(0.28 0.02 220);
   --secondary-foreground: oklch(0.92 0.01 250);
@@ -86,7 +90,7 @@
   --destructive-foreground: oklch(0.16 0.02 250);
   --border: oklch(0.50 0.02 220);
   --input: oklch(0.50 0.02 220);
-  --ring: oklch(0.70 0.10 210);
+  --ring: oklch(0.70 0.19 38);
 
   --success: oklch(0.68 0.11 165);
   --success-foreground: oklch(0.16 0.02 250);
@@ -103,7 +107,7 @@
   --error-surface: oklch(0.25 0.06 25);
   --error-border: oklch(0.56 0.14 25);
 
-  --info: oklch(0.70 0.10 210);
+  --info: oklch(0.70 0.19 38);
   --info-foreground: oklch(0.16 0.02 250);
   --info-surface: oklch(0.28 0.05 210);
   --info-border: oklch(0.56 0.10 210);

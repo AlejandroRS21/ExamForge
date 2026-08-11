@@ -1,4 +1,4 @@
-// ExamForge — Moment Mute Toggle
+// OpenSloth — Moment Mute Toggle
 // Small icon button persisting mute preference via useMoments().
 
 "use client";

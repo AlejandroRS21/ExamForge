@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Provider
+// OpenSloth — Moment Engine Provider
 // Client boundary. Mounts MomentLayer and exposes useMoments().
 
 "use client";

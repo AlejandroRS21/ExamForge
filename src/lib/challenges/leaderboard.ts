@@ -1,4 +1,4 @@
-// ExamForge — Weekly Leaderboard
+// OpenSloth — Weekly Leaderboard
 // CH-01: Weekly rankings based on total correct answers across all attempts that week
 // Ties get same rank with skip (1, 2, 2, 4)
 

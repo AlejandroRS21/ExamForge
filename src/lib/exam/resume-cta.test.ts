@@ -1,4 +1,4 @@
-// ExamForge — "Continue where you left off" CTA Tests
+// OpenSloth — "Continue where you left off" CTA Tests
 // Neuroinclusive UI adoption: pure formatter for the Dashboard resume CTA.
 // Kept separate from the Prisma-backed lookup so it is testable without a DB.
 
@@ -17,8 +17,8 @@ describe("buildResumeCta", () => {
     });
 
     expect(cta).toEqual({
-      title: "Continue where you left off",
-      subtitle: "R&UoE Part 3 — Word formation, question 4 of 7",
+      title: "Continúa donde lo dejaste",
+      subtitle: "R&UoE Part 3 — Word formation, pregunta 4 de 7",
       resumeHref: "/exams/practice/ruoe-part-3",
       partId: "ruoe-part-3",
     });
@@ -34,7 +34,7 @@ describe("buildResumeCta", () => {
       questionCount: 5,
     });
 
-    expect(cta.subtitle).toBe("R&UoE Part 3, question 1 of 5");
+    expect(cta.subtitle).toBe("R&UoE Part 3, pregunta 1 de 5");
   });
 
   it("caps the reported question position at the total question count", () => {
@@ -47,7 +47,7 @@ describe("buildResumeCta", () => {
       questionCount: 5,
     });
 
-    expect(cta.subtitle).toBe("R&UoE Part 3, question 5 of 5");
+    expect(cta.subtitle).toBe("R&UoE Part 3, pregunta 5 de 5");
   });
 
   it("omits the question-count fragment for Writing parts (questionCount 0)", () => {
@@ -61,7 +61,7 @@ describe("buildResumeCta", () => {
     });
 
     expect(cta.subtitle).toBe("Writing Part 1 — Essay");
-    expect(cta.subtitle).not.toContain("of 0");
+    expect(cta.subtitle).not.toContain("pregunta");
   });
 
   it("exposes partId directly so consumers don't need to parse resumeHref", () => {

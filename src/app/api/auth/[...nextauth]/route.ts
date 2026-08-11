@@ -1,4 +1,4 @@
-// ExamForge — NextAuth v5 API Route Handler
+// OpenSloth — NextAuth v5 API Route Handler
 import { handlers } from "@/lib/auth";
 import { apiRateLimit } from "@/lib/utils/api-rate-limit";
 

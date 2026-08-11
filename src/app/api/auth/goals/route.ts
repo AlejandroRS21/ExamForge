@@ -1,4 +1,4 @@
-// ExamForge — Goals API Route
+// OpenSloth — Goals API Route
 // C2: POST /api/auth/goals — set a new goal
 //     DELETE /api/auth/goals?id=xxx — delete a goal
 

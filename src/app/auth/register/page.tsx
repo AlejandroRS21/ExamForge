@@ -1,4 +1,4 @@
-// ExamForge — Register Page
+// OpenSloth — Register Page
 // Account creation with warm Sloth mascot cheering & 3D tactile theme
 
 import { Suspense } from "react";

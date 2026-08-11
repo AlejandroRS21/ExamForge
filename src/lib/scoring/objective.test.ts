@@ -1,8 +1,8 @@
-// ExamForge — Objective Scoring Tests
+// OpenSloth — Objective Scoring Tests
 // T-806: Vitest smoke tests for critical scoring paths
 
 import { describe, it, expect } from "vitest";
-import { scoreAnswer } from "./objective";
+import { scoreAnswer, checkIsCorrect } from "./objective";
 
 describe("scoreAnswer", () => {
   describe("MC (Multiple Choice)", () => {
@@ -96,5 +96,31 @@ describe("scoreAnswer", () => {
     it("returns false for unknown question type", () => {
       expect(scoreAnswer("UNKNOWN", "test", "test")).toBe(false);
     });
+  });
+});
+
+// Shared client-correctness helper, used by practice flows (P-T-1: single
+// shared implementation lives here in lib/scoring).
+describe("checkIsCorrect (shared correctness helper)", () => {
+  it("returns false for null/undefined given or expected", () => {
+    expect(checkIsCorrect(null, "threat")).toBe(false);
+    expect(checkIsCorrect(undefined, "threat")).toBe(false);
+    expect(checkIsCorrect("threat", null)).toBe(false);
+    expect(checkIsCorrect("threat", undefined)).toBe(false);
+  });
+
+  it("compares string expected case-insensitively with trimming", () => {
+    expect(checkIsCorrect("  Threat  ", "threat")).toBe(true);
+    expect(checkIsCorrect("danger", "threat")).toBe(false);
+  });
+
+  it("accepts any match when expected is an array", () => {
+    expect(checkIsCorrect("in", ["at", "in", "on"])).toBe(true);
+    expect(checkIsCorrect("with", ["at", "in", "on"])).toBe(false);
+  });
+
+  it("compares object expected by JSON equality", () => {
+    expect(checkIsCorrect({ p1: "A", p2: "B" }, { p1: "A", p2: "B" })).toBe(true);
+    expect(checkIsCorrect({ p1: "A", p2: "C" }, { p1: "A", p2: "B" })).toBe(false);
   });
 });

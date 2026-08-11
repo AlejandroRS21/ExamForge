@@ -1,4 +1,4 @@
-// ExamForge — Single Question API
+// OpenSloth — Single Question API
 // GET    /api/admin/questions/[id]  → Get question details
 // PUT    /api/admin/questions/[id]  → Update question
 // DELETE /api/admin/questions/[id]  → Delete question

@@ -1,4 +1,4 @@
-// ExamForge — shadcn/ui Card component
+// OpenSloth — shadcn/ui Card component
 
 import * as React from "react";
 

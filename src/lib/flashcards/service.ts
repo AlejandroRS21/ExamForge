@@ -1,4 +1,4 @@
-// ExamForge — Flashcard Service
+// OpenSloth — Flashcard Service
 // CRUD + SM-2 spaced repetition algorithm for vocabulary flashcards
 //
 // SM-2 Algorithm Reference:

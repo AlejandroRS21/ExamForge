@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Pub/Sub Bus
+// OpenSloth — Moment Engine Pub/Sub Bus
 // Tiny event bus: subscribe/publish. No external deps.
 
 import type { MomentEvent } from "./types";

@@ -1,4 +1,4 @@
-// ExamForge — AudioExerciseView Component
+// OpenSloth — AudioExerciseView Component
 // Combines AudioPlayer with comprehension questions and scoring
 
 "use client";

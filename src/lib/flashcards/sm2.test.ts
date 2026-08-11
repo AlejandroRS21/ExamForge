@@ -1,4 +1,4 @@
-// ExamForge — SM-2 Spaced Repetition Unit Tests (design-contract module)
+// OpenSloth — SM-2 Spaced Repetition Unit Tests (design-contract module)
 // Contract (design.md Interfaces/Contracts):
 //   SM2Rating = "AGAIN" | "HARD" | "GOOD" | "EASY"   (values 1, 2, 3, 5)
 //   SM2ReviewResult = { cardId, rating, newEaseFactor, newInterval,

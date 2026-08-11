@@ -1,4 +1,4 @@
-// ExamForge — Registration API Route
+// OpenSloth — Registration API Route
 // POST /api/auth/register — Creates user account with bcrypt password hash
 // Optionally merges anonymous session data
 

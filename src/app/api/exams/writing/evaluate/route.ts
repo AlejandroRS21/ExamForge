@@ -1,4 +1,4 @@
-// ExamForge — Writing Evaluation API
+// OpenSloth — Writing Evaluation API
 // Evaluates a writing submission against Cambridge B2 First rubric using Claude AI
 // POST /api/exams/writing/evaluate
 

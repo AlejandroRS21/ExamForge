@@ -1,4 +1,4 @@
-// ExamForge — Forgot Password Page
+// OpenSloth — Forgot Password Page
 // C1: Email input form, POST to /api/auth/forgot-password
 
 "use client";

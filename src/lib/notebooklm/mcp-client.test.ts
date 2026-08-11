@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM MCP Client Tests
+// OpenSloth — NotebookLM MCP Client Tests
 // TDD: Tests for real MCP client with retry, rate-limit awareness, and auth handling
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -166,7 +166,7 @@ describe("MCPClient — Notebook Operations", () => {
   describe("listNotebooks()", () => {
     it("should call nlm notebook list --json and return parsed result", async () => {
       const mockNotebooks = [
-        { id: "notebook-1", title: "ExamForge" },
+        { id: "notebook-1", title: "OpenSloth" },
         { id: "notebook-2", title: "Test Notebook" },
       ];
 

@@ -1,4 +1,4 @@
-// ExamForge — TactileButton RSC render tests
+// OpenSloth — TactileButton RSC render tests
 // Node environment (repo choice): renderToStaticMarkup, no jsdom/RTL.
 
 import { describe, it, expect } from "vitest";
@@ -22,9 +22,9 @@ describe("TactileButton", () => {
     expect(html).not.toContain("var(--btn-shadow-primary)");
   });
 
-  it("primary variant uses the brand orange + --btn-shadow-primary token", () => {
+  it("primary variant uses the brand primary token + --btn-shadow-primary token", () => {
     const html = render({ variant: "primary" });
-    expect(html).toContain("bg-[#FF6B35]");
+    expect(html).toContain("bg-primary");
     expect(html).toContain("var(--btn-shadow-primary)");
   });
 

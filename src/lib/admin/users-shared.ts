@@ -1,4 +1,4 @@
-// ExamForge — Admin User Shared Types & Constants
+// OpenSloth — Admin User Shared Types & Constants
 // Client-safe — does NOT import Prisma
 
 import type { Role } from "@/generated/prisma/client";

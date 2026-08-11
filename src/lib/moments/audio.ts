@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Audio Chime
+// OpenSloth — Moment Engine Audio Chime
 // Synthesized tones via Web Audio API. No assets, no deps.
 
 import { isMuted } from "./mute";

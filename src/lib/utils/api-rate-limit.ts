@@ -1,4 +1,4 @@
-// ExamForge — Simple in-memory rate limiter for API routes
+// OpenSloth — Simple in-memory rate limiter for API routes
 // Production: replace with Redis-based solution for scaling
 
 const hits = new Map<string, { count: number; resetAt: number }>();

@@ -1,4 +1,4 @@
-// ExamForge — ErrorBoundary Component
+// OpenSloth — ErrorBoundary Component
 // Catches rendering errors in child components and shows a fallback with retry button
 
 "use client";

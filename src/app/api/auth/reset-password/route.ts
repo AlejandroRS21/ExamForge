@@ -1,4 +1,4 @@
-// ExamForge — Reset Password API Route
+// OpenSloth — Reset Password API Route
 // C1: POST /api/auth/reset-password — validates token, updates password hash
 
 import { NextResponse } from "next/server";

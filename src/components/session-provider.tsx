@@ -1,6 +1,6 @@
 "use client";
 
-// ExamForge — Session Provider Wrapper
+// OpenSloth — Session Provider Wrapper
 // Provides Auth.js session context to client components
 
 import { SessionProvider as NextAuthSessionProvider } from "next-auth/react";

@@ -1,4 +1,4 @@
-// ExamForge — Gapped Text Component (Duolingo Style)
+// OpenSloth — Gapped Text Component (Duolingo Style)
 // Ordered sequence matching for GT questions (Part 5)
 // Uses AnswerTile primitives, pure answer-logic helpers, and useFlip animations
 

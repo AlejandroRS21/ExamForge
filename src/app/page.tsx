@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import prisma from "@/lib/prisma";
 import { SlothMascot } from "@/components/ui/SlothMascot";
 import {
   TargetIcon,
@@ -19,8 +20,16 @@ export default async function LandingPage() {
     redirect("/dashboard");
   }
 
+  // P-T-3: CTA part id resolved from seed (first R&UoE part), no stale literal.
+  const firstPart = await prisma.examPart.findFirst({
+    where: { paper: "R&UoE" },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true },
+  });
+  const practiceHref = firstPart ? `/exams/practice/${firstPart.id}` : "/exams";
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAF6F0] text-[#2B1E19] font-sans selection:bg-[#FFB703] selection:text-[#2B1E19]">
+    <div className="flex flex-col min-h-screen bg-background text-[#2B1E19] font-sans selection:bg-[#FFB703] selection:text-[#2B1E19]">
       {/* Header / Navegación */}
       <header className="sticky top-0 z-50 w-full border-b-2 border-[#F0E8DD] bg-[#FFFDF9]/90 backdrop-blur-md">
         <div className="container mx-auto flex h-20 items-center justify-between px-6 max-w-7xl">
@@ -36,13 +45,13 @@ export default async function LandingPage() {
           <nav className="flex items-center gap-6">
             <Link
               href="/auth/login"
-              className="text-base font-bold text-[#E85D04] hover:text-[#FF6B35] transition-colors"
+              className="text-base font-bold text-[#E85D04] hover:text-primary transition-colors"
             >
               Iniciar sesión
             </Link>
             <Link
               href="/auth/register"
-              className="inline-flex items-center justify-center rounded-2xl bg-[#FF6B35] px-6 py-3 text-base font-extrabold text-white shadow-[0_4px_0_#C74D23] transition-all hover:translate-y-0.5 hover:shadow-[0_2px_0_#C74D23] active:translate-y-1 active:shadow-none"
+              className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3 text-base font-extrabold text-white shadow-[0_4px_0_#C74D23] transition-all hover:translate-y-0.5 hover:shadow-[0_2px_0_#C74D23] active:translate-y-1 active:shadow-none"
             >
               Empieza Gratis
             </Link>
@@ -63,7 +72,7 @@ export default async function LandingPage() {
 
               <h1 className="text-5xl font-black tracking-tight sm:text-6xl md:text-7xl leading-[1.08] text-[#2B1E19]">
                 Consigue tus certificados{" "}
-                <span className="text-[#FF6B35] underline decoration-[#FFB703] underline-offset-8">
+                <span className="text-primary underline decoration-[#FFB703] underline-offset-8">
                   a tu ritmo
                 </span>{" "}
                 y sin estrés.
@@ -77,15 +86,15 @@ export default async function LandingPage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <Link
                   href="/auth/register"
-                  className="inline-flex items-center justify-center gap-3 rounded-3xl bg-[#FF6B35] px-8 py-5 text-xl font-black text-white shadow-[0_6px_0_#C74D23] transition-all hover:translate-y-0.5 hover:shadow-[0_3px_0_#C74D23] active:translate-y-1.5 active:shadow-none"
+                  className="inline-flex items-center justify-center gap-3 rounded-3xl bg-primary px-8 py-5 text-xl font-black text-white shadow-[0_6px_0_#C74D23] transition-all hover:translate-y-0.5 hover:shadow-[0_3px_0_#C74D23] active:translate-y-1.5 active:shadow-none"
                 >
                   <span>¡Quiero mi Aprobado!</span>
                   <ArrowRightIcon className="w-6 h-6" color="#FFFFFF" />
                 </Link>
 
-                <Link
-                  href="/exams/practice/ruoe-part-1"
-                  className="inline-flex items-center justify-center gap-3 rounded-3xl bg-[#FFFDF9] border-2 border-[#F0E8DD] px-7 py-5 text-lg font-bold text-[#2B1E19] shadow-[0_4px_0_#E2D6C5] transition-all hover:translate-y-0.5 hover:shadow-[0_2px_0_#E2D6C5] active:translate-y-1 active:shadow-none"
+<Link
+                  href={practiceHref}
+                  className="inline-flex items-center justify-center gap-3 rounded-3xl bg-card border-2 border-[#F0E8DD] px-7 py-5 text-lg font-bold text-[#2B1E19] shadow-[0_4px_0_#E2D6C5] transition-all hover:translate-y-0.5 hover:shadow-[0_2px_0_#E2D6C5] active:translate-y-1 active:shadow-none"
                 >
                   <PlayIcon className="w-5 h-5" color="#E85D04" />
                   <span>Probar Simulador B2</span>
@@ -193,7 +202,7 @@ export default async function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-[#F0E8DD] bg-[#FAF6F0] py-10 text-center text-sm font-bold text-[#8C7A70]">
+      <footer className="border-t-2 border-[#F0E8DD] bg-background py-10 text-center text-sm font-bold text-[#8C7A70]">
         <div className="container mx-auto px-6">
           <p>© OpenSloth — Tu título de inglés B2 en España a tu propio ritmo.</p>
         </div>

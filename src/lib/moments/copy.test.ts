@@ -1,4 +1,4 @@
-// ExamForge — Copy Utility Tests
+// OpenSloth — Copy Utility Tests
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STATIC_COPY, fetchCopy, containsBlameLanguage } from "./copy";

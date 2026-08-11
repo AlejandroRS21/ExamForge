@@ -1,4 +1,4 @@
-// ExamForge — Haptics Tests
+// OpenSloth — Haptics Tests
 // Node environment with mocked globals
 
 import { describe, it, expect, vi, beforeEach } from "vitest";

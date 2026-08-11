@@ -1,4 +1,4 @@
-// ExamForge — Question Edit History
+// OpenSloth — Question Edit History
 // Tracks who changed what on a question and when
 
 import prisma from "@/lib/prisma";

@@ -1,4 +1,4 @@
-// ExamForge — SlothPageHeader RSC render tests
+// OpenSloth — SlothPageHeader RSC render tests
 // Node environment (repo choice): renderToStaticMarkup, no jsdom/RTL.
 
 import { describe, it, expect } from "vitest";

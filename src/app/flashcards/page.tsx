@@ -1,4 +1,4 @@
-// ExamForge — Flashcards Home Page
+// OpenSloth — Flashcards Home Page
 // Server component: auth guard + fetch decks, render FlashcardDeckList
 // Wraps content in Suspense boundary and ErrorBoundary with Sloth theme
 
@@ -18,7 +18,6 @@ async function FlashcardsContent() {
   }
 
   const decks = await prisma.flashcardDeck.findMany({
-    where: { createdById: session.user.id },
     orderBy: { createdAt: "desc" },
     include: {
       flashcards: {
@@ -66,7 +65,7 @@ function FlashcardsLoadingSkeleton() {
 
 export default function FlashcardsPage() {
   return (
-    <div className="min-h-screen bg-[#FAF6F0] text-[#2B1E19] font-sans p-6 md:p-10 space-y-8">
+    <div className="min-h-screen bg-background text-[#2B1E19] font-sans p-6 md:p-10 space-y-8">
       {/* Header */}
       <SlothPageHeader
         badge="Cambridge B2 · Vocabulario"

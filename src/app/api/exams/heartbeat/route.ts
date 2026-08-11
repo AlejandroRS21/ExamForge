@@ -1,4 +1,4 @@
-// ExamForge — Timer Heartbeat API
+// OpenSloth — Timer Heartbeat API
 // EE-05: Timer SHALL continue counting if tab loses focus (server-authoritative)
 // EE-04: Mock mode SHALL auto-submit when timer reaches 0:00
 // POST /api/exams/heartbeat — decrement remaining, return version, trigger auto-complete

@@ -1,4 +1,4 @@
-// ExamForge — Question Bank API
+// OpenSloth — Question Bank API
 // GET  /api/admin/questions  → List questions with filters
 // POST /api/admin/questions  → Create a new question
 

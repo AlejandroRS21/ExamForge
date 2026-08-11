@@ -1,4 +1,4 @@
-// ExamForge — Shared warm Sloth page header (RSC, default export)
+// OpenSloth — Shared warm Sloth page header (RSC, default export)
 // Wraps the recurring hero pattern used across exams / flashcards /
 // challenges / practice / auth: pill badge + h1 + subtitle + SlothMascot.
 //
@@ -47,7 +47,7 @@ export default function SlothPageHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="self-start md:self-auto inline-flex items-center gap-1.5 rounded-2xl border-2 border-amber-200 bg-[#FAF6F0] px-3.5 py-1.5 text-xs font-bold text-amber-950 shadow-[0_3px_0_0_#FDE68A] hover:bg-amber-50 active:translate-y-0.5 active:shadow-none transition-all"
+          className="self-start md:self-auto inline-flex items-center gap-1.5 rounded-2xl border-2 border-amber-200 bg-background px-3.5 py-1.5 text-xs font-bold text-amber-950 shadow-[0_3px_0_0_#FDE68A] hover:bg-amber-50 active:translate-y-0.5 active:shadow-none transition-all"
         >
           ← {backLabel}
         </Link>

@@ -1,4 +1,4 @@
-// ExamForge — production environment guard.
+// OpenSloth — production environment guard.
 // Fails fast at server boot when a critical variable is missing, instead of
 // letting the app start half-configured (silent 500s, mis-signed JWTs).
 // No-op outside production so local dev / CI builds keep working without

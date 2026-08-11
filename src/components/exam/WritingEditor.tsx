@@ -1,4 +1,4 @@
-// ExamForge — Writing Editor Component
+// OpenSloth — Writing Editor Component
 // EE-06: Writing tasks SHALL present a rich text area with character count
 // Rich text area with word count and auto-save
 
@@ -71,14 +71,14 @@ export function WritingEditor({
 
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error ?? "Save failed");
+          throw new Error(err.error ?? "Error al guardar");
         }
 
         setLastSaved(new Date());
         hasUnsavedRef.current = false;
         onSave?.(contentRef.current);
       } catch (err) {
-        setSaveError(err instanceof Error ? err.message : "Failed to save");
+        setSaveError(err instanceof Error ? err.message : "Error al guardar");
       } finally {
         setIsSaving(false);
       }
@@ -127,7 +127,7 @@ export function WritingEditor({
       {/* Prompt */}
       <div className="rounded-lg bg-muted/50 border p-4">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-          Writing Task
+          Tarea de redacción
         </h3>
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{promptText}</p>
       </div>
@@ -138,7 +138,7 @@ export function WritingEditor({
           value={content}
           onChange={(e) => handleChange(e.target.value)}
           disabled={disabled}
-          placeholder="Write your response here..."
+          placeholder="Escribe tu respuesta aquí..."
           rows={16}
           className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm leading-relaxed
             placeholder:text-muted-foreground/40
@@ -156,18 +156,18 @@ export function WritingEditor({
             <span className="font-medium tabular-nums">{wordCount}</span>
             <span className="mx-0.5">/</span>
             <span>{wordCountMax}</span>
-            <span className="ml-1">words</span>
+            <span className="ml-1">palabras</span>
           </span>
 
           {isUnderMin && (
             <span className="text-warning font-medium">
-              Min. {wordCountMin} words
+              Mín. {wordCountMin} palabras
             </span>
           )}
 
           {isOverMax && (
             <span className="text-destructive font-medium">
-              Over word limit!
+              ¡Superas el límite de palabras!
             </span>
           )}
         </div>
@@ -177,23 +177,23 @@ export function WritingEditor({
           {isSaving && (
             <span className="text-muted-foreground flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-              Saving...
+              Guardando...
             </span>
           )}
 
           {!isSaving && lastSaved && !hasUnsavedRef.current && (
             <span className="text-muted-foreground">
-              Saved {lastSaved.toLocaleTimeString()}
+              Guardado {lastSaved.toLocaleTimeString()}
             </span>
           )}
 
           {!isSaving && hasUnsavedRef.current && (
-            <span className="text-warning">Unsaved changes</span>
+            <span className="text-warning">Cambios sin guardar</span>
           )}
 
           {saveError && (
             <span className="text-destructive" title={saveError}>
-              Save failed
+              Error al guardar
             </span>
           )}
 
@@ -205,7 +205,7 @@ export function WritingEditor({
               hover:bg-primary/90 transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </div>

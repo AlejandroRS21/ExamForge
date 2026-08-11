@@ -1,9 +1,9 @@
-// ExamForge — FlashcardViewer Skeleton Loading State
+// OpenSloth — FlashcardViewer Skeleton Loading State
 // Shown while cards are being fetched
 
 export function FlashcardViewerSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse" role="status" aria-label="Loading flashcards">
+    <div className="space-y-6 animate-pulse" role="status" aria-label="Cargando tarjetas">
       {/* Progress skeleton */}
       <div className="flex items-center justify-between">
         <div className="h-4 w-24 rounded bg-muted" />
@@ -29,7 +29,7 @@ export function FlashcardViewerSkeleton() {
         ))}
       </div>
 
-      <span className="sr-only">Loading flashcard deck...</span>
+      <span className="sr-only">Cargando mazo de vocabulario...</span>
     </div>
   );
 }

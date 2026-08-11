@@ -1,4 +1,4 @@
-// ExamForge — Zod Schema Validation Tests
+// OpenSloth — Zod Schema Validation Tests
 // Tests that all new NotebookLM-related schemas accept valid input and reject invalid input
 
 import { describe, it, expect } from "vitest";

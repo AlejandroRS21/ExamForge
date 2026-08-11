@@ -1,4 +1,4 @@
-// ExamForge — Distributed & In-Memory Rate Limiter
+// OpenSloth — Distributed & In-Memory Rate Limiter
 // Uses Upstash Redis when UPSTASH_REDIS_REST_URL is configured.
 // Fallback: In-memory Map (dev/test/fallback).
 

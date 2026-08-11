@@ -1,4 +1,4 @@
-// ExamForge — Answer Submission API
+// OpenSloth — Answer Submission API
 // EE-03: Answers SHALL be persisted on every save action (incremental upsert)
 // POST /api/exams/submit — Zod validate → upsert Answer (attemptId+questionId unique)
 

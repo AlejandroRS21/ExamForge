@@ -1,4 +1,4 @@
-// ExamForge — SM-2 Spaced Repetition Algorithm (design contract)
+// OpenSloth — SM-2 Spaced Repetition Algorithm (design contract)
 // Canonical module for student flashcard review routing.
 //
 // Contract (design.md Interfaces/Contracts):

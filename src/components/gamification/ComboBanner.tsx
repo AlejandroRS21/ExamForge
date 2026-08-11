@@ -29,7 +29,7 @@ export function ComboBanner({ comboCount, multiplier }: ComboBannerProps) {
         scaleUp ? "scale-110" : "scale-100"
       }`}
       style={{
-        background: "linear-gradient(135deg, #FF6B35 0%, #FFB703 100%)",
+        background: "linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)",
       }}
     >
       <span className="text-xl">🔥</span>

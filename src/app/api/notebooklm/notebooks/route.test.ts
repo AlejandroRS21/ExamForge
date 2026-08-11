@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM notebooks route tests
+// OpenSloth — NotebookLM notebooks route tests
 // GET /api/notebooklm/notebooks → notebook list + auth health status
 
 import { describe, it, expect, vi, beforeEach } from "vitest";

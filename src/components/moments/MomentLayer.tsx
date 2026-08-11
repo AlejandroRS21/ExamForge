@@ -1,4 +1,4 @@
-// ExamForge — Moment Layer
+// OpenSloth — Moment Layer
 // Subscribes to the bus; renders one Celebration at a time (FIFO queue).
 
 "use client";

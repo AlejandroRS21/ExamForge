@@ -1,4 +1,4 @@
-// ExamForge — MomentLayer + Celebration: Pure unit tests (no testing-library)
+// OpenSloth — MomentLayer + Celebration: Pure unit tests (no testing-library)
 // Tests the bus subscription, aria-live content, and reduced-motion behavior
 // via direct logic inspection — no React renderer needed.
 

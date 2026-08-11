@@ -1,4 +1,4 @@
-// ExamForge — Moment Engine Copy API Route
+// OpenSloth — Moment Engine Copy API Route
 // POST { eventType } → forwards to queryNotebook with 800ms timeout.
 // Returns { copy: string } on success, 204 on timeout/error.
 

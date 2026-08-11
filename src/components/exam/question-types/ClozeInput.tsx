@@ -1,4 +1,4 @@
-// ExamForge — Open Cloze Input Component (Duolingo Style)
+// OpenSloth — Open Cloze Input Component (Duolingo Style)
 // Modern "blank-as-box" text input for Cloze questions (Part 2) with micro-guidance
 
 "use client";

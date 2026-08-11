@@ -1,4 +1,4 @@
-// ExamForge — CSS-only FLIP Animation Hook
+// OpenSloth — CSS-only FLIP Animation Hook
 // Measures DOM rect before/after state changes and applies CSS transforms.
 // Respects prefers-reduced-motion by short-circuiting animation.
 

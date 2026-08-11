@@ -1,4 +1,4 @@
-// ExamForge — Mute Utility Tests
+// OpenSloth — Mute Utility Tests
 // Node environment: mock localStorage manually
 
 import { describe, it, expect, beforeEach } from "vitest";

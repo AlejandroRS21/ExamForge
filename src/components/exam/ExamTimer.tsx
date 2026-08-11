@@ -1,4 +1,4 @@
-// ExamForge — Server-Authoritative Timer Component
+// OpenSloth — Server-Authoritative Timer Component
 // EE-05: Timer SHALL continue counting if tab loses focus (server-authoritative)
 // Shows local countdown from last known value, syncs via heartbeat every 30s
 // Server drift > 5s → server time overrides client

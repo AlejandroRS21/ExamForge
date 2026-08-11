@@ -1,4 +1,4 @@
-// ExamForge — Key Word Transformation Component (Duolingo Style)
+// OpenSloth — Key Word Transformation Component (Duolingo Style)
 // Modernized textarea box for Key Word Transformation questions (Part 4) with explicit instruction
 
 "use client";

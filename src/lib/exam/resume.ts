@@ -1,4 +1,4 @@
-// ExamForge — Exam Session Restore
+// OpenSloth — Exam Session Restore
 // EE-08: On session restore, in-progress attempt SHALL resume at the last saved state
 // EE-06: Network interruption SHALL NOT lose answers beyond the last save
 

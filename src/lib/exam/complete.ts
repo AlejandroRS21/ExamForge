@@ -1,4 +1,4 @@
-// ExamForge — Exam Completion & Auto-Submit
+// OpenSloth — Exam Completion & Auto-Submit
 // EE-04: Mock mode SHALL auto-submit when timer reaches 0:00
 // SE-05: Partial answers (unfinished exam) SHALL NOT be scored
 // CH-02: Achievements SHALL be awarded automatically when criteria are met

@@ -1,4 +1,4 @@
-// ExamForge — In-Context Frame Component
+// OpenSloth — In-Context Frame Component
 // Renders question prompt text with clean inline embedded answer inputs and stripped residual underscores
 
 "use client";

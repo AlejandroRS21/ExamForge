@@ -1,4 +1,4 @@
-// ExamForge — Flashcard Deck Review Page
+// OpenSloth — Flashcard Deck Review Page
 // Server component: auth guard, fetch deck + due cards, render FlashcardViewer
 // Wraps content in Suspense boundary and ErrorBoundary for resilience
 

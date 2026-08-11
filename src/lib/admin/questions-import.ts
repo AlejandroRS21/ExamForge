@@ -1,4 +1,4 @@
-// ExamForge — CSV Question Import Parser & Validator
+// OpenSloth — CSV Question Import Parser & Validator
 // Parses Cambridge B2 First questions from CSV format and validates against schema
 
 import type { QuestionType, QuestionDifficulty, QuestionStatus } from "@/generated/prisma/client";
@@ -211,7 +211,7 @@ export async function importQuestionsFromCSV(csvText: string): Promise<ImportRes
         examPartId: row.examPartId,
         type: row.type,
         prompt: row.prompt,
-        options: row.options ? JSON.stringify(row.options) : Prisma.DbNull,
+        options: row.options ? (row.options as Prisma.InputJsonValue) : Prisma.DbNull,
         correctAnswer: row.correctAnswer,
         difficulty: row.difficulty,
         skillsTested: row.skillsTested || [],

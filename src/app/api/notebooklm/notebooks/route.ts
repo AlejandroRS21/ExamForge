@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Notebooks List API
+// OpenSloth — NotebookLM Notebooks List API
 // GET /api/notebooklm/notebooks → List all notebooks from the user's
 // NotebookLM account plus current auth health status (spec: admin-content-manager
 // "View notebook list and status").

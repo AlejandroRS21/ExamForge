@@ -1,4 +1,4 @@
-// ExamForge — Flashcard Deck List API
+// OpenSloth — Flashcard Deck List API
 // GET /api/flashcards/decks → List all decks visible to the user
 
 import { NextResponse } from "next/server";

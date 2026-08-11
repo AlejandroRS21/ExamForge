@@ -1,4 +1,4 @@
-// ExamForge — Paper-Level Breakdown
+// OpenSloth — Paper-Level Breakdown
 // Neuroinclusive UI adoption: the Dashboard "Progress by paper" chart groups
 // the existing per-part `partBreakdown` data by its real `paper` field
 // (e.g. "R&UoE", "Writing" — see prisma/schema.prisma ExamPart.paper) rather

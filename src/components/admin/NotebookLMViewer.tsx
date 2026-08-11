@@ -1,4 +1,4 @@
-// ExamForge — NotebookLM Browser (Client Component)
+// OpenSloth — NotebookLM Browser (Client Component)
 // Wrapper that manages shared state between notebook browser and source list
 
 "use client";

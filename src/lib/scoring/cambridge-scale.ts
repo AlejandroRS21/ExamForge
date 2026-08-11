@@ -1,4 +1,4 @@
-// ExamForge — Cambridge English Scale Lookup
+// OpenSloth — Cambridge English Scale Lookup
 // SE-02: Raw marks SHALL map to Cambridge English Scale (120–190) via level-specific lookup table
 // SE-04: All scoring results SHALL display a disclaimer
 //
@@ -11,7 +11,7 @@
  * SE-04: "Estimated score — not an official Cambridge result"
  */
 export const SCORE_DISCLAIMER =
-  "This is an estimated score. Not an official Cambridge Assessment result.";
+  "Esta es una puntuación estimada. No es un resultado oficial de Cambridge Assessment.";
 
 /**
  * B2 First Reading & Use of English scale mapping.

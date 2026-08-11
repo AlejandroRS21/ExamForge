@@ -1,4 +1,4 @@
-// ExamForge — Part Navigation Sidebar
+// OpenSloth — Part Navigation Sidebar
 // EE-02: Part-based navigation SHALL allow jumping between completed questions
 // Shows all parts in the exam, indicating current, completed, and upcoming status
 

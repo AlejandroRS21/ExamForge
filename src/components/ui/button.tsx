@@ -1,4 +1,4 @@
-// ExamForge — shadcn/ui Button component
+// OpenSloth — shadcn/ui Button component
 
 import * as React from "react";
 

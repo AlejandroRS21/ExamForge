@@ -1,4 +1,4 @@
-// ExamForge — Celebration Overlay Component
+// OpenSloth — Celebration Overlay Component
 // SVG burst + copy card + aria-live. Respects prefers-reduced-motion.
 
 "use client";

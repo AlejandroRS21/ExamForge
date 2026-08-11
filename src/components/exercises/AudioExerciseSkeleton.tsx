@@ -1,4 +1,4 @@
-// ExamForge — AudioExercise Skeleton Loading State
+// OpenSloth — AudioExercise Skeleton Loading State
 // Shown while audio exercise data is being fetched
 
 export function AudioExerciseSkeleton() {

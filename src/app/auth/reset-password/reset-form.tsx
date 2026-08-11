@@ -1,4 +1,4 @@
-// ExamForge — Reset Password Form
+// OpenSloth — Reset Password Form
 // C1: Client component wrapped in Suspense
 
 "use client";

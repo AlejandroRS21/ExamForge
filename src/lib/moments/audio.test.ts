@@ -1,4 +1,4 @@
-// ExamForge — Audio Chime Tests
+// OpenSloth — Audio Chime Tests
 // Node environment with mocked globals
 
 import { describe, it, expect, vi, beforeEach } from "vitest";

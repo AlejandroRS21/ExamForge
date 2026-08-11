@@ -1,4 +1,4 @@
-// ExamForge — Writing Evaluation & Rubric Scoring
+// OpenSloth — Writing Evaluation & Rubric Scoring
 // SE-03: Writing SHALL use a 4-criterion rubric: Content, CA, Organisation, Language (0-5 each)
 // SE-06: Writing rubric MAY use AI to generate criterion-level feedback with scores
 //

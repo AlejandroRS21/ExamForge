@@ -99,7 +99,7 @@ export function SlothMascot({ pose = "happy", size = 180, className = "" }: Slot
             {/* Holding a tiny book */}
             <path d="M60 115 C75 125, 85 130, 95 130" stroke="#A67C52" strokeWidth="12" strokeLinecap="round" />
             <path d="M140 115 C125 125, 115 130, 105 130" stroke="#A67C52" strokeWidth="12" strokeLinecap="round" />
-            <rect x="82" y="120" width="36" height="24" rx="3" fill="#FF6B35" stroke="#FFFFFF" strokeWidth="2" />
+            <rect x="82" y="120" width="36" height="24" rx="3" fill="var(--primary)" stroke="#FFFFFF" strokeWidth="2" />
             <line x1="100" y1="120" x2="100" y2="144" stroke="#FFFFFF" strokeWidth="2" />
           </>
         ) : (

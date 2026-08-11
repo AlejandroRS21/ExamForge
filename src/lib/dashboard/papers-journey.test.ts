@@ -1,4 +1,4 @@
-// ExamForge — Papers Journey Tests
+// OpenSloth — Papers Journey Tests
 // Neuroinclusive UI adoption: "Readiness Journey" Dashboard mockup shows a
 // horizontal node per real exam paper. This app's data model only has 2 real
 // papers ("R&UoE", "Writing" — see prisma/schema.prisma ExamPart.paper), so

@@ -1,4 +1,4 @@
-// ExamForge — Exam Part Configuration Management
+// OpenSloth — Exam Part Configuration Management
 // T-803: Admin parts — manage B2 First exam structure
 
 import prisma from "@/lib/prisma";

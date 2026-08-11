@@ -1,4 +1,4 @@
-// ExamForge — Admin User Management
+// OpenSloth — Admin User Management
 // T-804: List users, view activity, admin role assignment
 
 import prisma from "@/lib/prisma";

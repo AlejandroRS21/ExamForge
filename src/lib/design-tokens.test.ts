@@ -1,4 +1,4 @@
-// ExamForge — Neuroinclusive Design Token Tests
+// OpenSloth — Neuroinclusive Design Token Tests
 // Verifies WCAG AA contrast for the soft blue/green palette + status tokens,
 // and that the Tailwind v4 token wiring in globals.css is real (no dead tokens).
 // No jsdom/RTL by design decision — pure token-string + math assertions only.
@@ -263,10 +263,11 @@ describe("palette hue ranges", () => {
     expect(h).toBeLessThanOrEqual(50);
   });
 
-  it("dark primary hue falls within 200-220", () => {
+  it("dark primary hue falls within 30-50 — same warm orange identity as light (P-T-2)", () => {
     const { h } = parseOklch(darkPalette.primary);
-    expect(h).toBeGreaterThanOrEqual(200);
-    expect(h).toBeLessThanOrEqual(220);
+    expect(h).toBeGreaterThanOrEqual(30);
+    expect(h).toBeLessThanOrEqual(50);
+    expect(h).toBe(parseOklch(lightPalette.primary).h);
   });
 
   it("light accent hue falls within 70-95 (honey gold)", () => {
@@ -391,7 +392,10 @@ describe("spacing/leading/width token adoption (PR3 — kills dead-token regress
   });
 
   it("LearnShell layout wires both the width and spacing tokens together", () => {
-    const layout = readFileSync(path.resolve(__dirname, "../app/learn/layout.tsx"), "utf8");
+    const layout = readFileSync(
+      path.resolve(__dirname, "../app/(app)/learn/layout.tsx"),
+      "utf8"
+    );
     expect(layout).toContain("max-w-content");
     expect(layout).toContain("py-breathing");
   });

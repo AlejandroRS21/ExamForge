@@ -1,4 +1,4 @@
-// ExamForge — Next.js Proxy (renamed from middleware in Next 16)
+// OpenSloth — Next.js Proxy (renamed from middleware in Next 16)
 // Session guard + admin role check on /admin/*
 // Uses JWT-only auth (no Prisma dependency — safe for Edge Runtime)
 

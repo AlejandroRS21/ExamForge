@@ -1,4 +1,4 @@
-// ExamForge — Anonymous Session System
+// OpenSloth — Anonymous Session System
 // Encrypted cookie-based anonymous sessions
 // Auto-creates on first visit, persists across page loads
 

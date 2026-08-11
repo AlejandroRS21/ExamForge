@@ -1,4 +1,4 @@
-// ExamForge — Prisma client singleton
+// OpenSloth — Prisma client singleton
 // Server-only module — never import this in client components
 // Uses Neon serverless adapter when connecting to Neon (edge-compatible)
 // Uses @prisma/adapter-pg for local PostgreSQL (Docker)

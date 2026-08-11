@@ -1,4 +1,4 @@
-// ExamForge — Multiple Choice Question Component (Duolingo Style)
+// OpenSloth — Multiple Choice Question Component (Duolingo Style)
 // 2x2 Grid with AnswerTile primitives, roving keyboard focus, and aria-live announcements
 
 "use client";

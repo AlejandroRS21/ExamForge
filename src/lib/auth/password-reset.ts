@@ -1,4 +1,4 @@
-// ExamForge — Password Reset Utilities
+// OpenSloth — Password Reset Utilities
 // C1: Password recovery flow — generate, validate, and consume reset tokens
 // MVP simulates email by logging the reset URL to console
 

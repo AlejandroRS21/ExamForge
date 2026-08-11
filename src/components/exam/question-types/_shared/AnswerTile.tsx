@@ -1,4 +1,4 @@
-// ExamForge — Answer Tile Primitive Component
+// OpenSloth — Answer Tile Primitive Component
 // Tactile interactive tile for MC, GT, MM inputs with keyboard & animation support
 
 "use client";

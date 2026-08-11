@@ -1,4 +1,4 @@
-// ExamForge — Accuracy Over Time Line Chart
+// OpenSloth — Accuracy Over Time Line Chart
 // T-702: Recharts line chart showing accuracy over time
 
 "use client";

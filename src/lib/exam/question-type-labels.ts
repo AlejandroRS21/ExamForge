@@ -1,4 +1,4 @@
-// ExamForge — Question Type Kicker Labels
+// OpenSloth — Question Type Kicker Labels
 // Neuroinclusive UI adoption: real, uppercase human labels for each
 // `QuestionType` enum value (see prisma/schema.prisma), used as the
 // ExamPractice "PromptKicker" (e.g. "WORD FORMATION").

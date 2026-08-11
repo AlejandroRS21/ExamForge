@@ -1,4 +1,4 @@
-// ExamForge — Cambridge Scale Tests
+// OpenSloth — Cambridge Scale Tests
 // T-806: Vitest smoke tests for scale estimation
 
 import { describe, it, expect } from "vitest";
@@ -62,9 +62,9 @@ describe("getScaleGrade", () => {
 });
 
 describe("SCORE_DISCLAIMER", () => {
-  it("contains required disclaimer text", () => {
-    expect(SCORE_DISCLAIMER).toContain("estimated");
-    expect(SCORE_DISCLAIMER).toContain("official");
+  it("contains required disclaimer text (B-L-2 Spanish copy)", () => {
+    expect(SCORE_DISCLAIMER).toContain("estimada");
+    expect(SCORE_DISCLAIMER).toContain("oficial");
     expect(SCORE_DISCLAIMER).toContain("Cambridge");
   });
 });

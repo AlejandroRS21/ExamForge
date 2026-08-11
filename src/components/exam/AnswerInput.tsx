@@ -1,4 +1,4 @@
-// ExamForge — Answer Input Resolver
+// OpenSloth — Answer Input Resolver
 // Routes to the correct question type component based on question.type
 
 "use client";

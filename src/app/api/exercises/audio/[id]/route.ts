@@ -1,4 +1,4 @@
-// ExamForge — Audio Exercise Detail API
+// OpenSloth — Audio Exercise Detail API
 // GET /api/exercises/audio/[id] → Return audio blob + questions JSON
 // Serves the audio data with correct Content-Type and Accept-Ranges for seeking support
 
